@@ -1,0 +1,62 @@
+
+    :root {
+        --sidebar-width: 0px;
+        --nav-height: 75px;
+    }
+
+    body {
+        background: #f8f9fa;
+       
+    }
+
+
+    .main-content {
+        margin-left: 0;
+        margin-top: var(--nav-height);
+        padding: 30px;
+        min-height: calc(100vh - var(--nav-height));
+    }
+
+    .card-custom {
+        border-radius: 15px;
+        
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .modal-xl {
+        max-width: 95%;
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(45deg, #0d6efd, #0043a8);
+    }
+
+    .bg-gradient-warning {
+        background: linear-gradient(45deg, #ffc107, #ff9800);
+    }
+
+    .item-row {
+        transition: all 0.2s;
+        border-radius: 8px;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .item-row:hover {
+        background-color: #f8f9ff;
+    }
+
+    /* Estilo para resaltar faltantes */
+    .input-faltante:enabled {
+        border-color: #dc3545;
+        color: #dc3545;
+        font-weight: bold;
+    }
+    
+
+    @media (max-width: 768px) {
+        .main-content {
+            margin-left: 0;
+        }
+    }
+  

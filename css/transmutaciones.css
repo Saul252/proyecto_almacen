@@ -1,0 +1,133 @@
+
+        :root {
+            --sidebar-width: 0px;
+            --navbar-height: 70px;
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+            --bg-body: #f8f9fc;
+            --card-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        body { 
+         
+            font-family: 'Inter', sans-serif;
+          
+        }
+
+        .main-content { 
+            margin-left: 0; 
+            padding: 30px; 
+           
+            transition: all 0.3s;
+        }
+
+        /* Títulos y Header */
+        .page-header {
+           
+            padding: 20px 25px;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .page-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+           
+        }
+
+        /* Cards Estilizadas */
+        .card-custom {
+            
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 25px;
+            overflow: hidden;
+            
+        }
+
+        .card-header-custom {
+            
+            border-bottom: 1px solid #edf2f7;
+            padding: 18px 25px;
+        }
+
+        /* Formulario de Transmutación */
+        .section-box {
+            padding: 20px;
+            border-radius: 12px;
+            height: 100%;
+        }
+        
+        .box-origen {  border: 1px solid #fed7d7; }
+        .box-destino {  border: 1px solid #c6f6d5; }
+        
+        .section-title {
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .conversion-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e0;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-select, .form-control {
+            border-radius: 10px;
+            padding: 10px 15px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+
+        .form-select:focus, .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+        }
+
+        /* Tabla Estilizada */
+        .table thead th {
+            background-color: #f8f9fc;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            color: #718096;
+            border-top: none;
+            padding: 15px;
+        }
+
+        .table tbody td {
+            padding: 15px;
+            vertical-align: middle;
+            font-size: 0.9rem;
+        }
+
+        /* Botones */
+        .btn-primary { background-color: var(--primary-color);  padding: 10px 25px; border-radius: 10px; font-weight: 600; }
+        .btn-primary:hover { background-color: var(--secondary-color); transform: translateY(-1px); }
+        .btn-dark { border-radius: 10px; padding: 8px 20px; }
+
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; padding: 15px; padding-top: 100px; }
+            .conversion-arrow { padding: 20px 0; transform: rotate(90deg); }
+        }
+  

@@ -1,0 +1,43 @@
+
+        .modal { overflow-y: auto !important; }
+        #modalCategoria { background: rgba(0, 0, 0, 0.5); }
+        /* Contenedor Principal */
+.main-content {
+    /* Ajusta esto al ancho de tu Sidebar */
+    padding: 2rem;
+    width: calc(100% - 0px); 
+    min-height: 100vh;
+    transition: all 0.3s;
+    overflow-x: hidden; /* Evita el scroll horizontal */
+}
+
+/* Si tu sidebar se oculta en móviles */
+@media (max-width: 992px) {
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 1rem;
+    }
+}
+
+/* Estilo para las Cards de KPI (Para que no se amontonen) */
+.card-kpi {
+    
+    transition: transform 0.2s ease;
+}
+
+/* La tabla debe ser responsiva sí o sí */
+.table-responsive {
+    border-radius: 12px;
+    background: white;
+    padding: 10px;
+    border: 1px solid #eef2f7;
+}
+
+/* Ajuste de inputs para que no se vean gigantes */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #dce1e7;
+    padding: 0.6rem 0.75rem;
+}
+    

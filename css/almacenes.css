@@ -1,0 +1,158 @@
+ body {
+        background: #f4f6f9;
+    }
+
+    .main-content {
+       
+        padding: 30px;
+    }
+
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+    }
+
+    .tabla-scroll {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .badge-stock {
+        font-size: .85rem;
+        padding: 6px 10px;
+    }
+    .sticky-header th{
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #212529; /* mismo color que table-dark */
+}
+/* Ajuste para que el contenido no se meta debajo del sidebar */
+.main-content {
+    /* Ajusta este valor al ancho real de tu sidebar */
+    padding: 25px;
+    min-height: 100vh;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa; /* Un gris muy claro para diferenciar el fondo */
+}
+
+/* Ajuste para pantallas pequeñas (Celulares) */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        padding: 15px;
+    }
+}
+/* El Sidebar suele tener z-index alto, vamos a superarlo */
+/* MODALES: Forzamos a que estén por encima de Navbar y Sidebar */
+.modal { 
+    z-index: 1060 !important; 
+}
+
+    /* El modal de categoría debe estar por encima de todo (Bootstrap usa 1055 por defecto) */
+    #modalNuevaCategoria {
+        z-index: 1070 !important;
+    }
+
+    /* El fondo oscuro (backdrop) del segundo modal también debe subir de nivel */
+    #modalNuevaCategoria.modal.show~.modal-backdrop {
+        z-index: 1065 !important;
+    }
+
+    /* Evitar que el primer modal pierda el scroll si el segundo es muy largo */
+    .modal {
+        overflow-y: auto !important;
+    }
+     /* Contenedor mini para la esquina superior */
+    .ios-mini-container {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        padding: 10px;
+    }
+
+    .ios-micro-card {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid rgba(0,0,0,0.04);
+        padding: 8px 12px;
+        min-width: 110px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ios-micro-label { 
+        color: #8e8e93; 
+        font-size: 0.6rem; 
+        font-weight: 700; 
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .ios-micro-value { 
+        color: #1c1c1e; 
+        font-size: 1.1rem; 
+        font-weight: 700; 
+        letter-spacing: -0.02em;
+        line-height: 1;
+    }
+
+    .ios-micro-footer {
+        font-size: 0.65rem;
+        color: #aeaeb2;
+        margin-top: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100px;
+    }
+
+    /* Colores de acento sutiles en el borde izquierdo */
+    .border-blue { border-left: 3px solid #007aff; }
+    .border-purple { border-left: 3px solid #5856d6; }
+    .border-green { border-left: 3px solid #34c759; }
+
+    /* Estilos ultra-finos para no afectar el main-content */
+    .ios-micro-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid rgba(0,0,0,0.05);
+        padding: 5px 10px;
+        min-width: 90px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .ios-micro-label { 
+        color: #8e8e93; 
+        font-size: 0.55rem; 
+        font-weight: 700; 
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        line-height: 1.2;
+    }
+    .ios-micro-value { 
+        color: #1c1c1e; 
+        font-size: 1rem; 
+        font-weight: 700; 
+        letter-spacing: -0.02em;
+        line-height: 1;
+        margin-top: 2px;
+    }
+    .ios-micro-footer {
+        font-size: 0.6rem;
+        color: #aeaeb2;
+        margin-top: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .border-blue { border-left: 3px solid #007aff; }
+    .border-purple { border-left: 3px solid #5856d6; }
+    .border-green { border-left: 3px solid #34c759; }
+
+    

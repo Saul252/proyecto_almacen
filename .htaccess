@@ -1,0 +1,78 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /myvet/
+
+    # Desactivar navegación por carpetas
+    Options -Indexes
+
+    # Permitir acceso directo a archivos físicos existentes (CSS, JS, imágenes, etc.)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # --- VENTAS Y CLIENTES ---
+    RewriteRule ^ventas/?$ app/controllers/ventasController.php [QSA,L]
+    RewriteRule ^remisiones/?$ app/controllers/requisicionesController.php [QSA,L]
+    RewriteRule ^cajaRapida/?$ app/controllers/cajaRapidaController.php [QSA,L]
+    RewriteRule ^cotizaciones/?$ app/controllers/cotizacionesController.php [QSA,L]
+    RewriteRule ^clientes/?$ app/controllers/clientesController.php [QSA,L]
+    RewriteRule ^misPacientesDental/?$ app/controllers/clientesPacientesDental.php [QSA,L]
+    RewriteRule ^misPacientesMedicina/?$ app/controllers/clientesPacientesMedicina.php [QSA,L]
+    RewriteRule ^clientesEstatus/?$ app/controllers/clientesEstatusController.php [QSA,L]
+    RewriteRule ^ventasVendedor/?$ app/controllers/historialPedidosVendedorController.php [QSA,L]
+    RewriteRule ^historialPagos/?$ app/controllers/historialPagosController.php [QSA,L]
+    RewriteRule ^ventashistorial/?$ app/controllers/ventasHistorialController.php [QSA,L]
+    RewriteRule ^comprobantes/?$ app/controllers/comprobantesPagoController.php [QSA,L]
+    RewriteRule ^registrarPagos/?$ app/controllers/registrarPagosController.php [QSA,L]
+
+    # --- COMPRAS Y PROVEEDORES ---
+    RewriteRule ^inicio/?$ app/views/inicio.php [QSA,L]
+    
+    RewriteRule ^compras/?$ app/controllers/egresosController.php [QSA,L]
+    RewriteRule ^proveedores/?$ app/controllers/proveedoresController.php [QSA,L]
+    RewriteRule ^solicitudesCompra/?$ app/controllers/solicitudesCompraController.php [QSA,L]
+
+    # --- INVENTARIO Y ALMACÉN ---
+    RewriteRule ^almacenes/?$ app/controllers/almacenes.php [QSA,L]
+    RewriteRule ^movimientos/?$ app/controllers/movimientosController.php [QSA,L]
+    RewriteRule ^Mermas/?$ app/controllers/mermasController.php [QSA,L]
+    RewriteRule ^transmutaciones/?$ app/controllers/transmutacionesController.php [QSA,L]
+    RewriteRule ^historialLotes/?$ app/controllers/lotesHistorialController.php [QSA,L]
+    RewriteRule ^comprasHistorial/?$ app/controllers/comprasHistorialController.php [QSA,L]
+
+    # --- FINANZAS Y TESORERÍA ---
+    RewriteRule ^finanzas/?$ app/controllers/finanzasController.php [QSA,L]
+    RewriteRule ^finanzas_admin/?$ app/controllers/finanzasAdmController.php [QSA,L]
+    RewriteRule ^corteCaja/?$ app/controllers/corteCajaController.php [QSA,L]
+    RewriteRule ^tesoreria/?$ app/controllers/tesoreriaController.php [QSA,L]
+
+    # --- ATENCIÓN MÉDICA ---
+    RewriteRule ^pacientes/?$ app/controllers/pacientesController.php [QSA,L]
+    RewriteRule ^expedientes/?$ app/controllers/historialExpedienteController.php [QSA,L]
+    RewriteRule ^consultas/?$ app/controllers/consultaController.php [QSA,L]
+    RewriteRule ^consultaDental/?$ app/controllers/consultaDentalController.php [QSA,L] 
+    RewriteRule ^consultaMedica/?$ app/controllers/consultaMedicaController.php [QSA,L]
+    RewriteRule ^citasDentales/?$ app/controllers/citasController.php [QSA,L]
+    RewriteRule ^citasMedicas/?$ app/controllers/citasMedicasController.php [QSA,L]
+    RewriteRule ^expedienteMedico/?$ app/controllers/consultaHIstorialClienteController.php [QSA,L]
+
+    # --- LOGÍSTICA Y DISTRIBUCIÓN ---
+    RewriteRule ^entregas/?$ app/controllers/entregasController.php [QSA,L]
+    RewriteRule ^vehiculos/?$ app/controllers/vehiculosController.php [QSA,L]
+    RewriteRule ^verificaciones/?$ app/controllers/verificacionesController.php [QSA,L]
+    RewriteRule ^mantenimientos/?$ app/controllers/mantenimientosController.php [QSA,L]
+    RewriteRule ^repartos/?$ app/controllers/repartosController.php [QSA,L]
+    RewriteRule ^misRepartos/?$ app/controllers/misRepartosController.php [QSA,L]
+    RewriteRule ^viajesTrabajadores/?$ app/controllers/viajesTrabajadoresController.php [QSA,L]
+
+    # --- RECURSOS HUMANOS ---
+    RewriteRule ^trabajadores/?$ app/controllers/trabajadoresController.php [QSA,L]
+    RewriteRule ^nomina/?$ app/controllers/nominaController.php [QSA,L]
+    RewriteRule ^prestamos/?$ app/controllers/prestamosController.php [QSA,L]
+    RewriteRule ^faltas/?$ app/controllers/faltasController.php [QSA,L]
+    RewriteRule ^pagos_viajes/?$ app/controllers/pagos_viajesController.php [QSA,L]
+    RewriteRule ^vacaciones/?$ app/controllers/vacacionesController.php [QSA,L]
+
+    # --- ADMINISTRACIÓN ---
+    RewriteRule ^usuarios/?$ app/controllers/usuariosController.php [QSA,L]
+    RewriteRule ^miAcceso/?$ app/controllers/miAccesoController.php [QSA,L]
+</IfModule>

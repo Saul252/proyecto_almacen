@@ -1,0 +1,253 @@
+
+:root { 
+    --nav-height: 65px; 
+    --sidebar-width: 0px;
+    
+    /* PALETA MODO CLARO (Vidrio Ahumado / Aero Glass Suave) */
+    --negro-delicado: #1e293b; 
+    --azul-clarito-bg: rgba(37, 99, 235, 0.12); 
+    --azul-enlace-active: #2563eb;
+    --borde-suave: rgba(0, 0, 0, 0.12);
+    --borde-cristal-humo: rgba(255, 255, 255, 0.18);
+
+    --navbar-dark: linear-gradient(
+        180deg, 
+        rgba(255, 255, 255, 0.72) 0%, 
+        rgba(245, 245, 247, 0.65) 100%
+    );
+
+    --sidebar-bg: rgba(255, 255, 255, 0.85);
+    --sidebar-hover-bg: rgba(37, 99, 235, 0.1);
+    --sidebar-hover-text: #1e293b;
+    --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+    --icono: rgb(19, 70, 165);
+
+    /* Dropdown Glassmorphism */
+    --dropdown-bg: rgba(255, 248, 248, 0.895);
+    --dropdown-text: #0f172a;
+    --dropdown-hover-bg: rgba(37, 99, 235, 0.12);
+    --dropdown-hover-text: #2563eb;
+
+    --main-bg: linear-gradient(135deg, #091d3028, #e2e8f0, #cbd5e1) !important;
+}
+
+/* PALETA MODO OSCURO (Vidrio Ahumado Profundo / Dark Aero) */
+[data-bs-theme="dark"] {
+    --negro-delicado: #f8fafc; 
+    --azul-clarito-bg: rgba(59, 130, 246, 0.2); 
+    --azul-enlace-active: #60a5fa;
+    --borde-suave: rgba(255, 255, 255, 0.12);
+    --borde-cristal-humo: rgba(255, 255, 255, 0.15);
+
+    --navbar-dark: linear-gradient(
+        135deg, 
+        rgba(0, 0, 0, 0.85), 
+        rgba(15, 15, 18, 0.80), 
+        rgba(5, 8, 12, 0.90)
+    );
+
+    --sidebar-bg: rgba(15, 23, 42, 0.85);
+    --sidebar-hover-bg: rgba(255, 255, 255, 0.1);
+    --sidebar-hover-text: #ffffff;
+    --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+
+    /* Dropdown Glassmorphism Oscuro */
+    --dropdown-bg: rgba(15, 23, 42, 0.88);
+    --dropdown-text: #f8fafc;
+    --dropdown-hover-bg: rgba(59, 130, 246, 0.25);
+    --dropdown-hover-text: #60a5fa;
+
+    --main-bg: linear-gradient(135deg, #0f172a, #020617) !important;
+}
+.acceso{
+    color:var( --dropdown-text);
+}
+.icono{
+ color:var(--icono)!important;
+}
+/* --- NAVBAR PREMIUM & EFECTO CRISTAL --- */
+.navbar-premium { 
+    background: var(--navbar-dark) !important; 
+    height: var(--nav-height); 
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1050;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 0 0 rgba(255, 255, 255, 0.15) !important;
+    padding: 0 1rem;
+    backdrop-filter: blur(14px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
+    border-bottom: 1px solid var(--borde-cristal-humo) !important;
+    transition: all 0.3s ease;
+}
+
+.navbar-premium .nav-link:hover,
+.navbar-premium .btn-link:hover,
+.navbar-premium .dropdown-toggle:hover {
+    transform: translateY(-1px);
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+}
+
+.user-badge {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.user-badge:hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    transform: scale(1.02);
+}
+
+/* --- DROPDOWNS CRISTAL & HOVER CORREGIDO --- */
+.dropdown-menu {
+    background: var(--dropdown-bg) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    border: 1px solid var(--borde-cristal-humo) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    padding: 6px !important;
+}
+
+.dropdown-item {
+    color: var(--dropdown-text) !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    transition: all 0.2s ease-in-out !important;
+    background-color: transparent !important;
+}
+
+/* Solución del bloqueo en Hover de Dropdown */
+.dropdown-item:hover, 
+.dropdown-item:focus,
+.dropdown-item:active {
+    background-color: var(--dropdown-hover-bg) !important;
+    color: var(--dropdown-hover-text) !important;
+    transform: translateX(3px);
+}
+
+/* --- SIDEBAR CORREGIDO --- */
+#sidebar { 
+    width: 0; 
+    height: 100vh;
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    padding-top: var(--nav-height);
+    background: var(--sidebar-bg) !important;
+    backdrop-filter: blur(14px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
+    border-right: 1px solid var(--borde-suave) !important; 
+    transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); 
+    z-index: 1040; 
+    overflow-y: auto;
+    padding-bottom: 100px !important; 
+}
+
+#sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+#sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+#sidebar::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 10px;
+}
+
+/* LINKS DEL SIDEBAR */
+#sidebar .nav-link {
+    color: var(--negro-delicado) !important;
+    font-weight: 500;
+    font-size: 0.92rem;
+    padding: 10px 16px;
+    margin: 4px 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+
+#sidebar .nav-link i {
+    font-size: 1.15rem;
+}
+
+#sidebar .nav-link:hover {
+    background-color: var(--sidebar-hover-bg) !important;
+    color: var(--sidebar-hover-text) !important;
+}
+
+#sidebar .nav-link.active {
+    background-color: var(--azul-clarito-bg) !important;
+    color: var(--azul-enlace-active) !important;
+}
+
+#sidebar .nav-link.active i {
+    color: var(--azul-enlace-active) !important;
+}
+
+/* --- CONTENIDO PRINCIPAL --- */
+.main-content { 
+   
+    padding-top: 80px !important; 
+    padding-left: 20px;
+    padding-right: 20px;
+    transition: all .3s ease;
+    min-height: 100vh;
+    background-color: var(--main-bg);
+}
+
+/* --- RESPONSIVIDAD (MÓVIL) --- */
+@media (max-width: 992px) {
+    #sidebar {
+        left: calc(-1 * var(--sidebar-width));
+        top: 0;
+        padding-top: 20px;
+    }
+
+    #sidebar.show {
+        left: 0;
+        box-shadow: 10px 0 30px rgba(0,0,0,0.3);
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(3px);
+        z-index: 1035;
+        display: none;
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+    }
+}
+/* Adaptación global de SweetAlert2 al modo claro/oscuro de Bootstrap */
+[data-bs-theme="dark"] .swal2-popup {
+    background-color: var(--bs-body-bg) !important;
+    color: var(--bs-body-color) !important;
+}
+
+[data-bs-theme="dark"] .swal2-title,
+[data-bs-theme="dark"] .swal2-content,
+[data-bs-theme="dark"] .swal2-html-container {
+    color: var(--bs-body-color) !important;
+}
+
+/* Ajusta los fondos grises dentro de las alertas al modo oscuro */
+[data-bs-theme="dark"] .swal2-popup .bg-light,
+[data-bs-theme="dark"] .swal2-popup .bg-body-tertiary text-body {
+    background-color: var(--bs-tertiary-bg) !important;
+    color: var(--bs-body-color) !important;
+}
+/* Ocultar sidebar en escritorio */
+#sidebar.hidden { transform: translateX(-100%); }
+body.sidebar-hidden .main-content { margin-left: 0 !important; }

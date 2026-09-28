@@ -1,0 +1,69 @@
+/* Variables de color para Modo Claro (por defecto) */
+:root {
+    --card-modulo-bg: #ffffff;
+    --card-modulo-border: rgba(0, 0, 0, 0.08);
+    --card-modulo-shadow-hover: rgba(0, 0, 0, 0.1);
+    --card-modulo-title: #333333;
+    --notif-badge-border: #111827;
+}
+
+/* Sobrescritura de variables para Modo Oscuro */
+[data-bs-theme="dark"] {
+    --card-modulo-bg: #1e293b;
+    --card-modulo-border: #334155;
+    --card-modulo-shadow-hover: rgba(0, 0, 0, 0.4);
+    --card-modulo-title: #f1f5f9;
+    --notif-badge-border: #0f172a;
+}
+
+/* Clase base para todos los iconos de los módulos */
+.icono-modulo {
+    font-size: 2.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 70px;
+    width: 100%;
+    margin-bottom: 5px;
+    transition: transform 0.3s ease;
+}
+
+/* Colores específicos por módulo (se ven bien sobre claros y oscuros) */
+.icon-movimientos { color: #22c55e; } /* Verde vibrante */
+.icon-historial { color: #3b82f6; }   /* Azul accesibilidad */
+
+/* Estilos para la Card de Inicio */
+.card-modulo {
+    transition: all 0.3s ease;
+    border: 1px solid var(--card-modulo-border);
+    border-radius: 15px;
+    padding: 20px;
+    background: var(--card-modulo-bg);
+}
+
+.card-modulo:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px var(--card-modulo-shadow-hover);
+}
+ 
+.card-modulo h6 {
+    margin: 10px 0 0 0;
+    font-weight: 700;
+    color: var(--card-modulo-title);
+    transition: color 0.3s ease;
+}
+
+.navbar-premium .nav-link i {
+    color: white !important;
+}
+
+#sidebar {
+    z-index: 1040;
+}
+
+#notif-badge {
+    font-size: 0.65rem;
+    padding: 0.35em 0.5em;
+    border: 2px solid var(--notif-badge-border);
+    transition: border-color 0.3s ease;
+}

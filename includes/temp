@@ -1,0 +1,119 @@
+ <div class="p-3">
+        <h5 class="text-center mb-4">Menú</h5>
+/*!http://localhost/myvet/app/views/gestionar_permisos.php*/;
+        <?php if (!empty($_SESSION['rol'])): ?>
+        <div class="text-center small text-secondary mb-3">
+            Rol: <?= ucfirst($_SESSION['rol']) ?>
+        </div>
+        <?php endif; ?>
+
+        <ul class="nav nav-pills flex-column gap-1">
+
+            <?php if (puedeVerModulo('inicio')): ?>
+            <li class="nav-item">
+                <a href="/myvet/app/views/inicio.php"
+                    class="nav-link <?= $archivoActual == 'inicio.php' ? 'active' : '' ?>">
+                    <i class="bi bi-house-door"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <?php if (puedeVerModulo('ventas')): ?>
+            <li class="nav-item">
+                <a href="/myvet/app/controllers/ventasControllers.php"
+                    class="nav-link <?= $archivoActual == 'ventasController.php' ? 'active' : '' ?>">
+                    <i class="bi bi-cart-check"></i>
+                    <span>Ventas</span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+
+            <?php if (puedeVerModulo('almacenes')): ?>
+            <li class="nav-item"><a href="/myvet/app/views/almacenes.php"
+                    class="nav-link <?= ($archivoActual == 'almacenes.php' || $archivoActual == 'almacen.php') ? 'active' : '' ?>"><i
+                        class="bi bi-box-seam"></i><span>Almacén</span></a></li>
+            <?php endif; ?>
+            <?php if (puedeVerModulo('movimientos')): ?>
+            <li class="nav-item">
+                <a href="/myvet/app/views/movimientos.php"
+                    class="nav-link <?= $archivoActual == 'movimientos.php' ? 'active' : '' ?>">
+                    <i class="bi bi-arrow-left-right icono-modulo icon-movimientos"></i>
+                    <span>Movimientos</span>
+                </a>
+            </li>
+            <?php endif; ?>
+            <?php if (puedeVerModulo('ventashistorial')): ?>
+            <li class="nav-item">
+                <a href="/myvet/app/views/ventashistorial.php"
+                    class="nav-link d-flex align-items-center <?= $archivoActual == 'ventashistorial.php' ? 'active' : '' ?>">
+                    <i class="bi bi-receipt icono-modulo icon-movimientos me-2"
+                        style="line-height: 0; vertical-align: middle;"></i>
+                    <span>Historial de ventas</span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <?php if (puedeVerModulo('caja')): ?>
+            <li class="nav-item">
+                <a href="/myvet/pantallas/caja.php"
+                    class="nav-link <?= $archivoActual == 'caja.php' ? 'active' : '' ?>">
+                    <i class="bi bi-cash-stack"></i>
+                    <span>Caja</span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <?php if (puedeVerModulo('usuarios')): ?>
+            <li class="nav-item">
+                <a href="/myvet/app/views/usuarios.php"
+                    class="nav-link <?= $archivoActual == 'usuarios.php' ? 'active' : '' ?>">
+                    <i class="bi bi-people"></i>
+                    <span>Usuarios</span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <?php if (puedeVerModulo('compras')): ?>
+            <li class="nav-item">
+                <a href="/myvet/app/views/compras.php"
+                    class="nav-link <?= $archivoActual == 'gastos.php' ? 'active' : '' ?>">
+                    <i class="bi bi-bag-check"></i>
+                    <span>Compras</span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <?php if (puedeVerModulo('clientes')): ?>
+            <li class="nav-item">
+                <a href="/myvet/app/views/clientes.php"
+                    class="nav-link <?= $archivoActual == 'clientes.php' ? 'active' : '' ?>">
+                    <i class="bi bi-person-lines-fill"></i>
+                    <span>Clientes</span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+
+
+            <?php if (puedeVerModulo('mermas')): ?>
+            <li class="nav-item">
+                <a href="/myvet/pantallas/mermas.php"
+                    class="nav-link <?= $archivoActual == 'mermas.php' ? 'active' : '' ?>">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>Mermas</span>
+                </a>
+            </li>
+            <?php endif; ?>
+            <?php if (puedeVerModulo('finanzas')): ?>
+            <li class="nav-item">
+                <a href="/myvet/app/views/finanzas.php"
+                    class="nav-link <?= $archivoActual == 'finanzas.php' ? 'active' : '' ?>">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Finanzas</span>
+                </a>
+            </li>
+            <?php endif; ?>
+        </ul>
+    </div>
