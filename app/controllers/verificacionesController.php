@@ -15,11 +15,11 @@ require_once __DIR__ . '/../models/egresos/insumosModel.php';
 protegerPagina('verificaciones'); // Asegúrate que el permiso en auth coincida (o 'mantenimientos')
 
 // Instanciación de modelos
-$vehiculoModel       = new VehiculoModel($conexion);
+$vehiculoModel = new VehiculoModel($conexion);
 $mantenimientosModel = new MantenimientosModel($conexion);
 $verificacionesModel = new VerificacionesModel($conexion);
-$insumosModel        = new InsumosModel($conexion);
-$almacenModel        = new AlmacenModel($conexion);
+$insumosModel = new InsumosModel($conexion);
+$almacenModel = new AlmacenModel($conexion);
 
 $paginaActual = 'verificaciones';
 
@@ -29,16 +29,17 @@ $paginaActual = 'verificaciones';
 
 // --- LISTAR VERIFICACIONES FILTRADAS ---
 if (isset($_GET['action']) && $_GET['action'] === 'listar') {
-    if (ob_get_level()) ob_clean(); 
+    if (ob_get_level())
+        ob_clean();
     header('Content-Type: application/json');
-    
+
     try {
         $filtros = [
-            'search'   => $_GET['f_search'] ?? '',
-            'rango'    => $_GET['f_rango'] ?? 'todos',
-            'inicio'   => $_GET['f_inicio'] ?? '',
-            'fin'      => $_GET['f_fin'] ?? '',
-            'almacen'  => $_GET['f_almacen'] ?? 0,
+            'search' => $_GET['f_search'] ?? '',
+            'rango' => $_GET['f_rango'] ?? 'todos',
+            'inicio' => $_GET['f_inicio'] ?? '',
+            'fin' => $_GET['f_fin'] ?? '',
+            'almacen' => $_GET['f_almacen'] ?? 0,
             'vehiculo' => $_GET['f_vehiculo'] ?? 0,
         ];
 
@@ -64,10 +65,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'listar') {
 // if (isset($_GET['action']) && $_GET['action'] === 'obtenerDetalle') {
 //     if (ob_get_level()) ob_clean(); 
 //     header('Content-Type: application/json');
-    
+
 //     try {
 //         $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-        
+
 //         if ($id <= 0) {
 //             http_response_code(400);
 //             throw new Exception("El ID de verificación proporcionado no es válido.");
@@ -75,7 +76,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'listar') {
 
 //         // Se consulta la verificación en el modelo correspondiente
 //         $data = $verificacionesModel->obtenerMantenimiento($id);
-        
+
 //         if (!$data) {
 //             http_response_code(404);
 //             throw new Exception("No se encontró la verificación solicitada.");
@@ -90,7 +91,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'listar') {
 //         if (http_response_code() === 200) {
 //             http_response_code(400);
 //         }
-        
+
 //         echo json_encode([
 //             'status'  => 'error',
 //             'message' => $e->getMessage()
@@ -102,10 +103,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'listar') {
 // --- GUARDAR NUEVA VERIFICACIÓN ---
 // CORREGIDO: Soporta tanto POST como GET en la url con action=guardar
 if (isset($_GET['action']) && $_GET['action'] === 'guardar') {
-    if (ob_get_level()) ob_clean();
+    if (ob_get_level())
+        ob_clean();
     header('Content-Type: application/json; charset=utf-8');
     date_default_timezone_set('America/Mexico_City');
-    
+
     try {
         // CORREGIDO: Si no lee JSON raw, busca en $_POST como fallback
         $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
@@ -123,12 +125,12 @@ if (isset($_GET['action']) && $_GET['action'] === 'guardar') {
 
         // Guardar registro mediante el modelo
         $id = $verificacionesModel->guardar($vehiculo_id, $fecha, $proxima_verificacion);
-       
+
         if ($id && $id > 0) {
             echo json_encode([
-                'status'  => 'success',
+                'status' => 'success',
                 'message' => '¡Verificación guardada con éxito!',
-                'id'      => $id
+                'id' => $id
             ]);
         } else {
             throw new Exception("Error al guardar la verificación en la base de datos.");
@@ -136,25 +138,26 @@ if (isset($_GET['action']) && $_GET['action'] === 'guardar') {
     } catch (Throwable $e) {
         http_response_code(400);
         echo json_encode([
-            'status'  => 'error',
+            'status' => 'error',
             'message' => $e->getMessage()
         ]);
     }
     exit;
 }// --- LISTAR PRÓXIMAS VERIFICACIONES (NOTIFICACIONES / DROPDOWN) ---
 if (isset($_GET['action']) && $_GET['action'] === 'listarProximaVerificacion') {
-    if (ob_get_level()) ob_clean(); 
+    if (ob_get_level())
+        ob_clean();
     header('Content-Type: application/json; charset=utf-8');
-    
+
     try {
-          $almacenSesion = intval($_SESSION['almacen_id'] ?? 0);
+        $almacenSesion = intval($_SESSION['almacen_id'] ?? 0);
         $data = $verificacionesModel->listarProximasVerificaciones($almacenSesion);
         echo json_encode($data);
 
     } catch (Throwable $e) {
         http_response_code(500);
         echo json_encode([
-            'status'  => 'error',
+            'status' => 'error',
             'message' => $e->getMessage()
         ]);
     }
@@ -162,9 +165,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'listarProximaVerificacion') {
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_GET['action'] ?? '') === 'eliminar') {
 
-    if (ob_get_level()) ob_clean();
+    if (ob_get_level())
+        ob_clean();
     header('Content-Type: application/json');
-   
+
     try {
         $input = json_decode(file_get_contents('php://input'), true);
         $id = intval($_POST['id'] ?? $input['id'] ?? 0);
@@ -201,15 +205,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_GET['action'] ?? '') === 'elimin
 // ==========================================
 // CORREGIDO: Condición 'else' directa. Si llega a este punto, no se ejecutó ningún 'action' AJAX
 try {
-    $vehiculos = $vehiculoModel->listar();
+    $almacenSesion = intval($_SESSION['almacen_id'] ?? 0);
+    $vehiculos = $vehiculoModel->listarVehiculosALmacen($almacenSesion);
     // Carga necesaria para el select de la vista
-    $almacenSesion = intval($_SESSION['almacen_id'] ?? 0); 
+
     $almacenes = $almacenModel->getAlmacenes($almacenSesion); // Para el select del modal
- 
-      $tipo=$almacenSesion==0?1:0;
+
+    $tipo = $almacenSesion == 0 ? 1 : 0;
     $tituloPagina = "mantenimientos";
     $vistaRuta = __DIR__ . '/../views/verificaciones_view.php';
-    
+
     if (file_exists($vistaRuta)) {
         require_once $vistaRuta;
     } else {

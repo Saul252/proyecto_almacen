@@ -31,6 +31,7 @@ if ($action !== null) {
         switch ($action) {
 
             // 1. SUBIR DOCUMENTO DENTAL
+
             case 'subirDocumento':
                 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                     throw new Exception("Método no permitido para esta acción.");
@@ -50,6 +51,12 @@ if ($action !== null) {
                 if (!$documento || $documento['error'] !== UPLOAD_ERR_OK) {
                     $errCode = $documento['error'] ?? 'SIN_ARCHIVO';
                     throw new Exception("Error al recibir el archivo subido (Código: {$errCode}).");
+                }
+
+                // ✅ LÍMITE DE 3 MB
+                $max_size = 3 * 1024 * 1024; // 3 MB en bytes
+                if ($documento['size'] > $max_size) {
+                    throw new Exception("El archivo supera el límite permitido de 3 MB.");
                 }
 
                 $extensiones_permitidas = ['pdf', 'png', 'jpg', 'jpeg', 'webp'];
@@ -74,12 +81,104 @@ if ($action !== null) {
 
                 $base = pathinfo($documento['name'], PATHINFO_FILENAME);
                 $nombre_limpio = preg_replace('/[^a-zA-Z0-9_-]/', '_', $base);
-                $nombre_archivo = "dental_" . $paciente_id . "_" . $nombre_limpio . "_" . time() . "." . $ext;
+                $nombre_base = "dental_" . $paciente_id . "_" . $nombre_limpio . "_" . time();
 
-                $destino = $ruta_carpeta . $nombre_archivo;
+                // Detectar tipo real del archivo
+                $mime = mime_content_type($documento['tmp_name']);
+                $extensiones_imagen = ['png', 'jpg', 'jpeg', 'webp'];
+                $es_imagen = in_array($ext, $extensiones_imagen, true) && strpos($mime, 'image/') === 0;
 
-                if (!move_uploaded_file($documento['tmp_name'], $destino)) {
-                    throw new Exception("No se pudo guardar el archivo en el servidor.");
+                // ============================================
+                // SI ES IMAGEN → convertir a WebP optimizado
+                // ============================================
+                if ($es_imagen && function_exists('imagewebp')) {
+
+                    // Cargar imagen según su tipo real
+                    switch ($mime) {
+                        case 'image/jpeg':
+                        case 'image/jpg':
+                            $img = @imagecreatefromjpeg($documento['tmp_name']);
+                            break;
+                        case 'image/png':
+                            $img = @imagecreatefrompng($documento['tmp_name']);
+                            break;
+                        case 'image/webp':
+                            $img = @imagecreatefromwebp($documento['tmp_name']);
+                            break;
+                        default:
+                            $img = false;
+                    }
+
+                    if ($img === false) {
+                        throw new Exception("No se pudo procesar la imagen.");
+                    }
+
+                    // Preservar transparencia
+                    imagepalettetotruecolor($img);
+                    imagealphablending($img, true);
+                    imagesavealpha($img, true);
+
+                    // Redimensionar si excede 1920px de ancho
+                    $ancho_original = imagesx($img);
+                    $alto_original = imagesy($img);
+                    $max_ancho = 1920;
+
+                    if ($ancho_original > $max_ancho) {
+                        $nuevo_ancho = $max_ancho;
+                        $nuevo_alto = intval($alto_original * ($max_ancho / $ancho_original));
+
+                        $img_redim = imagecreatetruecolor($nuevo_ancho, $nuevo_alto);
+                        imagealphablending($img_redim, false);
+                        imagesavealpha($img_redim, true);
+                        imagecopyresampled(
+                            $img_redim,
+                            $img,
+                            0,
+                            0,
+                            0,
+                            0,
+                            $nuevo_ancho,
+                            $nuevo_alto,
+                            $ancho_original,
+                            $alto_original
+                        );
+                        imagedestroy($img);
+                        $img = $img_redim;
+                    }
+
+                    // Guardar como WebP con calidad adaptativa
+                    $nombre_archivo = $nombre_base . ".webp";
+                    $destino = $ruta_carpeta . $nombre_archivo;
+
+                    $calidades = [75, 65, 55, 45];
+                    $guardado = false;
+
+                    foreach ($calidades as $q) {
+                        if (imagewebp($img, $destino, $q)) {
+                            $guardado = true;
+                            // Si ya pesa menos de 1 MB, dejamos de bajar calidad
+                            if (filesize($destino) <= 1024 * 1024) {
+                                break;
+                            }
+                        }
+                    }
+
+                    imagedestroy($img);
+
+                    if (!$guardado) {
+                        throw new Exception("No se pudo convertir la imagen a WebP.");
+                    }
+
+                } else {
+                    // ============================================
+                    // NO ES IMAGEN (PDF u otros) → mover tal cual
+                    // ============================================
+                    $nombre_archivo = $nombre_base . "." . $ext;
+                    $destino = $ruta_carpeta . $nombre_archivo;
+
+                    if (!move_uploaded_file($documento['tmp_name'], $destino)) {
+                        throw new Exception("No se pudo guardar el archivo en el servidor.");
+                    }
                 }
 
                 $documento_url = $subcarpeta . $nombre_archivo;
@@ -87,7 +186,6 @@ if ($action !== null) {
 
                 $resultado = $pacientesModel->subirDocumentoConsulta(
                     $paciente_id,
-
                     $documento['name'],
                     $documento_url,
                     $tipo,
@@ -98,10 +196,10 @@ if ($action !== null) {
                     'success' => true,
                     'url' => $documento_url,
                     'documento_id' => $resultado['documento_id'] ?? 0,
+                    'peso' => round(filesize($destino) / 1024, 2) . ' KB',
                     'message' => 'Documento guardado correctamente.'
                 ]);
                 break;
-
             // 2. ELIMINAR DOCUMENTO DENTAL
             case 'eliminarDocumento':
                 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

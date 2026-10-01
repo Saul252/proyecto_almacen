@@ -29,6 +29,7 @@ class consultaClienteHistorialModel
             hc.estatura,
             hc.peso,
             hc.costo,
+            'medica' as tipo,
             hc.estado,
             hc.created_at,
             hc.updated_at,
@@ -74,6 +75,95 @@ class consultaClienteHistorialModel
 
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+    public function obtenerExpedienteDentalCompletoFecha($api_token, $fecha_inicio = null, $fecha_fin = null)
+    {
+        // *Consulta directa uniendo historial_dental con clientes*
+        $sql = "SELECT 
+                hc.id,
+                hc.paciente_id,
+                hc.usuario_id,
+                hc.fecha_consulta,
+                hc.motivo_consulta,
+                hc.antecedentes_medicos,
+                hc.antecedentes_dentales,
+                hc.sintomas,
+                'dental' as tipo,
+                u.nombre AS atendio,
+                hc.diagnostico,
+                hc.piezas_dentales,
+                hc.procedimiento_realizado,
+                hc.avances_notas,
+                hc.plan_tratamiento,
+                hc.observaciones,
+                hc.presion_arterial,
+                hc.costo,
+                hc.estado,
+                hc.created_at,
+                hc.updated_at,
+
+                -- *Datos del cliente / paciente*
+                c.nombre_comercial AS nombre_cliente,
+                c.telefono AS telefono_cliente,
+
+                -- *Documentos asociados específicamente a esta consulta*
+                (
+                    SELECT GROUP_CONCAT(
+                        CONCAT(
+                            IFNULL(doc.nombre, ''),
+                            '|||',
+                            IFNULL(doc.direccion, ''),
+                            '|||',
+                            IFNULL(doc.id, '')
+                        )
+                        SEPARATOR ';;;'
+                    )
+                    FROM documentos doc
+                    WHERE doc.paciente_id = c.id
+                      AND doc.consulta_id = hc.id
+                ) AS documentos_url
+
+            FROM historial_dental hc
+
+            INNER JOIN clientes c 
+                ON hc.paciente_id = c.id
+
+            LEFT JOIN usuarios u 
+                ON u.id = hc.usuario_id
+
+            WHERE c.api_token = ?
+              AND hc.estado != 'cancelada'";
+
+        $params = [$api_token];
+        $types = "s";
+
+        // *Filtro para Fecha de Inicio*
+        if (!empty($fecha_inicio) && trim($fecha_inicio) !== "''") {
+            $f_inicio_clean = substr(trim($fecha_inicio), 0, 10);
+
+            $sql .= " AND hc.fecha_consulta >= ?";
+            $params[] = $f_inicio_clean . ' 00:00:00';
+            $types .= "s";
+        }
+
+        // *Filtro para Fecha Fin*
+        if (!empty($fecha_fin) && trim($fecha_fin) !== "''") {
+            $f_fin_clean = substr(trim($fecha_fin), 0, 10);
+
+            $sql .= " AND hc.fecha_consulta <= ?";
+            $params[] = $f_fin_clean . ' 23:59:59';
+            $types .= "s";
+        }
+
+        $sql .= " ORDER BY hc.fecha_consulta DESC";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->bind_param($types, ...$params);
+
         $stmt->execute();
 
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -202,6 +292,43 @@ class consultaClienteHistorialModel
             error_log("Excepción en obtenerPorDatos: " . $e->getMessage());
             return null;
         }
+    }
+    public function obtenerHistorialDentalPorIsYtoken(int $id, string $api_token)
+    {
+        $sql = "SELECT 
+                    h.*, 
+                    c.id AS cliente_id,
+                    c.razon_social,
+                    c.nombre_comercial AS cliente_nombre,
+                    c.rfc,
+                    c.telefono,
+                    u.nombre as medico
+                   
+                  
+                FROM historial_dental h
+                INNER JOIN clientes c ON h.paciente_id = c.id
+                   left join usuarios u ON u.id = h.usuario_id
+                WHERE h.id = ? AND c.api_token = ?";
+
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) {
+            throw new Exception("Error al preparar consulta: " . $this->db->error);
+        }
+
+        $stmt->bind_param("is", $id, $api_token);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+
+        if ($row) {
+            $row['documentos'] = !empty($row['documentos_json'])
+                ? json_decode($row['documentos_json'], true)
+                : [];
+
+            unset($row['documentos_json']);
+            return $row;
+        }
+
+        return null;
     }
     public function obtenerHistorialPorIdYToken(int $id, string $api_token)
     {

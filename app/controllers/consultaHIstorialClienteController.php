@@ -207,6 +207,33 @@ if (!empty($action)) {
             }
             exit;
             break;
+        case 'obtenerHistorialDetalleDental':
+            try {
+                $historial_id = intval($_GET['id'] ?? $_POST['id'] ?? 0);
+
+                if ($historial_id <= 0) {
+                    throw new Exception('ID de historial no válido.');
+                }
+
+                // La consulta liga estrictamente el historial al token para evitar IDOR (Insecure Direct Object Reference)
+                $detalle = $clienteHistorialModel->obtenerHistorialDentalPorIsYtoken($historial_id, $api_token);
+
+                if (!$detalle) {
+                    throw new Exception('No se encontró el registro de historial o no pertenece a este expediente.');
+                }
+
+                echo json_encode([
+                    'success' => true,
+                    'data' => $detalle
+                ]);
+            } catch (Exception $e) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]);
+            }
+            exit;
+            break;
 
         default:
             http_response_code(400);
@@ -240,7 +267,33 @@ $expediente = $clienteHistorialModel->obtenerExpedienteCompletoPorToken(
     $fecha_inicio,
     $fecha_fin
 );
+$dental = $clienteHistorialModel->obtenerExpedienteDentalCompletoFecha(
+    $api_token,
+    $fecha_inicio,
+    $fecha_fin
+);
+$historialCompleto = [];
 
+// Consultas médicas
+if (!empty($expediente)) {
+    foreach ($expediente as $consulta) {
+        $consulta['_tipo'] = 'medica';
+        $historialCompleto[] = $consulta;
+    }
+}
+
+// Consultas dentales
+if (!empty($dental)) {
+    foreach ($dental as $consulta) {
+        $consulta['_tipo'] = 'dental';
+        $historialCompleto[] = $consulta;
+    }
+}
+
+// Ordenar todo por fecha, más reciente primero
+usort($historialCompleto, function ($a, $b) {
+    return strtotime($b['fecha_consulta']) <=> strtotime($a['fecha_consulta']);
+});
 $resumen = [
     'total_comprado' => array_sum(array_column($expediente ?: [], 'costo')),
     'total_pagado' => 0,

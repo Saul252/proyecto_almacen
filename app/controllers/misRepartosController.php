@@ -333,14 +333,128 @@ if (isset($_REQUEST['action'])) {
                     mkdir($targetDir, 0777, true);
                 }
 
-                $procesarFoto = function ($inputName, $prefijo) use ($movimiento_id, $targetDir, $relPath) {
-                    if (isset($_FILES[$inputName]) && $_FILES[$inputName]['error'] === UPLOAD_ERR_OK) {
-                        $ext = strtolower(pathinfo($_FILES[$inputName]['name'], PATHINFO_EXTENSION));
-                        $nombre = $prefijo . "_" . $movimiento_id . "_" . bin2hex(random_bytes(4)) . "." . $ext;
-                        if (move_uploaded_file($_FILES[$inputName]['tmp_name'], $targetDir . $nombre)) {
-                            return $relPath . $nombre;
-                        }
+                if (!is_writable($targetDir)) {
+                    throw new Exception("La carpeta de destino no tiene permisos de escritura.");
+                }
+
+                // ✅ Límite de 3 MB
+                $max_size = 3 * 1024 * 1024;
+
+                $procesarFoto = function ($inputName, $prefijo) use ($movimiento_id, $targetDir, $relPath, $max_size) {
+
+                    // 1. Validar que venga el archivo
+                    if (!isset($_FILES[$inputName]) || $_FILES[$inputName]['error'] !== UPLOAD_ERR_OK) {
+                        return null;
                     }
+
+                    $archivo = $_FILES[$inputName];
+
+                    // 2. Validar tamaño máximo
+                    if ($archivo['size'] > $max_size) {
+                        throw new Exception("El archivo '$inputName' supera el límite permitido de 3 MB.");
+                    }
+
+                    // 3. Detectar tipo real
+                    $mime = mime_content_type($archivo['tmp_name']);
+                    $ext = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
+
+                    $extensiones_imagen = ['jpg', 'jpeg', 'png', 'webp'];
+                    $es_imagen = in_array($ext, $extensiones_imagen, true) && strpos($mime, 'image/') === 0;
+
+                    $nombre_base = $prefijo . "_" . $movimiento_id . "_" . bin2hex(random_bytes(4));
+
+                    // ============================================
+                    // SI ES IMAGEN → convertir a WebP
+                    // ============================================
+                    if ($es_imagen && function_exists('imagewebp')) {
+
+                        switch ($mime) {
+                            case 'image/jpeg':
+                            case 'image/jpg':
+                                $img = @imagecreatefromjpeg($archivo['tmp_name']);
+                                break;
+                            case 'image/png':
+                                $img = @imagecreatefrompng($archivo['tmp_name']);
+                                break;
+                            case 'image/webp':
+                                $img = @imagecreatefromwebp($archivo['tmp_name']);
+                                break;
+                            default:
+                                $img = false;
+                        }
+
+                        if ($img === false) {
+                            throw new Exception("No se pudo procesar la imagen '$inputName'.");
+                        }
+
+                        // Preservar transparencia
+                        imagepalettetotruecolor($img);
+                        imagealphablending($img, true);
+                        imagesavealpha($img, true);
+
+                        // Redimensionar si excede 1920px de ancho
+                        $ancho_original = imagesx($img);
+                        $alto_original = imagesy($img);
+                        $max_ancho = 1920;
+
+                        if ($ancho_original > $max_ancho) {
+                            $nuevo_ancho = $max_ancho;
+                            $nuevo_alto = intval($alto_original * ($max_ancho / $ancho_original));
+
+                            $img_redim = imagecreatetruecolor($nuevo_ancho, $nuevo_alto);
+                            imagealphablending($img_redim, false);
+                            imagesavealpha($img_redim, true);
+                            imagecopyresampled(
+                                $img_redim,
+                                $img,
+                                0,
+                                0,
+                                0,
+                                0,
+                                $nuevo_ancho,
+                                $nuevo_alto,
+                                $ancho_original,
+                                $alto_original
+                            );
+                            imagedestroy($img);
+                            $img = $img_redim;
+                        }
+
+                        // Guardar como WebP con calidad adaptativa
+                        $nombre = $nombre_base . ".webp";
+                        $destino = $targetDir . $nombre;
+
+                        $calidades = [75, 65, 55, 45];
+                        $guardado = false;
+
+                        foreach ($calidades as $q) {
+                            if (imagewebp($img, $destino, $q)) {
+                                $guardado = true;
+                                if (filesize($destino) <= 1024 * 1024) {
+                                    break;
+                                }
+                            }
+                        }
+
+                        imagedestroy($img);
+
+                        if (!$guardado) {
+                            throw new Exception("No se pudo convertir la imagen '$inputName' a WebP.");
+                        }
+
+                        return $relPath . $nombre;
+                    }
+
+                    // ============================================
+                    // NO ES IMAGEN (PDF u otros) → mover tal cual
+                    // ============================================
+                    $nombre = $nombre_base . "." . $ext;
+                    $destino = $targetDir . $nombre;
+
+                    if (move_uploaded_file($archivo['tmp_name'], $destino)) {
+                        return $relPath . $nombre;
+                    }
+
                     return null;
                 };
 
@@ -350,7 +464,7 @@ if (isset($_REQUEST['action'])) {
                 $datos = [
                     'id_movimiento' => $movimiento_id,
                     'id_venta' => intval($_POST['id_venta'] ?? 0),
-                    'trabajador_id' => $id_ejecutor ?? 0, // Asegúrate que esta variable exista
+                    'trabajador_id' => $id_ejecutor ?? 0,
                     'vehiculo_id' => intval($_POST['vehiculo_id'] ?? 0),
                     'folio' => $_POST['folio'] ?? '',
                     'fotografia_entrega' => $foto_entrega,
@@ -362,12 +476,10 @@ if (isset($_REQUEST['action'])) {
                 if ($repartoM->registrarEntregaMovimiento($datos)) {
                     echo json_encode(["success" => true, "message" => "Evidencias guardadas correctamente"]);
                 } else {
-                    // ERROR CRÍTICO: Si el modelo falla, hay que avisar
                     echo json_encode(["success" => false, "message" => "Error al insertar en la base de datos."]);
                 }
 
             } catch (Exception $e) {
-                // No enviamos 400 para que el fetch no truene antes de leer el JSON si prefieres manejarlo por success:false
                 echo json_encode(["success" => false, "message" => "Error: " . $e->getMessage()]);
             }
             exit;

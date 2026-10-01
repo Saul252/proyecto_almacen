@@ -113,16 +113,39 @@ class ProductoModel
     public function guardarCompletoMultiALmacen($datos)
     {
         try {
+
             $this->db->begin_transaction();
 
-            // 1. Insertar en la tabla 'productos'
-            $sqlProd = "INSERT INTO productos (
-                sku, nombre, descripcion, unidad_medida, unidad_reporte, 
-                factor_conversion, fiscal_clave_prod, fiscal_clave_unidad, 
-                precio_adquisicion, impuesto_iva, categoria_id, activo
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
+            // ============================================================
+            // 1. INSERTAR PRODUCTO
+            // ============================================================
+
+            $sqlProd = "
+            INSERT INTO productos (
+                sku,
+                nombre,
+                descripcion,
+                unidad_medida,
+                unidad_reporte,
+                factor_conversion,
+                fiscal_clave_prod,
+                fiscal_clave_unidad,
+                precio_adquisicion,
+                impuesto_iva,
+                categoria_id,
+                activo
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        ";
 
             $stmt = $this->db->prepare($sqlProd);
+
+            if (!$stmt) {
+                throw new Exception(
+                    "Error prepare producto: " . $this->db->error
+                );
+            }
+
             $stmt->bind_param(
                 "sssssdssddi",
                 $datos['sku'],
@@ -132,35 +155,50 @@ class ProductoModel
                 $datos['unidad_reporte'],
                 $datos['factor_conversion'],
                 $datos['fiscal_clave_prod'],
-                $datos['fiscal_clave_unidad'], // Clave unidad SAT
+                $datos['fiscal_clave_unidad'],
                 $datos['precio_adquisicion'],
                 $datos['impuesto_iva'],
                 $datos['categoria_id']
             );
 
-            if (!$stmt->execute())
-                throw new Exception("Error al insertar producto");
+            if (!$stmt->execute()) {
+                throw new Exception(
+                    "Error al insertar producto: " . $stmt->error
+                );
+            }
 
             $productoId = $this->db->insert_id;
-            // 🔹 CREAR OPCIONES DE MEDIDA AUTOMÁTICAS
 
-            $factor = floatval($datos['factor_conversion']);
+
+            // ============================================================
+            // 2. CREAR OPCIONES DE MEDIDA AUTOMÁTICAS
+            // ============================================================
+
+            $factor = floatval($datos['factor_conversion'] ?? 1);
+
+            if ($factor <= 0) {
+                throw new Exception(
+                    "El factor de conversión debe ser mayor a 0."
+                );
+            }
+
             $medidas = [];
-            if ($factor == 1) {
-                $medidas = [
 
+            if ($factor == 1) {
+
+                $medidas = [
                     [
                         'nombre' => $datos['unidad_medida'],
                         'equivalencia' => 1
                     ]
-
                 ];
+
             } else {
 
                 $medidas = [
                     [
                         'nombre' => $datos['unidad_reporte'],
-                        'equivalencia' => ($factor > 0 ? (1 / $factor) : 1)
+                        'equivalencia' => 1 / $factor
                     ],
                     [
                         'nombre' => $datos['unidad_medida'],
@@ -177,78 +215,165 @@ class ProductoModel
                     'equivalencia' => $medida['equivalencia']
                 ]);
             }
-            $resAlmacenes = $this->db->query("
-    SELECT id 
-    FROM almacenes 
-    WHERE activo = 1
-");
+
+
+            // ============================================================
+            // 3. OBTENER Y VALIDAR EL ALMACÉN QUE LLEGÓ
+            // ============================================================
+
+            if (
+                !isset($datos['almacen']) ||
+                empty($datos['almacen'])
+            ) {
+                throw new Exception(
+                    "No se recibió el almacén."
+                );
+            }
+
+            $almacen_id = intval($datos['almacen']);
+
+            $stmtAlmacen = $this->db->prepare("
+            SELECT id
+            FROM almacenes
+            WHERE activo = 1
+              AND id = ?
+        ");
+
+            if (!$stmtAlmacen) {
+                throw new Exception(
+                    "Error prepare almacén: " . $this->db->error
+                );
+            }
+
+            $stmtAlmacen->bind_param(
+                "i",
+                $almacen_id
+            );
+
+            if (!$stmtAlmacen->execute()) {
+                throw new Exception(
+                    "Error al validar almacén: " . $stmtAlmacen->error
+                );
+            }
+
+            $resAlmacen = $stmtAlmacen->get_result();
+
+            if ($resAlmacen->num_rows === 0) {
+                throw new Exception(
+                    "El almacén seleccionado no existe o está inactivo."
+                );
+            }
+
+
+            // ============================================================
+            // 4. INSERTAR PRECIOS SOLO EN ESE ALMACÉN
+            // ============================================================
 
             $sqlPrecios = "
-    INSERT INTO precios_producto (
-        producto_id,
-        almacen_id,
-        precio_minorista,
-        precio_mayorista,
-        precio_distribuidor
-    ) VALUES (?, ?, ?, ?, ?)
-";
+            INSERT INTO precios_producto (
+                producto_id,
+                almacen_id,
+                precio_minorista,
+                precio_mayorista,
+                precio_distribuidor
+            )
+            VALUES (?, ?, ?, ?, ?)
+        ";
 
             $stmtPrecios = $this->db->prepare($sqlPrecios);
 
+            if (!$stmtPrecios) {
+                throw new Exception(
+                    "Error prepare precios: " . $this->db->error
+                );
+            }
+
+            $precioMinorista = floatval(
+                $datos['precio_minorista'] ?? 0
+            );
+
+            $precioMayorista = floatval(
+                $datos['precio_mayorista'] ?? 0
+            );
+
+            $precioDistribuidor = floatval(
+                $datos['precio_distribuidor'] ?? 0
+            );
+
+            $stmtPrecios->bind_param(
+                "iiddd",
+                $productoId,
+                $almacen_id,
+                $precioMinorista,
+                $precioMayorista,
+                $precioDistribuidor
+            );
+
+            if (!$stmtPrecios->execute()) {
+                throw new Exception(
+                    "Error al insertar precios para el almacén "
+                    . $almacen_id . ": "
+                    . $stmtPrecios->error
+                );
+            }
+
+
+            // ============================================================
+            // 5. CREAR INVENTARIO SOLO EN ESE ALMACÉN
+            // ============================================================
+
             $stmtInv = $this->db->prepare("
-    INSERT INTO inventario
-    (almacen_id, producto_id, stock, stock_minimo)
-    VALUES (?, ?, ?, ?)
-");
+            INSERT INTO inventario (
+                almacen_id,
+                producto_id,
+                stock,
+                stock_minimo
+            )
+            VALUES (?, ?, ?, ?)
+        ");
 
             if (!$stmtInv) {
-                throw new Exception("Error prepare inventario");
+                throw new Exception(
+                    "Error prepare inventario: " . $this->db->error
+                );
             }
 
-            while ($alm = $resAlmacenes->fetch_assoc()) {
+            $stock = 0;
+            $min = 0;
 
-                $almacen_id = $alm['id'];
+            $stmtInv->bind_param(
+                "iidd",
+                $almacen_id,
+                $productoId,
+                $stock,
+                $min
+            );
 
-                // PRECIOS
-                $stmtPrecios->bind_param(
-                    "iiddd",
-                    $productoId,
-                    $almacen_id,
-                    $datos['precio_minorista'],
-                    $datos['precio_mayorista'],
-                    $datos['precio_distribuidor']
+            if (!$stmtInv->execute()) {
+                throw new Exception(
+                    "Error al insertar inventario: "
+                    . $stmtInv->error
                 );
-
-                if (!$stmtPrecios->execute()) {
-                    throw new Exception(
-                        "Error al insertar precios para el almacén " . $almacen_id
-                    );
-                }
-
-                // INVENTARIO
-                $stock = 0;
-                $min = 0;
-
-                $stmtInv->bind_param(
-                    "iidd",
-                    $almacen_id,
-                    $productoId,
-                    $stock,
-                    $min
-                );
-
-                if (!$stmtInv->execute()) {
-                    throw new Exception(
-                        "Error inventario: " . $stmtInv->error
-                    );
-                }
             }
+
+
+            // ============================================================
+            // 6. CONFIRMAR TRANSACCIÓN
+            // ============================================================
+
             $this->db->commit();
+
             return $productoId;
 
         } catch (Exception $e) {
+
             $this->db->rollback();
-            error_log($e->getMessage());
+
+            error_log(
+                "ERROR guardarCompletoMultiALmacen: "
+                . $e->getMessage()
+            );
+
             return false;
         }
     }

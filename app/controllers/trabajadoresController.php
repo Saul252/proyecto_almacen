@@ -58,7 +58,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'guardar') {
     }
     exit;
 }
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_GET['action'] ?? '') === 'subirDocumento') {
 
     if (ob_get_level())
@@ -70,13 +69,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_GET['action'] ?? '') === 'subirD
         $id = intval($_POST['trabajador_id'] ?? 0);
 
         if ($id <= 0) {
-            throw new Exception("Vehículo inválido");
+            throw new Exception("Trabajador inválido");
         }
 
         $documento = $_FILES['documento'] ?? null;
 
         if (!$documento || $documento['error'] !== UPLOAD_ERR_OK) {
             throw new Exception("Error al subir archivo");
+        }
+
+        // ✅ LÍMITE DE 3 MB
+        $max_size = 3 * 1024 * 1024; // 3 MB
+        if ($documento['size'] > $max_size) {
+            throw new Exception("El archivo supera el límite permitido de 3 MB");
         }
 
         // Carpeta destino
@@ -90,21 +95,105 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_GET['action'] ?? '') === 'subirD
             throw new Exception("La carpeta no tiene permisos de escritura");
         }
 
-        // Nombre del archivo
+        // Detectar tipo real del archivo
+        $mime = mime_content_type($documento['tmp_name']);
         $ext = strtolower(pathinfo($documento['name'], PATHINFO_EXTENSION));
         $base = pathinfo($documento['name'], PATHINFO_FILENAME);
 
-        $nombre = "vehiculo_" .
-            preg_replace('/[^a-zA-Z0-9]/', '_', $base) .
-            "_" .
-            time() .
-            "." .
-            $ext;
+        $extensiones_imagen = ['jpg', 'jpeg', 'png', 'webp'];
+        $es_imagen = in_array($ext, $extensiones_imagen, true) && strpos($mime, 'image/') === 0;
 
-        $destino = $ruta_carpeta . $nombre;
+        $nombre_base = "vehiculo_" . preg_replace('/[^a-zA-Z0-9]/', '_', $base) . "_" . time();
 
-        if (!move_uploaded_file($documento['tmp_name'], $destino)) {
-            throw new Exception("No se pudo guardar el archivo");
+        // ============================================
+        // SI ES IMAGEN → convertir a WebP optimizado
+        // ============================================
+        if ($es_imagen && function_exists('imagewebp')) {
+
+            switch ($mime) {
+                case 'image/jpeg':
+                case 'image/jpg':
+                    $img = @imagecreatefromjpeg($documento['tmp_name']);
+                    break;
+                case 'image/png':
+                    $img = @imagecreatefrompng($documento['tmp_name']);
+                    break;
+                case 'image/webp':
+                    $img = @imagecreatefromwebp($documento['tmp_name']);
+                    break;
+                default:
+                    $img = false;
+            }
+
+            if ($img === false) {
+                throw new Exception("No se pudo procesar la imagen");
+            }
+
+            // Preservar transparencia
+            imagepalettetotruecolor($img);
+            imagealphablending($img, true);
+            imagesavealpha($img, true);
+
+            // Redimensionar si excede 1920px de ancho
+            $ancho_original = imagesx($img);
+            $alto_original = imagesy($img);
+            $max_ancho = 1920;
+
+            if ($ancho_original > $max_ancho) {
+                $nuevo_ancho = $max_ancho;
+                $nuevo_alto = intval($alto_original * ($max_ancho / $ancho_original));
+
+                $img_redim = imagecreatetruecolor($nuevo_ancho, $nuevo_alto);
+                imagealphablending($img_redim, false);
+                imagesavealpha($img_redim, true);
+                imagecopyresampled(
+                    $img_redim,
+                    $img,
+                    0,
+                    0,
+                    0,
+                    0,
+                    $nuevo_ancho,
+                    $nuevo_alto,
+                    $ancho_original,
+                    $alto_original
+                );
+                imagedestroy($img);
+                $img = $img_redim;
+            }
+
+            // Guardar como WebP con calidad adaptativa
+            $nombre = $nombre_base . ".webp";
+            $destino = $ruta_carpeta . $nombre;
+
+            $calidades = [75, 65, 55, 45];
+            $guardado = false;
+
+            foreach ($calidades as $q) {
+                if (imagewebp($img, $destino, $q)) {
+                    $guardado = true;
+                    if (filesize($destino) <= 1024 * 1024) {
+                        break;
+                    }
+                }
+            }
+
+            imagedestroy($img);
+
+            if (!$guardado) {
+                throw new Exception("No se pudo convertir la imagen a WebP");
+            }
+
+        } else {
+            // ============================================
+            // NO ES IMAGEN (PDF u otros) → mover tal cual
+            // ============================================
+            $nombre = $nombre_base . "." . $ext;
+            $destino = $ruta_carpeta . $nombre;
+
+            if (!move_uploaded_file($documento['tmp_name'], $destino)) {
+                throw new Exception("No se pudo guardar el archivo");
+            }
         }
 
         // Ruta que se guarda en BD
@@ -120,7 +209,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_GET['action'] ?? '') === 'subirD
         echo json_encode([
             'success' => true,
             'url' => $documento_url,
-            'documento_id' => $resultado['documento_id'] ?? 0
+            'documento_id' => $resultado['documento_id'] ?? 0,
+            'peso' => round(filesize($destino) / 1024, 2) . ' KB'
         ]);
 
     } catch (Throwable $e) {

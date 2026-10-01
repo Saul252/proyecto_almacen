@@ -145,6 +145,7 @@ switch ($action) {
 
 
 
+
         $datos = [
             'sku' => trim($_POST['sku'] ?? ''),
             'nombre' => trim($_POST['nombre'] ?? ''),
@@ -159,7 +160,8 @@ switch ($action) {
             'fiscal_clave_unidad' => $_POST['fiscal_clave_unidad'] ?? '',
             'precio_minorista' => $pmin,
             'precio_mayorista' => $pmay,
-            'precio_distribuidor' => $pdi
+            'precio_distribuidor' => $pdi,
+            'almacen' => $_POST['select_almacen_id'] ?? 1
         ];
 
         if (empty($datos['sku']) || empty($datos['nombre'])) {

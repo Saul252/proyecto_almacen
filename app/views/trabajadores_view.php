@@ -208,7 +208,7 @@ $estadosEnum = ['activo', 'inactivo', 'vacaciones', 'en_ruta'];
                                                 ?>
                                                     <li>
                                                         <div class="dropdown-item d-flex justify-content-between align-items-center py-2">
-                                                            <a href="../../<?= htmlspecialchars($direccion) ?>" target="_blank" class="text-decoration-none flex-grow-1 text-truncate me-2">
+                                                            <a href="../../myvet/<?= htmlspecialchars($direccion) ?>" target="_blank" class="text-decoration-none flex-grow-1 text-truncate me-2">
                                                                 <i class="bi bi-file-earmark-pdf text-danger me-1"></i>
                                                                 <span class="small"><?= htmlspecialchars($nombre) ?></span>
                                                             </a>

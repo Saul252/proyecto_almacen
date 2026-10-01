@@ -328,110 +328,13 @@ $idex = $_GET['id'] ?? null;
         /* ========================================================= */
 
         /* En computadoras y tablets grandes (>= 768px) */
-        @media (min-width: 768px) {
-            .mobile-card-actions {
-                text-align: right;
-            }
+
+        .mobile-card-actions {
+            text-align: right;
+
         }
 
         /* En teléfonos móviles (< 768px) */
-        @media (max-width: 767.98px) {
-            .container-fluid {
-                padding-left: 12px !important;
-                padding-right: 12px !important;
-                padding-top: 15px !important;
-            }
-
-            .patient-hero-card {
-                padding: 1rem !important;
-                border-radius: 14px !important;
-                margin-bottom: 1rem !important;
-            }
-
-            .patient-avatar {
-                width: 44px !important;
-                height: 44px !important;
-                font-size: 1.1rem !important;
-                border-radius: 10px !important;
-            }
-
-            .patient-title-text {
-                font-size: 1.15rem !important;
-            }
-
-            /* Filtro adaptable al ancho del móvil */
-            .filter-pill-container {
-                width: 100% !important;
-                justify-content: space-between !important;
-                border-radius: 12px !important;
-                padding: 8px 12px !important;
-            }
-
-            .filter-pill-container input[type="date"] {
-                font-size: 0.78rem !important;
-                max-width: 120px !important;
-            }
-
-            .btn-filter-mobile {
-                width: 100% !important;
-                justify-content: center !important;
-            }
-
-            /* 📱 TRANSFORMAR TABLA EN TARJETAS CLÍNICAS EN CELULARES */
-            .table-responsive {
-                border: none !important;
-                overflow: visible !important;
-            }
-
-            .table-custom thead {
-                display: none !important;
-                /* Oculta encabezados rígidos de tabla */
-            }
-
-            .table-custom,
-            .table-custom tbody,
-            .table-custom tbody tr,
-            .table-custom tbody td {
-                display: block !important;
-                width: 100% !important;
-            }
-
-            .table-custom tbody tr {
-                background: var(--card-bg) !important;
-                border: 1px solid var(--card-border) !important;
-                border-radius: 14px !important;
-                padding: 12px 14px !important;
-                margin-bottom: 12px !important;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
-            }
-
-            .table-custom tbody td {
-                padding: 4px 0 !important;
-                border-bottom: none !important;
-            }
-
-            /* Ajustes de los bloques dentro de la tarjeta móvil */
-            .diag-box {
-                max-width: 100% !important;
-                margin: 6px 0 !important;
-                background: var(--input-bg);
-                padding: 6px 10px !important;
-                border-radius: 8px !important;
-            }
-
-            .mobile-card-actions {
-                display: flex !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-                border-top: 1px dashed var(--card-border-subtle) !important;
-                padding-top: 8px !important;
-                margin-top: 8px !important;
-            }
-
-            .mobile-card-actions .btn {
-                padding: 6px 14px !important;
-            }
-        }
     </style>
 
     <div class="container-fluid px-2 px-sm-3 px-md-4" style="padding-top: 20px;">
@@ -528,16 +431,69 @@ $idex = $_GET['id'] ?? null;
                     <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold"
                         style="background: var(--tag-bg); color: var(--text-main); border: 1px solid var(--card-border); font-size: 0.72rem;">
                         <i class="bi bi-collection me-1 text-primary"></i>
-                        <?= count($expediente ?? []) ?> consulta(s)
+                        <?= count($historialCompleto ?? []) ?> consulta(s)
                     </span>
                 </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
 
+                    <!-- Filtro por tipo -->
+                    <div class="dropdown">
+                        <button class="btn btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2" type="button"
+                            data-bs-toggle="dropdown" style="
+                background: var(--tag-bg);
+                color: var(--text-main);
+                border: 1px solid var(--card-border);
+            " id="btnFiltroTipo">
+
+                            <i class="bi bi-funnel text-primary"></i>
+
+                            <span id="textoFiltroTipo">
+                                Todas
+                            </span>
+
+                            <i class="bi bi-chevron-down small text-muted"></i>
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border" style="min-width: 190px;">
+
+                            <li>
+                                <button type="button" class="dropdown-item filtro-tipo active" data-tipo="todos">
+
+                                    <i class="bi bi-collection me-2"></i>
+                                    Todas las consultas
+
+                                </button>
+                            </li>
+
+                            <li>
+                                <button type="button" class="dropdown-item filtro-tipo" data-tipo="medica">
+
+                                    <i class="bi bi-heart-pulse me-2"></i>
+                                    Consultas médicas
+
+                                </button>
+                            </li>
+
+                            <li>
+                                <button type="button" class="dropdown-item filtro-tipo" data-tipo="dental">
+
+                                    <i class="bi bi-emoji-smile me-2"></i>
+                                    Consultas dentales
+
+                                </button>
+                            </li>
+
+                        </ul>
+                    </div>
+
+                </div>
                 <!-- Tabla en Computadora / Lista de Tarjetas en Móvil -->
                 <div class="table-responsive p-2 p-md-0">
                     <table class="table table-custom align-middle">
                         <thead>
                             <tr>
                                 <th scope="col" style="width: 170px;">Fecha y Hora</th>
+                                <th scope="col" style="width: 190px;">Tipo</th>
                                 <th scope="col" style="width: 190px;">Médico Tratante</th>
                                 <th scope="col" style="width: 220px;">Motivo Clínico</th>
                                 <th scope="col">Diagnóstico Principal</th>
@@ -546,19 +502,32 @@ $idex = $_GET['id'] ?? null;
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (!empty($expediente)): ?>
-                                <?php foreach ($expediente as $ex): ?>
+                            <?php if (!empty($historialCompleto)): ?>
+
+                                <?php foreach ($historialCompleto as $ex): ?>
+
                                     <?php
                                     $timeObj = strtotime($ex['fecha_consulta']);
+
                                     $dia = date('d', $timeObj);
                                     $mes = date('M', $timeObj);
                                     $anio = date('Y', $timeObj);
                                     $hora = date('H:i', $timeObj);
+
+                                    $tipo = $ex['_tipo'];
+
+                                    $esDental = ($tipo === 'dental');
+
+                                    $funcionDetalle = $esDental
+                                        ? 'cargarDetalleHistorialDental'
+                                        : 'cargarDetalleHistorial';
                                     ?>
-                                    <tr>
-                                        <!-- 1. FECHA Y HORA -->
+
+                                    <tr data-tipo="<?= htmlspecialchars(strtolower(trim($ex['tipo'] ?? ''))) ?>">
+
+                                        <!-- FECHA -->
                                         <td>
-                                            <div class="d-flex align-items-center gap-2.5">
+                                            <div class="d-flex align-items-center gap-2">
                                                 <div class="cal-badge">
                                                     <span class="cal-day">
                                                         <?= $dia ?>
@@ -567,133 +536,223 @@ $idex = $_GET['id'] ?? null;
                                                         <?= $mes ?>
                                                     </span>
                                                 </div>
+
                                                 <div>
-                                                    <span class="fw-bold text-main d-block" style="font-size: 0.82rem;">
+                                                    <span class="fw-bold text-main d-block" style="font-size:.82rem;">
                                                         <?= $anio ?>
                                                     </span>
-                                                    <span class="text-muted font-monospace" style="font-size: 0.71rem;">
+
+                                                    <span class="text-muted font-monospace" style="font-size:.71rem;">
                                                         <i class="bi bi-clock me-1"></i>
                                                         <?= $hora ?> hrs
                                                     </span>
                                                 </div>
                                             </div>
                                         </td>
-
-                                        <!-- 2. MÉDICO / ATENDIÓ -->
+                                        <!--TIPO -->
                                         <td>
                                             <div class="doctor-chip">
+
+                                                <div class="doctor-avatar-circle">
+                                                    <i class="bi bi-clipboard2-pulse-fill" style="font-size: .85rem;"></i>
+                                                </div>
+
+                                                <span class="text-truncate" style="max-width:160px;"
+                                                    title="<?= htmlspecialchars($ex['tipo'] ?? '') ?>">
+
+                                                    <?= htmlspecialchars($ex['tipo'] ?? 'Sin asignar') ?>
+
+                                                </span>
+
+                                            </div>
+                                        </td>
+                                        <!-- MÉDICO -->
+                                        <td>
+                                            <div class="doctor-chip">
+
                                                 <div class="doctor-avatar-circle">
                                                     <i class="bi bi-heart-pulse-fill"></i>
                                                 </div>
-                                                <span class="text-truncate" style="max-width: 160px;"
-                                                    title="<?= htmlspecialchars($ex['atendio']) ?>">
-                                                    <?= htmlspecialchars($ex['atendio']) ?>
+
+                                                <span class="text-truncate" style="max-width:160px;"
+                                                    title="<?= htmlspecialchars($ex['atendio'] ?? '') ?>">
+
+                                                    <?= htmlspecialchars($ex['atendio'] ?? 'Sin asignar') ?>
+
                                                 </span>
+
                                             </div>
                                         </td>
 
-                                        <!-- 3. MOTIVO DE CONSULTA -->
+
+                                        <!-- MOTIVO -->
                                         <td>
                                             <span class="triage-chip">
-                                                <i class="bi bi-tag-fill" style="font-size: 0.65rem;"></i>
-                                                <?= htmlspecialchars($ex['motivo_consulta']) ?>
+
+                                                <i class="bi bi-tag-fill" style="font-size:.65rem;"></i>
+
+                                                <?= htmlspecialchars(
+                                                    $ex['motivo_consulta'] ?? 'Sin motivo registrado'
+                                                ) ?>
+
                                             </span>
                                         </td>
 
-                                        <!-- 4. DIAGNÓSTICO PRINCIPAL -->
+                                        <!-- DIAGNÓSTICO -->
                                         <td>
-                                            <div class="diag-box" title="<?= htmlspecialchars($ex['diagnostico']) ?>">
+
+                                            <div class="diag-box" title="<?= htmlspecialchars($ex['diagnostico'] ?? '') ?>">
+
                                                 <span class="diag-text">
-                                                    <?= htmlspecialchars($ex['diagnostico'] ?: 'Sin diagnóstico asentado') ?>
+
+                                                    <?= htmlspecialchars(
+                                                        $ex['diagnostico']
+                                                        ?: 'Sin diagnóstico asentado'
+                                                    ) ?>
+
                                                 </span>
+
                                             </div>
+
                                         </td>
 
-                                        <!-- 5. EVIDENCIAS / ARCHIVOS -->
+                                        <!-- DOCUMENTOS -->
                                         <td class="text-start text-md-center">
+
                                             <?php if (!empty($ex['documentos_url'])): ?>
-                                                <?php $documentos = explode(';;;', $ex['documentos_url']); ?>
+
+                                                <?php
+                                                $documentos = explode(
+                                                    ';;;',
+                                                    $ex['documentos_url']
+                                                );
+                                                ?>
+
                                                 <div class="dropdown d-inline-block">
+
                                                     <button
-                                                        class="btn btn-sm rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 shadow-none"
-                                                        type="button" data-bs-toggle="dropdown"
-                                                        style="background: var(--tag-bg); border: 1px solid var(--card-border); color: var(--text-main);">
+                                                        class="btn btn-sm rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 shadow-none"
+                                                        type="button" data-bs-toggle="dropdown">
+
                                                         <i class="bi bi-paperclip text-primary"></i>
+
                                                         <span class="small fw-bold">
                                                             <?= count($documentos) ?>
                                                         </span>
-                                                        <span class="small text-muted" style="font-size: 0.7rem;">archivos</span>
+
+                                                        <span class="small text-muted" style="font-size:.7rem;">
+                                                            archivos
+                                                        </span>
+
                                                     </button>
 
                                                     <ul
                                                         class="dropdown-menu dropdown-menu-end dropdown-menu-custom shadow-lg p-2 border">
-                                                        <li class="px-2 py-1.5 border-bottom mb-2 d-flex align-items-center justify-content-between"
-                                                            style="border-color: var(--card-border) !important;">
+
+                                                        <li class="px-2 py-2 border-bottom mb-2">
+
                                                             <span class="small fw-bold text-muted text-uppercase"
-                                                                style="font-size: 0.68rem;">
-                                                                <i class="bi bi-folder2-open me-1"></i> Evidencias Adjuntas
+                                                                style="font-size:.68rem;">
+
+                                                                <i class="bi bi-folder2-open me-1"></i>
+                                                                Evidencias adjuntas
+
                                                             </span>
+
                                                         </li>
+
                                                         <?php foreach ($documentos as $doc): ?>
+
                                                             <?php
                                                             $partes = explode('|||', $doc);
+
                                                             $nombre = $partes[0] ?? '';
                                                             $direccion = $partes[1] ?? '';
-                                                            if (empty($direccion))
+
+                                                            if (empty($direccion)) {
                                                                 continue;
+                                                            }
                                                             ?>
+
                                                             <li>
-                                                                <div
-                                                                    class="doc-item d-flex justify-content-between align-items-center p-2">
-                                                                    <a href="../../<?= htmlspecialchars($direccion) ?>" target="_blank"
-                                                                        class="text-decoration-none text-main flex-grow-1 text-truncate pe-2"
-                                                                        style="font-size: 0.78rem;">
-                                                                        <i
-                                                                            class="bi bi-file-earmark-pdf-fill text-danger me-2 fs-6"></i>
-                                                                        <span class="fw-medium">
-                                                                            <?= htmlspecialchars($nombre) ?>
-                                                                        </span>
-                                                                    </a>
-                                                                </div>
+
+                                                                <a href="../../<?= htmlspecialchars($direccion) ?>" target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    class="doc-item d-flex align-items-center p-2 text-decoration-none text-main">
+
+                                                                    <i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i>
+
+                                                                    <span class="fw-medium text-truncate" style="font-size:.78rem;">
+
+                                                                        <?= htmlspecialchars($nombre) ?>
+
+                                                                    </span>
+
+                                                                </a>
+
                                                             </li>
+
                                                         <?php endforeach; ?>
+
                                                     </ul>
+
                                                 </div>
+
                                             <?php else: ?>
-                                                <button
-                                                    class="btn btn-sm rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 text-muted"
-                                                    style="border: 1px dashed var(--card-border); font-size: 0.75rem;"
-                                                    onclick="subirDocumentoHistorial(<?= $ex['id'] ?>)"
-                                                    title="Subir evidencia clínica">
-                                                    <i class="bi bi-cloud-arrow-up text-primary"></i> Subir
-                                                </button>
+
+                                                <span class="text-muted small">
+                                                    <i class="bi bi-dash-circle me-1"></i>
+                                                    Sin archivos
+                                                </span>
+
                                             <?php endif; ?>
+
                                         </td>
 
-                                        <!-- 6. ACCIÓN / BOTÓN VER -->
+                                        <!-- ACCIÓN -->
                                         <td class="mobile-card-actions">
-                                            <span class="d-md-none text-muted small fw-semibold">Consultar ficha:</span>
+
                                             <button
-                                                class="btn btn-sm btn-action-view rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5"
-                                                onclick="cargarDetalleHistorial(<?= $ex['id'] ?>)"
-                                                title="Ver Consulta Detallada">
+                                                class="btn btn-sm btn-action-view rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1"
+                                                onclick="<?= $funcionDetalle ?>(<?= (int) $ex['id'] ?>)"
+                                                title="Ver consulta detallada">
+
                                                 <i class="bi bi-eye"></i>
-                                                <span style="font-size: 0.78rem;">Ver</span>
+
+                                                <span style="font-size:.78rem;">
+                                                    Ver
+                                                </span>
+
                                             </button>
+
                                         </td>
+
                                     </tr>
+
                                 <?php endforeach; ?>
+
                             <?php else: ?>
+
                                 <tr>
                                     <td colspan="6" class="text-center py-5 text-muted">
+
                                         <div class="py-4">
+
                                             <i class="bi bi-inbox fs-1 d-block mb-2 opacity-40"></i>
-                                            <h6 class="fw-semibold text-main mb-1">Sin Consultas Registradas</h6>
-                                            <p class="small text-muted mb-0">No se encontraron expedientes en el rango de
-                                                fechas seleccionado.</p>
+
+                                            <h6 class="fw-semibold text-main mb-1">
+                                                Sin consultas registradas
+                                            </h6>
+
+                                            <p class="small text-muted mb-0">
+                                                No se encontraron expedientes en el rango de fechas seleccionado.
+                                            </p>
+
                                         </div>
+
                                     </td>
                                 </tr>
+
                             <?php endif; ?>
                         </tbody>
                     </table>
@@ -713,6 +772,46 @@ $idex = $_GET['id'] ?? null;
         console.log(<?= json_encode($expediente) ?>);
     </script>
     <script>
+        document.querySelectorAll('.filtro-tipo').forEach(boton => {
+
+            boton.addEventListener('click', function () {
+
+                const tipoSeleccionado = this.dataset.tipo;
+
+                // Cambiar texto del botón
+                const texto = this.textContent.trim();
+
+                document.getElementById('textoFiltroTipo').textContent =
+                    tipoSeleccionado === 'todos'
+                        ? 'Todas'
+                        : texto.replace('Consultas ', '');
+
+                // Marcar opción activa
+                document.querySelectorAll('.filtro-tipo').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                this.classList.add('active');
+
+                // Filtrar filas
+                document.querySelectorAll('table tbody tr[data-tipo]').forEach(fila => {
+
+                    const tipoFila = fila.dataset.tipo;
+
+                    if (
+                        tipoSeleccionado === 'todos' ||
+                        tipoFila === tipoSeleccionado
+                    ) {
+                        fila.style.display = '';
+                    } else {
+                        fila.style.display = 'none';
+                    }
+
+                });
+
+            });
+
+        });
         function verDocumentoSeguro(rutaRelativa, nombreArchivo) {
             // Construyes la ruta completa de forma interna en JavaScript
             const urlCompleta = "../../" + rutaRelativa;
@@ -771,7 +870,384 @@ $idex = $_GET['id'] ?? null;
                     text: error.message
                 });
             }
+        } async function cargarDetalleHistorialDental(historialId) {
+            try {
+                const response = await fetch(`/myvet/app/controllers/consultaHIstorialClienteController.php?action=obtenerHistorialDetalleDental&id=${historialId}&api_token=${AccesoToken}`);
+                const resultado = await response.json();
+                console.log(resultado);
+
+                if (!response.ok || !resultado.success) {
+                    throw new Error(resultado.message || 'Error al obtener los datos.');
+                }
+
+                ejecutarImpresionExpedienteDental(resultado.data);
+
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message
+                });
+            }
         }
+        function ejecutarImpresionExpedienteDental(data) {
+            const ventana = window.open('', '_blank', 'height=750,width=900');
+
+            const folioFormateado = String(data.id || '0').padStart(5, '0');
+
+            let fechaConsulta = 'N/A';
+            if (data.fecha_consulta) {
+                const f = new Date(data.fecha_consulta.replace(/-/g, '/'));
+                fechaConsulta = f.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }) +
+                    ' ' + f.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+            }
+
+            const costoFormateado = parseFloat(data.costo || 0).toLocaleString('es-MX', {
+                style: 'currency',
+                currency: 'MXN'
+            });
+
+            ventana.document.write(`
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>HISTORIAL_DENTAL_${folioFormateado}</title>
+            <style>
+                * {
+                    box-sizing: border-box;
+                    margin: 0;
+                    padding: 0;
+                    font-family: Arial, Helvetica, sans-serif;
+                }
+                body { 
+                    padding: 0.8cm;
+                    background-color: #ffffff;
+                    color: #1e293b;
+                    font-size: 11px;
+                    line-height: 1.3;
+                }
+                .marca-agua {
+                    position: fixed;
+                    top: 45%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 220px;
+                    opacity: 0.03;
+                    z-index: 0;
+                    pointer-events: none;
+                }
+                .contenido-principal {
+                    position: relative;
+                    z-index: 1;
+                }
+                
+                /* Layout compacto estilo reporte */
+                .header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-bottom: 2px solid #0f172a;
+                    padding-bottom: 8px;
+                    margin-bottom: 10px;
+                }
+                .header-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                .logo {
+                    width: 48px;
+                    height: 48px;
+                    object-fit: contain;
+                }
+                .titulo-reporte {
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #0f172a;
+                    letter-spacing: 0.5px;
+                }
+                .subtitulo-reporte {
+                    font-size: 10px;
+                    color: #64748b;
+                    margin-top: 2px;
+                }
+                .badge-estado {
+                    display: inline-block;
+                    background-color: #e2e8f0;
+                    color: #0f172a;
+                    font-size: 9px;
+                    font-weight: bold;
+                    padding: 2px 6px;
+                    border-radius: 3px;
+                    margin-left: 6px;
+                }
+
+                .grid-2 {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 8px;
+                    margin-bottom: 8px;
+                }
+                .grid-3 {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr 1fr;
+                    gap: 8px;
+                    margin-bottom: 8px;
+                }
+                .grid-4 {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 8px;
+                    margin-bottom: 8px;
+                }
+
+                .card-block {
+                    border: 1px solid #cbd5e1;
+                    border-radius: 4px;
+                    padding: 6px 8px;
+                    background-color: #ffffff;
+                }
+                .card-block.bg-light {
+                    background-color: #f8fafc;
+                }
+
+                .seccion-label {
+                    font-size: 9px;
+                    font-weight: bold;
+                    color: #475569;
+                    text-transform: uppercase;
+                    border-bottom: 1px solid #e2e8f0;
+                    padding-bottom: 2px;
+                    margin-bottom: 4px;
+                    display: block;
+                }
+                
+                .data-label {
+                    font-size: 9px;
+                    color: #64748b;
+                    display: block;
+                }
+                .data-value {
+                    font-size: 11px;
+                    font-weight: 600;
+                    color: #0f172a;
+                }
+                .data-value-highlight {
+                    font-size: 12px;
+                    font-weight: bold;
+                    color: #1e3a8a;
+                }
+
+                .box-evaluacion {
+                    background-color: #f1f5f9;
+                    border: 1px solid #94a3b8;
+                    border-radius: 4px;
+                    padding: 6px;
+                    margin-bottom: 8px;
+                    display: flex;
+                    justify-content: space-around;
+                    text-align: center;
+                }
+                .box-evaluacion-item {
+                    flex: 1;
+                }
+                .box-evaluacion-item:not(:last-child) {
+                    border-right: 1px solid #cbd5e1;
+                }
+
+                .text-block {
+                    min-height: 28px;
+                    font-size: 10px;
+                    color: #334155;
+                    word-wrap: break-word;
+                }
+
+                .footer-costo {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-top: 1.5px solid #0f172a;
+                    padding-top: 6px;
+                    margin-top: 10px;
+                }
+
+                .firma-container {
+                    margin-top: 30px;
+                    display: flex;
+                    justify-content: center;
+                }
+                .firma-box {
+                    border-top: 1px solid #0f172a;
+                    width: 200px;
+                    text-align: center;
+                    padding-top: 4px;
+                    font-size: 10px;
+                }
+
+                @page { 
+                    size: letter portrait;
+                    margin: 0; 
+                }
+                @media print {
+                    body { padding: 0.8cm; }
+                }
+            </style>
+        </head>
+        <body>
+
+            <img src="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>" class="marca-agua" alt="Watermark">
+
+
+            <div id="areaImpresion" class="contenido-principal">
+
+                <!-- ENCABEZADO -->
+                <div class="header">
+                    <div class="header-left">
+                       <img src="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>" alt="Logo" width="55" height="55" class="me-3">
+                             <div>
+                            <div class="titulo-reporte">HISTORIAL CLÍNICO DENTAL</div>
+                            <div class="subtitulo-reporte">
+                                FOLIO: <strong>#${folioFormateado}</strong>
+                                <span class="badge-estado">${(data.estado || 'COMPLETADA').toUpperCase()}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: bold; font-size: 12px;">CLÍNICA DENTAL</div>
+                        <div style="font-size: 10px; color: #64748b;">${fechaConsulta}</div>
+                    </div>
+                </div>
+
+                <!-- DATOS DEL PACIENTE -->
+                <div class="card-block bg-light" style="margin-bottom: 8px;">
+                    <span class="seccion-label">DATOS DEL PACIENTE</span>
+                    <div class="grid-3">
+                        <div>
+                            <span class="data-label">Nombre / Razón Social</span>
+                            <span class="data-value">${data.cliente_nombre || data.razon_social || 'PÚBLICO EN GENERAL'}</span>
+                        </div>
+                        <div>
+                            <span class="data-label">RFC</span>
+                            <span class="data-value">${data.rfc || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <span class="data-label">Teléfono</span>
+                            <span class="data-value">${data.telefono || 'Sin registrar'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EVALUACIÓN RÁPIDA DENTAL -->
+                <div class="box-evaluacion">
+                    <div class="box-evaluacion-item">
+                        <span class="data-label">PRESIÓN ARTERIAL</span>
+                        <span class="data-value-highlight">${data.presion_arterial || 'N/R'}</span>
+                    </div>
+                    <div class="box-evaluacion-item">
+                        <span class="data-label">PIEZAS DENTALES AFECTADAS</span>
+                        <span class="data-value-highlight" style="color: #b91c1c;">${data.piezas_dentales || 'N/R'}</span>
+                    </div>
+                </div>
+
+                <!-- ANTECEDENTES -->
+                <div class="grid-2">
+                    <div class="card-block">
+                        <span class="seccion-label">Antecedentes Médicos</span>
+                        <div class="text-block">${data.antecedentes_medicos || 'Ninguno'}</div>
+                    </div>
+                    <div class="card-block">
+                        <span class="seccion-label">Antecedentes Dentales</span>
+                        <div class="text-block">${data.antecedentes_dentales || 'Ninguno'}</div>
+                    </div>
+                </div>
+
+                <!-- SÍNTOMAS Y MOTIVO -->
+                <div class="grid-2">
+                    <div class="card-block">
+                        <span class="seccion-label">Motivo de Consulta</span>
+                        <div class="text-block">${data.motivo_consulta || 'Sin especificar.'}</div>
+                    </div>
+                    <div class="card-block">
+                        <span class="seccion-label">Síntomas Reportados</span>
+                        <div class="text-block">${data.sintomas || 'Sin registrar.'}</div>
+                    </div>
+                </div>
+
+                <!-- DIAGNÓSTICO -->
+                <div class="card-block" style="margin-bottom: 8px;">
+                    <span class="seccion-label">Diagnóstico Clínico</span>
+                    <div class="text-block" style="font-weight: bold; text-transform: uppercase;">${data.diagnostico || 'Pendiente.'}</div>
+                </div>
+
+                <!-- PROCEDIMIENTO REALIZADO -->
+                <div class="card-block" style="margin-bottom: 8px; background-color: #f8fafc;">
+                    <span class="seccion-label">Procedimiento Realizado</span>
+                    <div class="text-block" style="font-weight: bold; text-transform: uppercase;">${data.procedimiento_realizado || 'Ninguno'}</div>
+                </div>
+
+                <!-- PLAN DE TRATAMIENTO -->
+                <div class="card-block" style="margin-bottom: 8px;">
+                    <span class="seccion-label">Plan de Tratamiento / Indicaciones</span>
+                    <div class="text-block">${data.plan_tratamiento || 'Sin tratamiento prescrito.'}</div>
+                </div>
+
+                <!-- OBSERVACIONES -->
+                ${data.observaciones && data.observaciones !== 'ninguna' ? `
+                <div class="card-block" style="margin-bottom: 8px;">
+                    <span class="seccion-label">Observaciones Adicionales</span>
+                    <div class="text-block">${data.observaciones}</div>
+                </div>
+                ` : ''}
+
+                <!-- TOTAL Y COSTO -->
+                <div class="footer-costo">
+                    <span style="font-weight: bold; font-size: 10px; color: #475569; text-transform: uppercase;">Costo del Servicio / Procedimiento</span>
+                    <span style="font-size: 14px; font-weight: bold; color: #0f172a;">${costoFormateado} MXN</span>
+                </div>
+
+                <!-- FIRMA -->
+                <div class="firma-container">
+                    <div class="firma-box">
+                        <strong style="display: block; text-transform: uppercase;">Cirujano Dentista</strong>
+                        <span style="color: #64748b; font-size: 8px;">Firma y Cédula Profesional</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
+
+            <script>
+                window.addEventListener('DOMContentLoaded', () => {
+                    const esMovil = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+                    setTimeout(() => {
+                        if (esMovil) {
+                            const elemento = document.getElementById('areaImpresion');
+                            const opciones = {
+                                margin:       0.3,
+                                filename:     'Historial_Dental_Folio_${folioFormateado}.pdf',
+                                image:        { type: 'jpeg', quality: 0.98 },
+                                html2canvas:  { scale: 2, useCORS: true },
+                                jsPDF:        { unit: 'cm', format: 'letter', orientation: 'portrait' }
+                            };
+
+                            html2pdf().set(opciones).from(elemento).save();
+                        } else {
+                            window.print();
+                        }
+                    }, 600);
+                });
+            <\/script>
+        </body>
+        </html>
+    `);
+
+            ventana.document.close();
+        }
+
 
 
         function ejecutarImpresionExpediente(data) {

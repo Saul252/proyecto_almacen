@@ -258,20 +258,7 @@
     });
 
     // 4. Obtener Almacenes para el select principal
-    function getAlmacenes() {
-        const selectPrincipal = document.getElementById('select_almacen_id');
-        if (selectPrincipal) {
-            fetch('/myvet/app/controllers/accesoController.php?action=getAlmacenesJSON')
-                .then(res => res.json())
-                .then(categorias => {
-                    categorias.forEach(cat => {
-                        const option = new Option(cat.nombre, cat.id);
-                        selectPrincipal.add(option);
-                    });
-                })
-                .catch(err => console.error("Error cargando almacenes:", err));
-        }
-    }
+
 
     // 5. Guardar Categoría Rápida desde el submodal
     function guardarCategoriaRapida() {
@@ -713,7 +700,7 @@
             setTimeout(iniciarModuloProducto, 100);
             return;
         }
-        getAlmacenes();
+
         const ProdModulo = {
 
             urlControlador: '/myvet/app/controllers/productosController.php',

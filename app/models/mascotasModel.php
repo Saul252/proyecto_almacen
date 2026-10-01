@@ -1,8 +1,10 @@
 <?php
-class MascotasModel {
+class MascotasModel
+{
     private $db;
 
-    public function __construct($conexion) {
+    public function __construct($conexion)
+    {
         $this->db = $conexion;
     }
 
@@ -66,80 +68,82 @@ class MascotasModel {
 
         return $this->db->insert_id;
     }
-    public function listarTodos($consultorio=0 , $cliente_id=0 )
-{
-    $sql = "SELECT 
+    public function listarTodos($consultorio = 0, $cliente_id = 0)
+    {
+        $sql = "SELECT 
                 m.*,
                 c.nombre_comercial AS propietario_nombre
             FROM mascotas m
             INNER JOIN clientes c ON m.cliente_id = c.id
             WHERE m.activo = 1";
 
-    $params = [];
-    $types  = "";
+        $params = [];
+        $types = "";
 
-    // 1. Filtro dinámico por almacén / consultorio
-    if ($consultorio > 0) {
-        $sql .= " AND c.almacen_id = ?";
-        $params[] = (int)$consultorio;
-        $types   .= "i";
-    }
-
-    // 2. Filtro dinámico por cliente
-    if ($cliente_id > 0) {
-        $sql .= " AND m.cliente_id = ?";
-        $params[] = (int)$cliente_id;
-        $types   .= "i";
-    }
-
-    $sql .= " ORDER BY m.nombre ASC";
-
-    // 3. Ejecución dinámica con Prepared Statements
-    if (!empty($params)) {
-        $stmt = $this->db->prepare($sql);
-        if (!$stmt) {
-            throw new Exception("Error al preparar consulta: " . $this->db->error);
+        // 1. Filtro dinámico por almacén / consultorio
+        if ($consultorio > 0) {
+            $sql .= " AND c.almacen_id = ?";
+            $params[] = (int) $consultorio;
+            $types .= "i";
         }
 
-        // El operador ... (splat) pasa los elementos del array como argumentos individuales
-        $stmt->bind_param($types, ...$params);
-
-        if (!$stmt->execute()) {
-            throw new Exception("Error al ejecutar consulta: " . $stmt->error);
+        // 2. Filtro dinámico por cliente
+        if ($cliente_id > 0) {
+            $sql .= " AND m.cliente_id = ?";
+            $params[] = (int) $cliente_id;
+            $types .= "i";
         }
 
-        $resultado = $stmt->get_result();
-    } else {
-        // Si no hay parámetros de filtro, ejecuta la consulta normal
-        $resultado = $this->db->query($sql);
-        if (!$resultado) {
-            throw new Exception("Error en consulta: " . $this->db->error);
+        $sql .= " ORDER BY m.nombre ASC";
+
+        // 3. Ejecución dinámica con Prepared Statements
+        if (!empty($params)) {
+            $stmt = $this->db->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Error al preparar consulta: " . $this->db->error);
+            }
+
+            // El operador ... (splat) pasa los elementos del array como argumentos individuales
+            $stmt->bind_param($types, ...$params);
+
+            if (!$stmt->execute()) {
+                throw new Exception("Error al ejecutar consulta: " . $stmt->error);
+            }
+
+            $resultado = $stmt->get_result();
+        } else {
+            // Si no hay parámetros de filtro, ejecuta la consulta normal
+            $resultado = $this->db->query($sql);
+            if (!$resultado) {
+                throw new Exception("Error en consulta: " . $this->db->error);
+            }
         }
+
+        // Devuelve un array asociativo directamente, listo para json_encode
+        return $resultado->fetch_all(MYSQLI_ASSOC);
     }
-
-    // Devuelve un array asociativo directamente, listo para json_encode
-    return $resultado->fetch_all(MYSQLI_ASSOC);
-}
 
     /**
      * Obtiene los datos de una mascota específica por su ID
      */
-    public function obtenerPorId($id) {
+    public function obtenerPorId($id)
+    {
         $sql = "SELECT m.*, c.nombre_comercial AS propietario_nombre 
                 FROM mascotas m
                 INNER JOIN clientes c ON m.cliente_id = c.id
                 WHERE m.id = ?";
-                
+
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
         return $stmt->get_result()->fetch_assoc();
     }
-    public function obtenerTodos() {
-        
+    public function obtenerTodos()
+    {
+
 
         // Filtro por Estado de Pago (Saldo)
-        
+
 
         $sql = "SELECT m.*, c.nombre_comercial AS propietario_nombre 
                 FROM mascotas m
@@ -148,12 +152,13 @@ class MascotasModel {
 
         $res = $this->db->query($sql);
         return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
-  
 
-        
+
+
     }
-  public function obtenerExpedientePorId($id) {
-    $sql = "SELECT h.*, c.nombre_comercial AS propietario_nombre,
+    public function obtenerExpedientePorId($id)
+    {
+        $sql = "SELECT h.*, c.nombre_comercial AS propietario_nombre,
      (
     SELECT GROUP_CONCAT(
         CONCAT(
@@ -173,15 +178,15 @@ class MascotasModel {
             INNER JOIN clientes c ON m.cliente_id = c.id
             WHERE m.id = ?";
 
-    $stmt = $this->db->prepare($sql);
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
 
-    return $stmt->get_result();
-}
- public function obtenerHistorialPorId(int $id)
-{
-    $sql = "SELECT h.*, c.nombre_comercial AS propietario_nombre,m.id, m.cliente_id, m.nombre, m.especie, m.raza, m.fecha_nacimiento, m.sexo, m.peso, m.color, m.senas_particulares, m.fotografia, m.activo, m.fecha_registro,
+        return $stmt->get_result();
+    }
+    public function obtenerHistorialPorId(int $id)
+    {
+        $sql = "SELECT h.*, c.nombre_comercial AS propietario_nombre,m.id, m.cliente_id, m.nombre, m.especie, m.raza, m.fecha_nacimiento, m.sexo, m.peso, m.color, m.senas_particulares, m.fotografia, m.activo, m.fecha_registro,
 
             (
                 SELECT GROUP_CONCAT(
@@ -202,50 +207,100 @@ class MascotasModel {
             INNER JOIN clientes c ON m.cliente_id = c.id
             WHERE h.id = ?"; // Se corrigió m.id por h.id
 
-    $stmt = $this->db->prepare($sql);
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
 
-    if ($row = $resultado->fetch_assoc()) {
-        // Descomponer la cadena del GROUP_CONCAT en un arreglo de objetos
-        $documentos = [];
-        if (!empty($row['documento_url'])) {
-            $docsArray = explode(';;;', $row['documento_url']);
-            foreach ($docsArray as $doc) {
-                $partes = explode('|||', $doc);
-                $documentos[] = [
-                    'nombre'    => $partes[0] ?? '',
-                    'direccion' => $partes[1] ?? '',
-                    'id'        => (int)($partes[2] ?? 0)
-                ];
+        if ($row = $resultado->fetch_assoc()) {
+            // Descomponer la cadena del GROUP_CONCAT en un arreglo de objetos
+            $documentos = [];
+            if (!empty($row['documento_url'])) {
+                $docsArray = explode(';;;', $row['documento_url']);
+                foreach ($docsArray as $doc) {
+                    $partes = explode('|||', $doc);
+                    $documentos[] = [
+                        'nombre' => $partes[0] ?? '',
+                        'direccion' => $partes[1] ?? '',
+                        'id' => (int) ($partes[2] ?? 0)
+                    ];
+                }
             }
+
+            $row['documentos'] = $documentos;
+            unset($row['documento_url']); // Elimina la cadena cruda
+
+            return $row;
         }
-        
-        $row['documentos'] = $documentos;
-        unset($row['documento_url']); // Elimina la cadena cruda
 
-        return $row;
+        return null;
     }
+    public function subirDocumentoConsulta($paciente_id, $nombre, $documento_url, $tipo = 'dental', $consulta_id = null)
+    {
+        $sql = "INSERT INTO documentos (paciente_id, nombre, direccion, tipo, consulta_id)
+            VALUES (?, ?, ?, ?, ?)";
 
-    return null;
-}
+        $stmt = $this->db->prepare($sql);
+
+        if (!$stmt) {
+            throw new Exception("Error al preparar consulta: " . $this->db->error);
+        }
+
+        // Nota: "isssi" -> i (int), s (string), s (string), s (string), i (int)
+        $stmt->bind_param(
+            "isssi",
+            $paciente_id,
+            $nombre,
+            $documento_url,
+            $tipo,
+            $consulta_id
+        );
+
+        if (!$stmt->execute()) {
+            throw new Exception("Error al guardar documento: " . $stmt->error);
+        }
+
+        $documento_id = $stmt->insert_id;
+        $stmt->close();
+
+        return [
+            'success' => true,
+            'documento_id' => $documento_id,
+            'message' => 'Documento guardado correctamente'
+        ];
+    }
+    public function eliminarDocumento($id_documento)
+    {
+
+        $sql = "UPDATE documentos_vehiculos
+            SET activo = 0
+            WHERE id = ?";
+
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt)
+            return false;
+
+        $stmt->bind_param("i", $id_documento);
+
+        return $stmt->execute();
+    }
     /**
      * Inserta una nueva mascota en la base de datos
      */
-    public function guardar($datos) {
+    public function guardar($datos)
+    {
         // 1. Limpieza y validación de datos
-        $cliente_id         = intval($datos['cliente_id']);
-        $nombre             = $datos['nombre'] ?? '';
-        $especie            = $datos['especie'] ?? '';
-        $raza               = !empty($datos['raza']) ? $datos['raza'] : null;
-        $fecha_nacimiento   = !empty($datos['fecha_nacimiento']) ? $datos['fecha_nacimiento'] : null;
-        $sexo               = $datos['sexo'] ?? 'Desconocido';
-        $peso               = !empty($datos['peso']) ? floatval($datos['peso']) : null;
-        $color              = !empty($datos['color']) ? $datos['color'] : null;
+        $cliente_id = intval($datos['cliente_id']);
+        $nombre = $datos['nombre'] ?? '';
+        $especie = $datos['especie'] ?? '';
+        $raza = !empty($datos['raza']) ? $datos['raza'] : null;
+        $fecha_nacimiento = !empty($datos['fecha_nacimiento']) ? $datos['fecha_nacimiento'] : null;
+        $sexo = $datos['sexo'] ?? 'Desconocido';
+        $peso = !empty($datos['peso']) ? floatval($datos['peso']) : null;
+        $color = !empty($datos['color']) ? $datos['color'] : null;
         $senas_particulares = !empty($datos['senas_particulares']) ? $datos['senas_particulares'] : null;
-        $fotografia         = !empty($datos['fotografia']) ? $datos['fotografia'] : null;
-        $activo             = 1;
+        $fotografia = !empty($datos['fotografia']) ? $datos['fotografia'] : null;
+        $activo = 1;
 
         if (empty($cliente_id) || empty($nombre) || empty($especie)) {
             throw new Exception("El cliente, nombre y especie son obligatorios.");
@@ -287,7 +342,7 @@ class MascotasModel {
 
         return [
             'success' => true,
-            'id'      => $this->db->insert_id,
+            'id' => $this->db->insert_id,
             'message' => 'Mascota guardada correctamente'
         ];
     }
@@ -295,16 +350,17 @@ class MascotasModel {
     /**
      * Actualiza los datos de una mascota existente
      */
-    public function actualizar($id, $datos) {
+    public function actualizar($id, $datos)
+    {
         // Limpieza de datos
-        $propietario            = $datos['cliente_id'] ?? 1;
-        $nombre             = $datos['nombre'] ?? '';
-        $especie            = $datos['especie'] ?? '';
-        $raza               = !empty($datos['raza']) ? $datos['raza'] : null;
-        $fecha_nacimiento   = !empty($datos['fecha_nacimiento']) ? $datos['fecha_nacimiento'] : null;
-        $sexo               = $datos['sexo'] ?? 'Desconocido';
-        $peso               = !empty($datos['peso']) ? floatval($datos['peso']) : null;
-        $color              = !empty($datos['color']) ? $datos['color'] : null;
+        $propietario = $datos['cliente_id'] ?? 1;
+        $nombre = $datos['nombre'] ?? '';
+        $especie = $datos['especie'] ?? '';
+        $raza = !empty($datos['raza']) ? $datos['raza'] : null;
+        $fecha_nacimiento = !empty($datos['fecha_nacimiento']) ? $datos['fecha_nacimiento'] : null;
+        $sexo = $datos['sexo'] ?? 'Desconocido';
+        $peso = !empty($datos['peso']) ? floatval($datos['peso']) : null;
+        $color = !empty($datos['color']) ? $datos['color'] : null;
         $senas_particulares = !empty($datos['senas_particulares']) ? $datos['senas_particulares'] : null;
 
         // Campos base a actualizar
@@ -343,7 +399,7 @@ class MascotasModel {
 
         // Ensamblar la consulta
         $sql = "UPDATE mascotas SET " . implode(", ", $campos) . " WHERE id = ?";
-        
+
         $params[] = $id;
         $tipos .= "i"; // El id del final
 
@@ -368,16 +424,17 @@ class MascotasModel {
     /**
      * Da de baja o reactiva una mascota (Soft Delete)
      */
-    public function cambiarEstado($id, $estado) {
+    public function cambiarEstado($id, $estado)
+    {
         $sql = "UPDATE mascotas SET activo = ? WHERE id = ?";
         $stmt = $this->db->prepare($sql);
-        
+
         if (!$stmt) {
             throw new Exception("Error al preparar DELETE lógico: " . $this->db->error);
         }
 
         $stmt->bind_param("ii", $estado, $id);
-        
+
         if ($stmt->execute()) {
             return $stmt->affected_rows > 0;
         }
@@ -387,7 +444,8 @@ class MascotasModel {
     /**
      * Obtiene métricas rápidas de las mascotas registradas (Opcional, para el dashboard)
      */
-    public function getResumenMascotas($cliente_id = 0) {
+    public function getResumenMascotas($cliente_id = 0)
+    {
         if ($cliente_id > 0) {
             $sql = "SELECT COUNT(*) as total FROM mascotas WHERE activo = 1 AND cliente_id = ?";
             $stmt = $this->db->prepare($sql);
