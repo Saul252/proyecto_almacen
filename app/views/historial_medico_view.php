@@ -617,6 +617,7 @@ $idex = $_GET['id'] ?? null;
                                                             <i class="bi bi-paperclip text-primary"></i>
                                                             <span><?= count($documentos) ?> archivo(s)</span>
                                                         </button>
+
                                                         <ul
                                                             class="dropdown-menu dropdown-menu-end dropdown-menu-custom shadow-lg p-2">
                                                             <li class="px-2 py-1.5 border-bottom mb-2 d-flex align-items-center justify-content-between"
@@ -625,12 +626,29 @@ $idex = $_GET['id'] ?? null;
                                                                     style="font-size: 0.68rem;">
                                                                     <i class="bi bi-images me-1"></i> Evidencias Adjuntas
                                                                 </span>
-                                                                <button class="btn btn-xs btn-primary rounded-2 py-0.5 px-2 fw-bold"
-                                                                    style="font-size: 0.68rem;"
-                                                                    onclick="subirDocumentoHistorial(<?= $ex['id'] ?>)">
-                                                                    <i class="bi bi-plus-lg me-1"></i>Nuevo
-                                                                </button>
+
+                                                                <div class="d-flex gap-1">
+                                                                    <!-- NUEVO -->
+                                                                    <button
+                                                                        class="btn btn-xs btn-primary rounded-2 py-0.5 px-2 fw-bold"
+                                                                        style="font-size: 0.68rem;"
+                                                                        onclick="subirDocumentoHistorial(<?= $ex['id'] ?>)">
+                                                                        <i class="bi bi-plus-lg me-1"></i>Nuevo
+                                                                    </button>
+
+                                                                    <!-- DESCARGAR ZIP — CORREGIDO -->
+                                                                    <button
+                                                                        class="btn btn-xs btn-success rounded-2 py-0.5 px-2 fw-bold"
+                                                                        style="font-size: 0.68rem;"
+                                                                        title="Descargar todos los archivos en ZIP"
+                                                                        data-expediente-id="<?= $ex['id'] ?>"
+                                                                        data-documentos="<?= htmlspecialchars($ex['documentos_url'], ENT_QUOTES, 'UTF-8') ?>"
+                                                                        onclick="descargarTodosDocumentos(this)">
+                                                                        <i class="bi bi-file-earmark-zip me-1"></i>ZIP
+                                                                    </button>
+                                                                </div>
                                                             </li>
+
                                                             <?php foreach ($documentos as $doc): ?>
                                                                 <?php
                                                                 $partes = explode('|||', $doc);
@@ -712,6 +730,189 @@ $idex = $_GET['id'] ?? null;
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>/**
+* Descarga todos los documentos del expediente en un ZIP.
+* Se llama desde el botón "ZIP" del dropdown.
+*/
+        async function descargarTodosDocumentos(boton) {
+
+            const expedienteId = boton.dataset.expedienteId;
+            const documentosRaw = boton.dataset.documentos;
+
+            if (!documentosRaw) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Sin documentos',
+                    text: 'Este expediente no tiene archivos adjuntos.'
+                });
+                return;
+            }
+
+            // ============================================================
+            // 1. Parsear la cadena documento_url
+            // ============================================================
+            const documentos = documentosRaw.split(';;;').map(item => {
+                const partes = item.split('|||');
+                return {
+                    nombre: partes[0] || 'Documento',
+                    ruta: partes[1] || '',
+                    id: partes[2] || ''
+                };
+            }).filter(d => d.ruta);
+
+            if (documentos.length === 0) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Sin documentos',
+                    text: 'No hay archivos válidos para descargar.'
+                });
+                return;
+            }
+
+            // ============================================================
+            // 2. Bloquear botón y mostrar progreso
+            // ============================================================
+            const textoOriginal = boton.innerHTML;
+            boton.disabled = true;
+            boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            // Toast de progreso (opcional)
+            Swal.fire({
+                title: 'Preparando ZIP...',
+                html: 'Iniciando descarga de <b>0</b> de <b>' + documentos.length + '</b> archivos...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            try {
+                // ============================================================
+                // 3. Crear ZIP y descargar cada archivo
+                // ============================================================
+                const zip = new JSZip();
+                const carpetaAdjuntos = zip.folder('adjuntos');
+
+                let hechos = 0;
+                const total = documentos.length;
+
+                for (const doc of documentos) {
+                    try {
+                        // Detectar URL base (según cómo lo tienes: ../../uploads/...)
+                        const url = new URL('../../' + doc.ruta, window.location.href).href;
+
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            credentials: 'include' // por si requiere sesión PHP
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+
+                        const blob = await response.blob();
+
+                        // Nombre limpio para dentro del ZIP
+                        const nombreLimpio = sanitizarNombre(doc.nombre);
+                        carpetaAdjuntos.file(nombreLimpio, blob);
+
+                    } catch (err) {
+                        console.error(`Error con ${doc.nombre}:`, err);
+
+                        // Dejar constancia del error dentro del ZIP
+                        carpetaAdjuntos.file(
+                            `ERROR_${sanitizarNombre(doc.nombre)}.txt`,
+                            `No se pudo descargar.\nNombre: ${doc.nombre}\nRuta: ${doc.ruta}\nMotivo: ${err.message}`
+                        );
+                    }
+
+                    hechos++;
+
+                    // Actualizar progreso
+                    Swal.update({
+                        html: `Descargando <b>${hechos}</b> de <b>${total}</b> archivos...<br>
+                       <small class="text-muted">${sanitizarNombre(doc.nombre)}</small>`
+                    });
+                }
+
+                // ============================================================
+                // 4. Generar ZIP
+                // ============================================================
+                const contenidoZip = await zip.generateAsync(
+                    {
+                        type: 'blob',
+                        compression: 'DEFLATE',
+                        compressionOptions: { level: 6 }
+                    },
+                    (metadata) => {
+                        // Progreso de compresión (opcional)
+                        Swal.update({
+                            html: `Comprimiendo ZIP... <b>${metadata.percent.toFixed(0)}%</b>`
+                        });
+                    }
+                );
+
+                // ============================================================
+                // 5. Descargar el ZIP
+                // ============================================================
+                const nombreZip = `Expediente_${expedienteId}_${new Date().toISOString().slice(0, 10)}.zip`;
+                descargarBlobJSZip(contenidoZip, nombreZip);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Listo!',
+                    text: `Se descargaron ${total} archivo(s) en el ZIP.`,
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+
+            } catch (err) {
+                console.error('Error general:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: err.message || 'No se pudo generar el ZIP.'
+                });
+
+            } finally {
+                // Restaurar botón
+                boton.disabled = false;
+                boton.innerHTML = textoOriginal;
+            }
+        }
+
+
+        // ============================================================
+        // Utilidades
+        // ============================================================
+
+        /**
+         * Descarga un Blob como archivo.
+         */
+        function descargarBlobJSZip(blob, nombreArchivo) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = nombreArchivo;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+
+        /**
+         * Sanitiza un nombre de archivo para que sea seguro dentro del ZIP.
+         */
+        function sanitizarNombre(nombre) {
+            return String(nombre)
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')       // quitar acentos
+                .replace(/[^a-zA-Z0-9._-]/g, '_')      // reemplazar caracteres raros
+                .replace(/_+/g, '_')                   // evitar múltiples _
+                .substring(0, 100);                    // limitar longitud
+        }
+    </script>
     <script>
         console.log(<?= json_encode($expediente) ?>);
     </script>

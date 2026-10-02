@@ -259,7 +259,7 @@ class PacientesModel
         SEPARATOR ';;;'
     )
     FROM documentos doc
-    WHERE doc.paciente_id =c.id and doc.consulta_id=hc.id
+    WHERE doc.paciente_id =c.id and doc.consulta_id=hc.id and doc.tipo='dental'
 ) AS documentos_url
                
             FROM historial_dental hc

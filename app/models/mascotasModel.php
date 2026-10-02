@@ -156,30 +156,66 @@ class MascotasModel
 
 
     }
-    public function obtenerExpedientePorId($id)
+    public function obtenerExpedientePorId($id, $fecha_inicio = null, $fecha_fin = null)
     {
-        $sql = "SELECT h.*, c.nombre_comercial AS propietario_nombre,
-     (
-    SELECT GROUP_CONCAT(
-        CONCAT(
-            IFNULL(nombre, ''),
-            '|||',
-            IFNULL(direccion, ''),
-            '|||',
-            IFNULL(id, '')
-        )
-        SEPARATOR ';;;'
-    )
-    FROM expedientes_documentos ed
-    WHERE ed.historial_id = h.id
-) AS documento_url
+        // ============================================================
+        // 1. Determinar el rango de fechas
+        // ============================================================
+        if (!empty($fecha_inicio) && trim($fecha_inicio) !== "''") {
+            // Limpiar y tomar solo YYYY-MM-DD
+            $f_inicio = substr(trim($fecha_inicio), 0, 10);
+        } else {
+            // Sin fecha de inicio → primer día del mes actual
+            $f_inicio = date('Y-m-01');
+        }
+
+        if (!empty($fecha_fin) && trim($fecha_fin) !== "''") {
+            // Limpiar y tomar solo YYYY-MM-DD
+            $f_fin = substr(trim($fecha_fin), 0, 10);
+        } else {
+            // Sin fecha de fin → último día del mes actual
+            $f_fin = date('Y-m-t');
+        }
+
+        // Validar que el formato sea correcto (por seguridad)
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $f_inicio)) {
+            $f_inicio = date('Y-m-01');
+        }
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $f_fin)) {
+            $f_fin = date('Y-m-t');
+        }
+
+        // ============================================================
+        // 2. Consulta con filtro por rango de fechas
+        // ============================================================
+        $sql = "SELECT 
+                h.*,
+                c.nombre_comercial AS propietario_nombre,
+                u.nombre AS atendio,
+                (
+                    SELECT GROUP_CONCAT(
+                        CONCAT(
+                            IFNULL(nombre, ''),
+                            '|||',
+                            IFNULL(direccion, ''),
+                            '|||',
+                            IFNULL(id, '')
+                        )
+                        SEPARATOR ';;;'
+                    )
+                    FROM expedientes_documentos ed
+                    WHERE ed.consulta_id = h.id
+                ) AS documento_url
             FROM historial h
-            JOIN mascotas m ON h.mascota_id = m.id
+            JOIN mascotas m  ON h.mascota_id = m.id
+            JOIN usuarios u  ON u.id = h.usuario_id
             INNER JOIN clientes c ON m.cliente_id = c.id
-            WHERE m.id = ?";
+            WHERE m.id = ?
+              AND DATE(h.fecha_consulta) BETWEEN ? AND ?
+            ORDER BY h.fecha_consulta DESC";
 
         $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("i", $id);
+        $stmt->bind_param("iss", $id, $f_inicio, $f_fin);
         $stmt->execute();
 
         return $stmt->get_result();
@@ -200,7 +236,7 @@ class MascotasModel
                     SEPARATOR ';;;'
                 )
                 FROM expedientes_documentos ed
-                WHERE ed.historial_id = h.id
+                WHERE ed.consulta_id = h.id
             ) AS documento_url
             FROM historial h
             JOIN mascotas m ON h.mascota_id = m.id
@@ -235,9 +271,9 @@ class MascotasModel
 
         return null;
     }
-    public function subirDocumentoConsulta($paciente_id, $nombre, $documento_url, $tipo = 'dental', $consulta_id = null)
+    public function subirDocumentoConsulta($paciente_id, $nombre, $documento_url, $tipo = 'vet', $consulta_id = null)
     {
-        $sql = "INSERT INTO documentos (paciente_id, nombre, direccion, tipo, consulta_id)
+        $sql = "INSERT INTO expedientes_documentos (paciente_id, nombre, direccion, tipo, consulta_id)
             VALUES (?, ?, ?, ?, ?)";
 
         $stmt = $this->db->prepare($sql);

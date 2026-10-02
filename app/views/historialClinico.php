@@ -15,6 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
 
+
     <style>
         :root {
             --bs-body-bg: #f8fafc;
@@ -162,10 +163,7 @@
                     <i class="bi bi-filter"></i> Filtrar
                 </button>
 
-                <button class="btn btn-outline-dark btn-sm rounded-pill px-3 d-flex align-items-center gap-1"
-                    onclick="imprimirEstadoCuenta()">
-                    <i class="bi bi-printer"></i> Imprimir
-                </button>
+
             </div>
 
         </div>
@@ -263,20 +261,38 @@
                                                         </button>
 
                                                         <ul
-                                                            class="dropdown-menu dropdown-menu-end dropdown-menu-custom shadow-lg p-2 ">
+                                                            class="dropdown-menu dropdown-menu-end dropdown-menu-custom shadow-lg p-2">
+
+                                                            <!-- Encabezado con botones Nuevo + Descargar todo -->
                                                             <li
-                                                                class="px-2 py-1 border-bottom mb-2 d-flex align-items-center justify-content-between">
+                                                                class="px-2 py-1 border-bottom mb-2 d-flex align-items-center justify-content-between gap-1">
                                                                 <span class="small fw-bold text-muted uppercase">
                                                                     <i class="bi bi-paperclip me-1"></i> Adjuntos
                                                                 </span>
-                                                                <button
-                                                                    class="btn btn-xs btn-primary rounded-pill py-0 px-2 style-btn-add"
-                                                                    style="font-size: 0.75rem;"
-                                                                    onclick="subirDocumentoCompra(<?= $ex['id'] ?>)">
-                                                                    <i class="bi bi-plus-lg me-1"></i>Nuevo
-                                                                </button>
+
+                                                                <div class="d-flex gap-1">
+                                                                    <!-- NUEVO -->
+                                                                    <button
+                                                                        class="btn btn-xs btn-primary rounded-pill py-0 px-2 style-btn-add"
+                                                                        style="font-size: 0.75rem;"
+                                                                        onclick="subirDocumentoHistorial(<?= $ex['id'] ?>)">
+                                                                        <i class="bi bi-plus-lg me-1"></i>Nuevo
+                                                                    </button>
+
+                                                                    <!-- DESCARGAR TODO EN ZIP -->
+                                                                    <button
+                                                                        class="btn btn-xs btn-success rounded-pill py-0 px-2"
+                                                                        style="font-size: 0.75rem;"
+                                                                        title="Descargar todos los archivos en ZIP"
+                                                                        data-expediente-id="<?= $ex['id'] ?>"
+                                                                        data-documentos="<?= htmlspecialchars($ex['documento_url'], ENT_QUOTES, 'UTF-8') ?>"
+                                                                        onclick="descargarTodosDocumentos(this)">
+                                                                        <i class="bi bi-file-earmark-zip me-1"></i>ZIP
+                                                                    </button>
+                                                                </div>
                                                             </li>
 
+                                                            <!-- Lista de documentos -->
                                                             <?php foreach ($documentos as $doc): ?>
                                                                 <?php
                                                                 $partes = explode('|||', $doc);
@@ -299,7 +315,7 @@
                                                                                 class="small fw-medium"><?= htmlspecialchars($nombre) ?></span>
                                                                         </a>
                                                                         <button
-                                                                            class="btn btn-sm btn-outline-danger  rounded-circle p-1 d-inline-flex align-items-center justify-content-center"
+                                                                            class="btn btn-sm btn-outline-danger rounded-circle p-1 d-inline-flex align-items-center justify-content-center"
                                                                             style="width: 28px; height: 28px;"
                                                                             title="Eliminar documento"
                                                                             onclick="eliminarDocumento(<?= $idDoc ?>)">
@@ -313,11 +329,10 @@
                                                 <?php else: ?>
                                                     <button
                                                         class="btn btn-sm btn-outline-primary border-dashed rounded-pill px-3 d-inline-flex align-items-center gap-1"
-                                                        onclick="subirDocumentoCompra(<?= $ex['id'] ?>)">
+                                                        onclick="subirDocumentoHistorial(<?= $ex['id'] ?>)">
                                                         <i class="bi bi-cloud-upload"></i> Subir
                                                     </button>
                                                 <?php endif; ?>
-
                                             </div>
                                         </td>
 
@@ -345,9 +360,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 
     <script>
+        const params = new URLSearchParams(window.location.search);
+        const idc = params.get('id'); // "5" como string
         const modalNuevoAbonoObj = new bootstrap.Modal('#modalNuevoAbono');
 
 
@@ -401,13 +419,30 @@
 
             // REDIRECCIÓN
             window.location.href =
-                `/myvet/app/controllers/clienteExpedienteController.php?id=${id}&fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+                `/myvet/app/controllers/historialExpedienteController.php?id=${id}&fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
 
 
         }
     </script>
     <script>
         async function cargarDetalleHistorial(historialId) {
+            try {
+                const response = await fetch(`/myvet/app/controllers/historialExpedienteController.php?action=obtenerHistorialDetalle&id=${historialId}`);
+                const resultado = await response.json();
+
+                if (!response.ok || !resultado.success) {
+                    throw new Error(resultado.message || 'Error al obtener los datos.');
+                }
+
+                console.log('Datos del historial:', resultado.data);
+                ejecutarImpresionExpediente(resultado.data);
+                console.log('Documentos adjuntos:', resultado.data.documentos);
+
+            } catch (error) {
+                console.error('Error:', error.message);
+            }
+        }
+        async function cargarDetalleHistorialImprimir(historialId) {
             try {
                 const response = await fetch(`/myvet/app/controllers/historialExpedienteController.php?action=obtenerHistorialDetalle&id=${historialId}`);
                 const resultado = await response.json();
@@ -712,89 +747,68 @@
 
             ventana.document.close();
         }
-        function subirDocumentoCompra(historial_id) {
-
-            console.log('gasto');
-
+        function subirDocumentoHistorial(consultaId) {
+            if (!consultaId || consultaId <= 0) {
+                Swal.fire('Error', 'Identificador de paciente no válido.', 'error');
+                return;
+            }
 
             Swal.fire({
-                title: 'Documento de Compra',
+                title: 'Subir Archivo Adjunto Dental',
                 html: `
-            <div class="text-start">
-                <label class="fw-bold small mb-2">Subir / Reemplazar documento</label>
-                <input type="file" id="swal_file_doc" class="form-control mb-2" accept=".pdf,image/*">
-                
-                
-            </div>
+            <input type="file" id="swal_archivo" class="form-control mb-2 bg-dark text-white border-secondary" accept=".pdf,.png,.jpg,.jpeg,.webp">
+            <small class="text-muted">Formatos permitidos: PDF, JPG, PNG, WEBP.</small>
         `,
-                icon: 'info',
                 showCancelButton: true,
-                confirmButtonText: 'Guardar',
-                confirmButtonColor: '#198754',
-                focusConfirm: false,
-
+                confirmButtonText: 'Subir',
+                cancelButtonText: 'Cancelar',
+                showLoaderOnConfirm: true,
                 preConfirm: async () => {
-
-                    const fileInput = document.getElementById('swal_file_doc');
-                    const file = fileInput?.files[0];
+                    const fileInput = document.getElementById('swal_archivo');
+                    const file = fileInput.files[0];
 
                     if (!file) {
-                        Swal.showValidationMessage('Selecciona un archivo');
+                        Swal.showValidationMessage('Por favor selecciona un archivo');
                         return false;
                     }
 
                     const formData = new FormData();
-                    formData.append('action', 'subirDocumento');
-                    formData.append('historial_id', historial_id);
-
+                    formData.append('pacienteId', idc);
+                    formData.append('consulta_id', consultaId);
                     formData.append('documento', file);
 
-
-
                     try {
-                        const response = await fetch('/myvet/app/controllers/egresosController.php?action=subirDocumento', {
+                        const response = await fetch('/myvet/app/controllers/historialExpedienteController.php?action=subirDocumento', {
                             method: 'POST',
                             body: formData
                         });
 
-                        // 🔥 LEEMOS COMO TEXTO PRIMERO (ANTI "Unexpected token <")
-                        const text = await response.text();
-                        console.log('RESPUESTA CRUDA:', text);
-
-                        let res;
-                        try {
-                            res = JSON.parse(text);
-                        } catch (e) {
-                            throw new Error('El servidor no devolvió JSON válido');
+                        if (!response.ok) {
+                            throw new Error(`Error en el servidor (${response.status} ${response.statusText})`);
                         }
 
-                        if (!res.success) {
-                            throw new Error(res.message || 'Error al subir archivo');
+                        const data = await response.json();
+
+                        if (!data.success) {
+                            throw new Error(data.message || 'Error desconocido al subir el archivo.');
                         }
 
-                        return res;
-
-                    } catch (err) {
-                        Swal.showValidationMessage(err.message);
+                        return data;
+                    } catch (error) {
+                        Swal.showValidationMessage(error.message);
                         return false;
                     }
-                }
-
-            }).then(result => {
-
-                if (!result.isConfirmed || !result.value) return;
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Guardado',
-                    text: 'Documento actualizado correctamente',
-                    timer: 1800,
-                    showConfirmButton: false
-                }).then(() => {
-                    location.reload();
-                });
-                if (typeof cargarCompras === 'function') {
-                    cargarCompras();
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed && result.value && result.value.success) {
+                    Swal.fire({
+                        title: '¡Éxito!',
+                        text: result.value.message || 'El documento se subió correctamente.',
+                        icon: 'success'
+                    }).then(() => {
+                        location.reload();
+                    });
                 }
             });
         }
@@ -870,6 +884,187 @@
             });
         }
 
+    </script>
+    <script>/**
+* Descarga todos los documentos del expediente en un ZIP.
+* Se llama desde el botón "ZIP" del dropdown.
+*/
+        async function descargarTodosDocumentos(boton) {
+
+            const expedienteId = boton.dataset.expedienteId;
+            const documentosRaw = boton.dataset.documentos;
+
+            if (!documentosRaw) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Sin documentos',
+                    text: 'Este expediente no tiene archivos adjuntos.'
+                });
+                return;
+            }
+
+            // ============================================================
+            // 1. Parsear la cadena documento_url
+            // ============================================================
+            const documentos = documentosRaw.split(';;;').map(item => {
+                const partes = item.split('|||');
+                return {
+                    nombre: partes[0] || 'Documento',
+                    ruta: partes[1] || '',
+                    id: partes[2] || ''
+                };
+            }).filter(d => d.ruta);
+
+            if (documentos.length === 0) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Sin documentos',
+                    text: 'No hay archivos válidos para descargar.'
+                });
+                return;
+            }
+
+            // ============================================================
+            // 2. Bloquear botón y mostrar progreso
+            // ============================================================
+            const textoOriginal = boton.innerHTML;
+            boton.disabled = true;
+            boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            // Toast de progreso (opcional)
+            Swal.fire({
+                title: 'Preparando ZIP...',
+                html: 'Iniciando descarga de <b>0</b> de <b>' + documentos.length + '</b> archivos...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            try {
+                // ============================================================
+                // 3. Crear ZIP y descargar cada archivo
+                // ============================================================
+                const zip = new JSZip();
+                const carpetaAdjuntos = zip.folder('adjuntos');
+
+                let hechos = 0;
+                const total = documentos.length;
+
+                for (const doc of documentos) {
+                    try {
+                        // Detectar URL base (según cómo lo tienes: ../../uploads/...)
+                        const url = new URL('../../' + doc.ruta, window.location.href).href;
+
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            credentials: 'include' // por si requiere sesión PHP
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+
+                        const blob = await response.blob();
+
+                        // Nombre limpio para dentro del ZIP
+                        const nombreLimpio = sanitizarNombre(doc.nombre);
+                        carpetaAdjuntos.file(nombreLimpio, blob);
+
+                    } catch (err) {
+                        console.error(`Error con ${doc.nombre}:`, err);
+
+                        // Dejar constancia del error dentro del ZIP
+                        carpetaAdjuntos.file(
+                            `ERROR_${sanitizarNombre(doc.nombre)}.txt`,
+                            `No se pudo descargar.\nNombre: ${doc.nombre}\nRuta: ${doc.ruta}\nMotivo: ${err.message}`
+                        );
+                    }
+
+                    hechos++;
+
+                    // Actualizar progreso
+                    Swal.update({
+                        html: `Descargando <b>${hechos}</b> de <b>${total}</b> archivos...<br>
+                       <small class="text-muted">${sanitizarNombre(doc.nombre)}</small>`
+                    });
+                }
+
+                // ============================================================
+                // 4. Generar ZIP
+                // ============================================================
+                const contenidoZip = await zip.generateAsync(
+                    {
+                        type: 'blob',
+                        compression: 'DEFLATE',
+                        compressionOptions: { level: 6 }
+                    },
+                    (metadata) => {
+                        // Progreso de compresión (opcional)
+                        Swal.update({
+                            html: `Comprimiendo ZIP... <b>${metadata.percent.toFixed(0)}%</b>`
+                        });
+                    }
+                );
+
+                // ============================================================
+                // 5. Descargar el ZIP
+                // ============================================================
+                const nombreZip = `Expediente_${expedienteId}_${new Date().toISOString().slice(0, 10)}.zip`;
+                descargarBlobJSZip(contenidoZip, nombreZip);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Listo!',
+                    text: `Se descargaron ${total} archivo(s) en el ZIP.`,
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+
+            } catch (err) {
+                console.error('Error general:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: err.message || 'No se pudo generar el ZIP.'
+                });
+
+            } finally {
+                // Restaurar botón
+                boton.disabled = false;
+                boton.innerHTML = textoOriginal;
+            }
+        }
+
+
+        // ============================================================
+        // Utilidades
+        // ============================================================
+
+        /**
+         * Descarga un Blob como archivo.
+         */
+        function descargarBlobJSZip(blob, nombreArchivo) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = nombreArchivo;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+
+        /**
+         * Sanitiza un nombre de archivo para que sea seguro dentro del ZIP.
+         */
+        function sanitizarNombre(nombre) {
+            return String(nombre)
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')       // quitar acentos
+                .replace(/[^a-zA-Z0-9._-]/g, '_')      // reemplazar caracteres raros
+                .replace(/_+/g, '_')                   // evitar múltiples _
+                .substring(0, 100);                    // limitar longitud
+        }
     </script>
 
 </body>

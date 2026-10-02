@@ -180,7 +180,7 @@ class PacientesHistorialMedicoModel
             SEPARATOR ';;;'
         )
         FROM documentos doc
-        WHERE doc.paciente_id = c.id AND doc.consulta_id = hc.id
+        WHERE doc.paciente_id = c.id AND doc.consulta_id = hc.id and doc.tipo='medico'
     ) AS documentos_url
             FROM consulta_medica hc
             INNER JOIN clientes c ON hc.paciente_id = c.id
