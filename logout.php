@@ -5,338 +5,603 @@ session_destroy();
 ?>
 <!DOCTYPE html>
 <html lang="es">
-     <meta charset="UTF-8"name="viewport" content="width=device-width, initial-scale=1.0">
+
 <head>
     <meta charset="UTF-8">
-    <title>Saliendo del Sistema | MYVET</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cerrando sesión | myvet</title>
+
+    <link rel="icon" type="image/png" href="/myvet/public/assets/logo.png">
+    <link rel="shortcut icon" href="/myvet/public/assets/logo.ico" type="image/x-icon">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
+        /* ============================================================
+           RESET
+           ============================================================ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         :root {
-            --cat-color: #fca311;
-            --cat-dark: #e85d04;
-            --pink-accent: #ff85a1;
-            --box-color: #8d5b4c;
-            --box-dark: #633e34;
+            /* Colores tipo Microsoft / Apple vivos */
+            --c-red: #ff3b30;
+            --c-red-2: #d70015;
+            --c-green: #34c759;
+            --c-green-2: #248a3d;
+            --c-blue: #007aff;
+            --c-blue-2: #0051d5;
+            --c-yellow: #ffcc00;
+            --c-yellow-2: #d9a800;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
         }
 
         body {
-            background-color: #f4f7fb;
-            height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            background: #000;
+            color: #fff;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0;
             overflow: hidden;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            position: relative;
+            letter-spacing: -0.011em;
         }
 
-        /* ESCENARIO */
-        .stage {
+        /* ============================================================
+           FONDO (auroras de colores)
+           ============================================================ */
+        .bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse at 15% 20%, rgba(255, 59, 48, 0.18) 0%, transparent 45%),
+                radial-gradient(ellipse at 85% 25%, rgba(255, 204, 0, 0.15) 0%, transparent 45%),
+                radial-gradient(ellipse at 15% 85%, rgba(0, 122, 255, 0.18) 0%, transparent 45%),
+                radial-gradient(ellipse at 85% 85%, rgba(52, 199, 89, 0.15) 0%, transparent 45%),
+                radial-gradient(ellipse at 50% 50%, rgba(30, 30, 40, 1) 0%, #05050a 100%);
+        }
+
+        /* ============================================================
+           ESCENA
+           ============================================================ */
+        .scene {
             position: relative;
+            z-index: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 100%;
+            gap: 46px;
+            animation: sceneIn 1s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        /* GLOBO DE TEXTO */
-        .bubble {
-            background: #ffffff;
-            color: #2b2d42;
-            padding: 12px 24px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            position: absolute;
-            top: -70px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-            opacity: 0;
-            transform: translateY(10px) scale(0.8);
-            animation: pop-text 0.4s 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            z-index: 100;
-            border: 2px solid #e2e8f0;
+        @keyframes sceneIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
-        .bubble::after {
+        /* ============================================================
+           CONTENEDOR DE LA RULETA
+           ============================================================ */
+        .wheel-wrap {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+        }
+
+        /* Halo multicolor detrás */
+        .wheel-wrap::before {
             content: '';
             position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-top: 10px solid #ffffff;
+            inset: -40px;
+            border-radius: 50%;
+            background:
+                conic-gradient(from 0deg,
+                    rgba(255, 59, 48, 0.4),
+                    rgba(255, 204, 0, 0.4),
+                    rgba(52, 199, 89, 0.4),
+                    rgba(0, 122, 255, 0.4),
+                    rgba(255, 59, 48, 0.4));
+            filter: blur(40px);
+            opacity: 0.6;
+            animation: haloSpin 6s linear infinite, haloPulse 3s ease-in-out infinite;
+            z-index: 0;
+            pointer-events: none;
         }
 
-        /* CONTENEDOR GATO EN CAJA */
-        .cat-wrapper {
+        @keyframes haloSpin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes haloPulse {
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 0.85;
+            }
+        }
+
+        /* ============================================================
+           RULETA — 4 CUADRANTES DE COLORES
+           ============================================================ */
+        .wheel {
             position: relative;
             width: 180px;
-            height: 190px;
-            animation: bounce-gentle 2s ease-in-out infinite;
+            height: 180px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 8px;
+            transform-style: preserve-3d;
+            animation: wheelSpin 4.5s cubic-bezier(0.6, 0, 0.4, 1) forwards;
+            animation-delay: 0.4s;
+            will-change: transform;
         }
 
-        /* --- GATITO --- */
-        .cat {
-            position: absolute;
-            width: 130px;
-            height: 120px;
-            top: 20px;
-            left: 25px;
+        @keyframes wheelSpin {
+            0% {
+                transform: rotate(0deg) scale(1);
+            }
+
+            15% {
+                transform: rotate(-15deg) scale(1.05);
+            }
+
+            70% {
+                transform: rotate(540deg) scale(1);
+            }
+
+            85% {
+                transform: rotate(680deg) scale(0.95);
+            }
+
+            100% {
+                transform: rotate(720deg) scale(0.9);
+            }
         }
 
-        /* OREJAS */
-        .ear {
-            position: absolute;
-            top: 0;
-            width: 35px;
-            height: 45px;
-            background: var(--cat-color);
-            border-radius: 80% 20% 0 0;
+        /* ============================================================
+           CADA CUADRANTE (colores distintos)
+           ============================================================ */
+        .quad {
+            position: relative;
+            border-radius: 14px;
+            overflow: hidden;
+            animation: quadClose 0.9s cubic-bezier(0.6, 0, 0.4, 1) forwards;
+            will-change: opacity, transform, filter;
         }
 
-        .ear::after {
+        /* ---- Cuadrante 1: ROJO (arriba izquierda) ---- */
+        .quad:nth-child(1) {
+            background: linear-gradient(145deg, var(--c-red) 0%, var(--c-red-2) 100%);
+            box-shadow:
+                0 8px 24px rgba(255, 59, 48, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.2);
+            animation-delay: 3.2s;
+            transform-origin: top left;
+        }
+
+        /* ---- Cuadrante 2: AMARILLO (arriba derecha) ---- */
+        .quad:nth-child(2) {
+            background: linear-gradient(145deg, var(--c-yellow) 0%, var(--c-yellow-2) 100%);
+            box-shadow:
+                0 8px 24px rgba(255, 204, 0, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.2);
+            animation-delay: 3.5s;
+            transform-origin: top right;
+        }
+
+        /* ---- Cuadrante 3: AZUL (abajo izquierda) ---- */
+        .quad:nth-child(3) {
+            background: linear-gradient(145deg, var(--c-blue) 0%, var(--c-blue-2) 100%);
+            box-shadow:
+                0 8px 24px rgba(0, 122, 255, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.2);
+            animation-delay: 4.1s;
+            transform-origin: bottom left;
+        }
+
+        /* ---- Cuadrante 4: VERDE (abajo derecha) ---- */
+        .quad:nth-child(4) {
+            background: linear-gradient(145deg, var(--c-green) 0%, var(--c-green-2) 100%);
+            box-shadow:
+                0 8px 24px rgba(52, 199, 89, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.2);
+            animation-delay: 3.8s;
+            transform-origin: bottom right;
+        }
+
+        /* Animación de cierre */
+        @keyframes quadClose {
+            0% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+                filter: blur(0);
+            }
+
+            40% {
+                opacity: 1;
+                transform: scale(1.05) rotate(3deg);
+                filter: blur(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(0.15) rotate(-25deg);
+                filter: blur(12px);
+            }
+        }
+
+        /* Brillo superior cristal */
+        .quad::before {
             content: '';
             position: absolute;
-            top: 8px;
-            left: 6px;
-            width: 20px;
-            height: 30px;
-            background: var(--pink-accent);
-            border-radius: 80% 20% 0 0;
-            opacity: 0.7;
+            top: 0;
+            left: 10%;
+            right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.95), transparent);
+            z-index: 2;
         }
 
-        .ear.left {
-            left: 5px;
-            transform: rotate(-15deg);
-            animation: twitch-left 3s infinite;
-        }
-
-        .ear.right {
-            right: 5px;
-            transform: rotate(15deg) scaleX(-1);
-            animation: twitch-right 3s infinite;
-        }
-
-        /* CABEZA */
-        .head {
+        /* Reflejo diagonal interno */
+        .quad::after {
+            content: '';
             position: absolute;
-            top: 15px;
-            width: 130px;
-            height: 95px;
-            background: var(--cat-color);
-            border-radius: 60px 60px 45px 45px;
+            inset: 0;
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.25) 0%,
+                    transparent 40%,
+                    transparent 60%,
+                    rgba(0, 0, 0, 0.2) 100%);
+            z-index: 1;
         }
 
-        /* CARA */
-        .eyes {
+        /* ============================================================
+           CENTRO BRILLANTE
+           ============================================================ */
+        .wheel-center {
             position: absolute;
-            top: 38px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 28px;
-            box-sizing: border-box;
-        }
-
-        .eye {
-            width: 14px;
-            height: 14px;
-            background: #2b2d42;
-            border-radius: 50%;
-            animation: blink 4s infinite;
-        }
-
-        .nose {
-            position: absolute;
-            top: 52px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            width: 10px;
-            height: 7px;
-            background: var(--pink-accent);
-            border-radius: 4px 4px 8px 8px;
-        }
-
-        .mouth {
-            position: absolute;
-            top: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 8px;
-            border-bottom: 2px solid #2b2d42;
+            width: 18px;
+            height: 18px;
+            transform: translate(-50%, -50%);
             border-radius: 50%;
-        }
-
-        /* MEJILLAS */
-        .blush {
-            position: absolute;
-            top: 48px;
-            width: 16px;
-            height: 10px;
-            background: var(--pink-accent);
-            border-radius: 50%;
-            opacity: 0.5;
-        }
-        .blush.left { left: 18px; }
-        .blush.right { right: 18px; }
-
-        /* PATITA QUE SALUDA */
-        .paw-wave {
-            position: absolute;
-            top: 60px;
-            right: 0px;
-            width: 26px;
-            height: 45px;
-            background: var(--cat-color);
-            border-radius: 15px;
-            z-index: 20;
-            transform-origin: bottom center;
-            animation: wave 1.2s ease-in-out infinite;
-            border-top: 3px solid #ffb703;
-        }
-
-        /* --- CAJA --- */
-        .box {
-            position: absolute;
-            bottom: 0;
-            width: 180px;
-            height: 100px;
-            background: var(--box-color);
-            border-radius: 8px;
+            background: radial-gradient(circle at 35% 35%, #ffffff 0%, #e0e0e0 40%, #999 100%);
+            box-shadow:
+                0 0 16px rgba(255, 255, 255, 0.9),
+                0 0 32px rgba(255, 255, 255, 0.5),
+                inset 0 1px 2px rgba(0, 0, 0, 0.15);
             z-index: 10;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+            animation: centerGlow 1.5s ease-in-out infinite;
         }
 
-        .box-lid {
-            position: absolute;
-            top: -12px;
-            width: 190px;
-            left: -5px;
-            height: 16px;
-            background: var(--box-dark);
-            border-radius: 4px;
+        @keyframes centerGlow {
+
+            0%,
+            100% {
+                box-shadow:
+                    0 0 16px rgba(255, 255, 255, 0.9),
+                    0 0 32px rgba(255, 255, 255, 0.5),
+                    inset 0 1px 2px rgba(0, 0, 0, 0.15);
+            }
+
+            50% {
+                box-shadow:
+                    0 0 24px rgba(255, 255, 255, 1),
+                    0 0 48px rgba(255, 255, 255, 0.7),
+                    inset 0 1px 2px rgba(0, 0, 0, 0.15);
+            }
         }
 
-        .box-label {
-            position: absolute;
-            top: 35px;
+        /* ============================================================
+           TEXTO
+           ============================================================ */
+        .status {
+            text-align: center;
+            animation: fadeIn 1s ease-out 0.4s backwards;
+        }
+
+        .status-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: -0.025em;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg,
+                    #ff3b30 0%,
+                    #ffcc00 33%,
+                    #34c759 66%,
+                    #007aff 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textShine 4s linear infinite;
+        }
+
+        @keyframes textShine {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 200% 50%;
+            }
+        }
+
+        .status-subtitle {
+            font-size: 0.88rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.55);
+            letter-spacing: -0.01em;
+        }
+
+        .status-subtitle .dot {
+            display: inline-block;
+            animation: dotBlink 1.4s ease-in-out infinite;
+        }
+
+        .status-subtitle .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .status-subtitle .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes dotBlink {
+
+            0%,
+            60%,
+            100% {
+                opacity: 0.25;
+            }
+
+            30% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
+           BARRA DE PROGRESO MULTICOLOR
+           ============================================================ */
+        .progress {
+            width: 220px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            animation: fadeIn 1s ease-out 0.6s backwards;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg,
+                    #ff3b30 0%,
+                    #ffcc00 33%,
+                    #34c759 66%,
+                    #007aff 100%);
+            background-size: 200% 100%;
+            border-radius: 3px;
+            animation:
+                progressFill 6s linear forwards,
+                barShine 2s linear infinite;
+            animation-delay: 0.4s, 0.4s;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+        }
+
+        @keyframes progressFill {
+            from {
+                width: 0%;
+            }
+
+            to {
+                width: 100%;
+            }
+        }
+
+        @keyframes barShine {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 200% 50%;
+            }
+        }
+
+        /* ============================================================
+           MARCA
+           ============================================================ */
+        .brand {
+            position: fixed;
+            bottom: 28px;
             left: 50%;
             transform: translateX(-50%);
-            background: #fff;
-            padding: 4px 14px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--box-dark);
-            letter-spacing: 1px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            animation: fadeIn 1s ease-out 0.8s backwards;
         }
 
-        /* TEXTO INFERIOR */
-        .status-text {
-            margin-top: 40px;
-            color: #6c757d;
-            font-weight: 600;
-            font-size: 0.95rem;
-            letter-spacing: 0.3px;
+        .brand-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
         }
 
-        /* --- ANIMACIONES --- */
-        @keyframes wave {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(-35deg); }
-        }
-
-        @keyframes blink {
-            0%, 90%, 100% { transform: scaleY(1); }
-            95% { transform: scaleY(0.1); }
-        }
-
-        @keyframes bounce-gentle {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-
-        @keyframes twitch-left {
-            0%, 80%, 100% { transform: rotate(-15deg); }
-            85% { transform: rotate(-25deg); }
-        }
-
-        @keyframes twitch-right {
-            0%, 80%, 100% { transform: rotate(15deg) scaleX(-1); }
-            85% { transform: rotate(25deg) scaleX(-1); }
-        }
-
-        @keyframes pop-text {
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        /* FUNDIDO FINAL */
+        /* ============================================================
+           FUNDIDO FINAL
+           ============================================================ */
         .curtain {
             position: fixed;
             inset: 0;
-            background: #ffffff;
-            z-index: 999;
+            z-index: 100;
+            background: #000;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.8s ease;
+            animation: curtainFade 1s ease-in forwards;
+            animation-delay: 5.8s;
         }
 
-        .curtain.active {
-            opacity: 1;
+        @keyframes curtainFade {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 480px) {
+            .wheel-wrap {
+                width: 160px;
+                height: 160px;
+            }
+
+            .wheel {
+                width: 150px;
+                height: 150px;
+                gap: 6px;
+            }
+
+            .quad {
+                border-radius: 12px;
+            }
+
+            .status-title {
+                font-size: 1.25rem;
+            }
+
+            .scene {
+                gap: 38px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
         }
     </style>
 </head>
+
 <body>
 
-    <div class="curtain" id="curtain"></div>
+    <div class="bg"></div>
 
-    <div class="stage">
-        <div class="bubble">¡Nos vemos pronto, adiós! 🐾</div>
+    <div class="scene">
 
-        <div class="cat-wrapper">
-            <!-- GATITO -->
-            <div class="cat">
-                <div class="ear left"></div>
-                <div class="ear right"></div>
-                <div class="head">
-                    <div class="eyes">
-                        <div class="eye"></div>
-                        <div class="eye"></div>
-                    </div>
-                    <div class="blush left"></div>
-                    <div class="blush right"></div>
-                    <div class="nose"></div>
-                    <div class="mouth"></div>
-                </div>
-                <div class="paw-wave"></div>
+        <!-- RULETA -->
+        <div class="wheel-wrap">
+            <div class="wheel">
+                <div class="quad"></div>
+                <div class="quad"></div>
+                <div class="quad"></div>
+                <div class="quad"></div>
             </div>
+            <div class="wheel-center"></div>
+        </div>
 
-            <!-- CAJA DE CARTÓN -->
-            <div class="box">
-                <div class="box-lid"></div>
-                <div class="box-label">MYVET</div>
+        <!-- TEXTO -->
+        <div class="status">
+            <div class="status-title">Cerrando sesión</div>
+            <div class="status-subtitle">
+                Finalizando de forma segura
+                <span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
             </div>
         </div>
 
-        <p class="status-text">Cerrando sesión de forma segura...</p>
+        <!-- BARRA -->
+        <div class="progress">
+            <div class="progress-bar"></div>
+        </div>
+
     </div>
 
-    <script>
-        // Transición suave antes de redirigir
-        setTimeout(() => {
-            document.getElementById('curtain').classList.add('active');
-        }, 3200);
+    <!-- Marca -->
+    <div class="brand">
+        <span>myvet</span>
+        <span class="brand-dot"></span>
+        <span><?php echo date('Y'); ?></span>
+    </div>
 
+    <div class="curtain"></div>
+
+    <script>
         setTimeout(() => {
             window.location.href = 'index.php';
-        }, 4000);
+        }, 6800);
     </script>
+
 </body>
+
 </html>

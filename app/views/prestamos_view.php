@@ -437,66 +437,145 @@ $paginaActual = $paginaActual ?? 'prestamos';
             </div>
         </div>
     </main>
-    <div class="modal fade" id="modalPrestamoDetalleUnique" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content  shadow rounded-4">
+   <div class="modal fade" id="modalPrestamoDetalleUnique" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow rounded-4 border-0">
 
-                <div class="modal-header ">
-                    <h5 class="modal-title fw-bold">
-                        <i class="bi bi-cash-coin me-2"></i>Detalle del Préstamo
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <!-- HEADER -->
+            <div class="modal-header border-0 pb-0">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 d-flex align-items-center justify-content-center"
+                        style="width: 46px; height: 46px; background: linear-gradient(135deg, #eaf2ff, #dbe8ff); color: #2855b8;">
+                        <i class="bi bi-cash-coin fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0">Detalle del Préstamo</h5>
+                        <small class="text-body-secondary">Información del préstamo y sus abonos</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- BODY -->
+            <div class="modal-body pt-4">
+
+                <!-- TRABAJADOR -->
+                <div class="mb-3">
+                    <div class="p-3 rounded-3 d-flex align-items-center gap-3"
+                        style="background: linear-gradient(135deg, #f8fafc, #eef4ff); border: 1px solid #e5ecf6;">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 42px; height: 42px; background: #2855b8; color: #fff;">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <small class="text-body-secondary d-block" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                Trabajador
+                            </small>
+                            <div id="mp_trabajadorNombre_u" class="fw-bold fs-6"></div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="modal-body">
+                <!-- ESTADO + MONTOS -->
+                <div class="row g-3 mb-3">
 
-                    <div class="row g-3 mb-3">
+                    <!-- ESTADO -->
+                    <div class="col-12">
+                        <small class="text-body-secondary d-block mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Estado
+                        </small>
+                        <div id="mp_estado_u"></div>
+                    </div>
 
-                        <div class="col-md-6">
-                            <small class="text-body-secondary">Estado</small>
-                            <div id="mp_estado_u"></div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <small class="text-body-secondary">Monto</small>
-                            <div id="mp_monto_u" class="fw-bold"></div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <small class="text-body-secondary">Abonado</small>
-                            <div id="mp_abonado_u" class="fw-bold text-primary"></div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <small class="text-body-secondary">Saldo</small>
-                            <div id="mp_saldo_u" class="fw-bold text-danger"></div>
+                    <!-- MONTO -->
+                    <div class="col-md-4">
+                        <div class="p-3 rounded-3 h-100"
+                            style="background: #f8fafc; border: 1px solid #e5ecf6;">
+                            <small class="text-body-secondary d-block mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="bi bi-cash me-1"></i>Monto
+                            </small>
+                            <div id="mp_monto_u" class="fw-bold fs-5 text-dark"></div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <small class="text-body-secondary">Descripción</small>
-                        <div id="mp_desc_u" class="p-2  rounded-3 small"></div>
+                    <!-- ABONADO -->
+                    <div class="col-md-4">
+                        <div class="p-3 rounded-3 h-100"
+                            style="background: #f0f9ff; border: 1px solid #cfe8ff;">
+                            <small class="text-body-secondary d-block mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="bi bi-check-circle me-1"></i>Abonado
+                            </small>
+                            <div id="mp_abonado_u" class="fw-bold fs-5 text-primary"></div>
+                        </div>
                     </div>
 
-                    <div class="table-responsive">
-                        <table class="table table-sm">
+                    <!-- SALDO -->
+                    <div class="col-md-4">
+                        <div class="p-3 rounded-3 h-100"
+                            style="background: #fff5f5; border: 1px solid #ffd9d9;">
+                            <small class="text-body-secondary d-block mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="bi bi-exclamation-circle me-1"></i>Saldo
+                            </small>
+                            <div id="mp_saldo_u" class="fw-bold fs-5 text-danger"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- DESCRIPCIÓN -->
+                <div class="mb-4">
+                    <small class="text-body-secondary d-block mb-2" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <i class="bi bi-chat-left-text me-1"></i>Descripción
+                    </small>
+                    <div id="mp_desc_u" class="p-3 rounded-3 small"
+                        style="background: #f8fafc; border: 1px solid #e5ecf6; color: #4b5563;">
+                    </div>
+                </div>
+
+                <!-- HISTORIAL DE ABONOS -->
+                <div class="mb-2">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <small class="text-body-secondary" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="bi bi-clock-history me-1"></i>Historial de abonos
+                        </small>
+                    </div>
+
+                    <div class="table-responsive rounded-3 overflow-hidden" style="border: 1px solid #e5ecf6;">
+                        <table class="table table-sm mb-0 align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th>#</th>
-                                    <th>Monto</th>
-                                    <th>Método</th>
-                                    <th>Fecha</th>
-                                    <th>Obs</th>
+                                    <th class="text-center" style="width: 50px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">#</th>
+                                    <th style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Monto</th>
+                                    <th style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Método</th>
+                                    <th style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Fecha</th>
+                                    <th style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Obs</th>
                                 </tr>
                             </thead>
                             <tbody id="tablaAbonosPrestamoUnique"></tbody>
                         </table>
                     </div>
-
                 </div>
+
             </div>
+
+            <!-- FOOTER -->
+            <div class="modal-footer border-0 d-flex justify-content-between pt-0">
+                <button type="button" class="btn btn-light border rounded-pill px-4"
+                        data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg me-1"></i> Cerrar
+                </button>
+
+                <button type="button" class="btn rounded-pill px-4 fw-semibold shadow-sm"
+                        id="btnImprimirComprobantePrestamo"
+                        onclick="imprimirComprobantePrestamo()"
+                        style="background: linear-gradient(135deg, #28a745, #1e7e34); color: #fff; border: 0;">
+                    <i class="bi bi-printer me-1"></i> Imprimir comprobante
+                </button>
+            </div>
+
         </div>
     </div>
+</div>
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -943,6 +1022,457 @@ $paginaActual = $paginaActual ?? 'prestamos';
             });
         }
     });
+}
+
+
+function imprimirComprobantePrestamo() {
+
+    // ============================================================
+    // 1. Leer datos del DOM del modal
+    // ============================================================
+    const estado      = document.getElementById('mp_estado_u')?.textContent.trim()             || 'N/R';
+    const monto       = document.getElementById('mp_monto_u')?.textContent.trim()              || '$ 0.00';
+    const abonado     = document.getElementById('mp_abonado_u')?.textContent.trim()            || '$ 0.00';
+    const saldo       = document.getElementById('mp_saldo_u')?.textContent.trim()              || '$ 0.00';
+    const descripcion = document.getElementById('mp_desc_u')?.textContent.trim()               || 'Sin descripción';
+    const trabajador  = document.getElementById('mp_trabajadorNombre_u')?.textContent.trim()  || '';
+
+    // Leer tabla de abonos
+    const abonos = [];
+    document.querySelectorAll('#tablaAbonosPrestamoUnique tr').forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length >= 5) {
+            abonos.push({
+                num:    tds[0].textContent.trim(),
+                monto:  tds[1].textContent.trim(),
+                metodo: tds[2].textContent.trim(),
+                fecha:  tds[3].textContent.trim(),
+                obs:    tds[4].textContent.trim()
+            });
+        }
+    });
+
+    // ============================================================
+    // 2. Fecha y folio
+    // ============================================================
+    const fechaHoy = new Date().toLocaleDateString('es-MX', {
+        day: '2-digit', month: 'short', year: 'numeric'
+    });
+    const folio = 'PR-' + Date.now().toString().slice(-8);
+
+    // ============================================================
+    // 3. Abrir ventana
+    // ============================================================
+    const ventana = window.open('', '_blank', 'width=800,height=600');
+    if (!ventana) {
+        alert('Permite las ventanas emergentes para imprimir el comprobante.');
+        return;
+    }
+
+    // ============================================================
+    // 4. HTML del comprobante (media hoja)
+    // ============================================================
+    const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Comprobante ${folio}</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f7;
+            padding: 15px;
+            color: #222;
+            font-size: 12px;
+        }
+
+        /* Media carta = 21.59 x 13.97 cm aprox */
+        .comprobante {
+            width: 19.5cm;
+            min-height: 12cm;
+            margin: 0 auto;
+            background: #fff;
+            padding: 18px 22px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .comprobante::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2855b8, #4a90e2);
+            border-radius: 8px 8px 0 0;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1.5px solid #2855b8;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+        .logo h1 {
+            color: #2855b8;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+        .logo small {
+            color: #888;
+            font-size: 0.6rem;
+        }
+        .folio { text-align: right; font-size: 0.7rem; }
+        .folio .numero {
+            font-weight: bold;
+            color: #2855b8;
+            font-size: 0.85rem;
+        }
+        .folio .fecha { color: #888; }
+
+        /* TÍTULO */
+        .titulo {
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #2855b8;
+            margin: 8px 0 12px;
+            padding: 6px;
+            background: #f0f4fa;
+            border-radius: 4px;
+        }
+
+        /* TRABAJADOR */
+        .trabajador {
+            background: #f8fafc;
+            border-left: 3px solid #2855b8;
+            padding: 7px 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .trabajador .label {
+            font-size: 0.62rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .trabajador .valor {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #222;
+        }
+
+        /* GRID MONTOS */
+        .montos {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .monto-card {
+            padding: 7px 10px;
+            border-radius: 5px;
+            border: 1px solid #e5ecf6;
+            background: #fafbfc;
+        }
+        .monto-card .label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            color: #888;
+            letter-spacing: 0.5px;
+        }
+        .monto-card .valor {
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-top: 2px;
+        }
+        .monto-card.destacado {
+            background: linear-gradient(135deg, #eaf7ee, #d4efe0);
+            border-color: #b8e0c5;
+        }
+        .monto-card.destacado .valor { color: #0d6832; }
+        .monto-card.abonado .valor    { color: #2855b8; }
+        .monto-card.saldo .valor      { color: #c82333; }
+
+        /* CAMPOS SIMPLES */
+        .fila {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px dotted #e0e0e0;
+            font-size: 0.78rem;
+        }
+        .fila .label { color: #666; }
+        .fila .valor { font-weight: 600; text-align: right; }
+
+        /* TABLA ABONOS */
+        .tabla-wrap {
+            margin-top: 8px;
+            border: 1px solid #e5ecf6;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        table.abonos {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.7rem;
+        }
+        table.abonos th {
+            background: #f0f4fa;
+            color: #2855b8;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            padding: 5px 7px;
+            text-align: left;
+            border-bottom: 1px solid #d5e0f0;
+        }
+        table.abonos td {
+            padding: 4px 7px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        table.abonos tr:last-child td { border-bottom: none; }
+
+        /* SECCIÓN TÍTULO */
+        .seccion-titulo {
+            font-size: 0.65rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #2855b8;
+            margin: 10px 0 5px;
+            padding-bottom: 2px;
+            border-bottom: 1px solid #e5ecf6;
+        }
+
+        /* DECLARACIÓN */
+        .declaracion {
+            font-size: 0.72rem;
+            line-height: 1.5;
+            text-align: justify;
+            color: #444;
+            margin-top: 8px;
+        }
+        .declaracion strong { color: #2855b8; }
+
+        /* FIRMAS */
+        .firmas {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 25px;
+            gap: 30px;
+        }
+        .firma { text-align: center; flex: 1; }
+        .firma-linea {
+            border-top: 1px solid #333;
+            margin-bottom: 4px;
+        }
+        .firma-nombre {
+            font-size: 0.72rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .firma-rol {
+            font-size: 0.6rem;
+            color: #888;
+        }
+
+        /* FOOTER */
+        .footer-nota {
+            margin-top: 15px;
+            padding-top: 8px;
+            border-top: 1px dashed #ccc;
+            font-size: 0.58rem;
+            color: #999;
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* BOTONES (no se imprimen) */
+        .no-print {
+            text-align: center;
+            margin: 15px 0;
+        }
+        .btn-print {
+            padding: 8px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            background: #2855b8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            margin-right: 8px;
+        }
+        .btn-close {
+            padding: 8px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 6px;
+        }
+
+        /* IMPRESIÓN: media carta */
+        @page {
+            size: 21.59cm 13.97cm;
+            margin: 0.5cm;
+        }
+        @media print {
+            body { background: #fff; padding: 0; }
+            .comprobante {
+                box-shadow: none;
+                border: none;
+                padding: 10px 15px;
+                width: 100%;
+                min-height: auto;
+            }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <button class="btn-print" onclick="window.print()">🖨️ Imprimir</button>
+        <button class="btn-close" onclick="window.close()">Cerrar</button>
+    </div>
+
+    <div class="comprobante">
+
+        <!-- HEADER -->
+        <div class="header">
+            <div class="logo">
+                
+             
+            </div>
+            <div class="folio">
+                <div class="numero">#${folio}</div>
+                <div class="fecha">${fechaHoy}</div>
+            </div>
+        </div>
+
+        <div class="titulo">Comprobante de Préstamo</div>
+
+        <!-- TRABAJADOR -->
+        ${trabajador ? `
+        <div class="trabajador">
+            <span class="label">Trabajador</span>
+            <span class="valor">${trabajador}</span>
+        </div>
+        ` : ''}
+
+        <!-- MONTOS EN 3 COLUMNAS -->
+        <div class="montos">
+            <div class="monto-card destacado">
+                <div class="label">Monto</div>
+                <div class="valor">${monto}</div>
+            </div>
+            <div class="monto-card abonado">
+                <div class="label">Abonado</div>
+                <div class="valor">${abonado}</div>
+            </div>
+            <div class="monto-card saldo">
+                <div class="label">Saldo</div>
+                <div class="valor">${saldo}</div>
+            </div>
+        </div>
+
+        <!-- ESTADO -->
+        <div class="fila">
+            <span class="label">Estado:</span>
+            <span class="valor">${estado}</span>
+        </div>
+
+        <!-- DESCRIPCIÓN -->
+        ${descripcion && descripcion !== 'Sin descripción' ? `
+        <div class="fila" style="border-bottom: none;">
+            <span class="label">Descripción:</span>
+            <span class="valor" style="font-weight: 400; text-align: right; max-width: 60%;">${descripcion}</span>
+        </div>
+        ` : ''}
+
+        <!-- ABONOS -->
+        ${abonos.length > 0 ? `
+        <div class="seccion-titulo">Historial de abonos (${abonos.length})</div>
+        <div class="tabla-wrap">
+            <table class="abonos">
+                <thead>
+                    <tr>
+                        <th style="width: 30px;">#</th>
+                        <th>Monto</th>
+                        <th>Método</th>
+                        <th>Fecha</th>
+                        <th>Obs.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${abonos.map(a => `
+                        <tr>
+                            <td>${a.num}</td>
+                            <td>${a.monto}</td>
+                            <td>${a.metodo}</td>
+                            <td>${a.fecha}</td>
+                            <td>${a.obs}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+        ` : ''}
+
+        <!-- DECLARACIÓN -->
+        <div class="declaracion">
+            El trabajador declara haber recibido la cantidad de <strong>${monto}</strong>
+            en concepto de préstamo, comprometiéndose a cubrir el saldo pendiente conforme
+            a los abonos registrados.
+        </div>
+
+        <!-- FIRMAS -->
+        <div class="firmas">
+            <div class="firma">
+                <div class="firma-linea"></div>
+                <div class="firma-nombre">${trabajador || 'Trabajador'}</div>
+                <div class="firma-rol">Recibí conforme</div>
+            </div>
+            <div class="firma">
+                <div class="firma-linea"></div>
+                <div class="firma-nombre">Administración</div>
+                <div class="firma-rol">Autorizó / Entregó</div>
+            </div>
+        </div>
+
+        <div class="footer-nota">
+            Documento generado por MyVet el ${fechaHoy}
+        </div>
+
+    </div>
+
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => window.print(), 400);
+        });
+    <\/script>
+
+</body>
+</html>
+    `;
+
+    ventana.document.open();
+    ventana.document.write(html);
+    ventana.document.close();
 }
 </script>
 </body>

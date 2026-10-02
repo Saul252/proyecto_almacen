@@ -303,3 +303,46 @@ if (isset($_GET['action']) && $_GET['action'] === 'listar') {
 
     exit;
 }
+
+if (isset($_GET['action']) && $_GET['action'] === 'verNomina') {
+
+    while (ob_get_level())
+        ob_end_clean();
+    header('Content-Type: application/json');
+
+    try {
+        $almacenusu = intval($_SESSION['almacen_id'] ?? 0);
+        $trabajador = intval($_GET['trabajador'] ?? 0);
+
+        if ($trabajador <= 0) {
+            throw new Exception('Trabajador inválido.');
+        }
+
+        $fechaInicio = $_GET['fecha_inicio'] ?? date('Y-m-d', strtotime('monday this week'));
+        $fechaFin = $_GET['fecha_fin'] ?? date('Y-m-d');
+
+        // ✅ Llamar al método correcto y pasar el trabajador
+        $trabajadores = $nominaModel->listarNominaSemanalTrabajador(
+            $fechaInicio,
+            $fechaFin,
+            $almacenusu,
+            $trabajador
+        );
+
+        echo json_encode([
+            'success' => true,
+            'data' => $trabajadores
+        ]);
+
+    } catch (Throwable $e) {
+
+        http_response_code(500);
+
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+
+    exit;
+}
