@@ -9,7 +9,7 @@ error_reporting(E_ALL);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solicitudes de Compra | cfsistem</title>
+    <title>Solicitudes de Compra | myvet</title>
     <link rel="icon" type="image/png"
         href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
 
@@ -254,8 +254,8 @@ error_reporting(E_ALL);
                                 <div class="col-md-2">
                                     <label class="form-label small fw-bold text-body-secondary text-uppercase">Folio
                                         factura</label>
-                                    <input type="text" name="folio" class="form-control rounded-3 shadow-sm"
-                                        placeholder="FAC-000" required>
+                                    <input type="text" name="folio" id="folio_proxima_factura"
+                                        class="form-control rounded-3 shadow-sm" placeholder="FAC-000" required>
                                 </div>
 
                                 <!-- MÉTODO -->
@@ -391,8 +391,9 @@ error_reporting(E_ALL);
                                 <div class="row g-1">
                                     <!-- -->
                                     <div class="col-6">
-                                        <div class="fw-bold text-uppercase mb-0" style="letter-spacing:.5px;">
-                                            <?= $_SESSION['nombre_almacen'] ?>
+                                        <div class="fw-bold text-uppercase mb-0" style="letter-spacing:.5px;"
+                                            id="almacen_nombre_solicitud">
+
                                         </div>
                                     </div>
                                     <div class="col-6">
@@ -419,6 +420,7 @@ error_reporting(E_ALL);
                                             <div class="">
 
                                                 <spam class="text-body-secondary text end" id="print-fecha"></spam>
+                                                <input type="hidden" id="dp_correo">
                                             </div>
                                         </div>
                                     </div>
@@ -562,6 +564,9 @@ error_reporting(E_ALL);
                 <div class="modal-footer border border-subtle ">
                     <button class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
                         Cerrar
+                    </button>
+                    <button type="button" class="btn btn-success rounded-pill px-4" onclick="abrirModalEnviar()">
+                        📧 Enviar por correo
                     </button>
 
                     <button class="btn btn-dark rounded-pill px-4"
@@ -801,6 +806,7 @@ error_reporting(E_ALL);
 
 
 
+    <?php require_once __DIR__ . '/solicitudesCompra/enviarSolicituPorCorreoModel.php'; ?>
     <?php require_once __DIR__ . '/solicitudesCompra/ModalSolicitud.php'; ?>
     <?php require_once __DIR__ . '/egresosComponets/agregarPoductoModal.php'; ?>
     <?php require_once __DIR__ . '/solicitudesCompra/modalProveedoresCompra.php'; ?>
@@ -1045,19 +1051,7 @@ error_reporting(E_ALL);
     </script>
     <script>
 
-        function asignarSiguienteFolioCompra() {
-            const inputFolio = document.getElementsByName('folio')[0];
-            let almacen = 1;
-            console.log(almacen);
 
-            if (!inputFolio) return;
-            fetch(`${URL_CONTROLADOR_SOLICITUD}?action=getSiguienteFolio&almacen_id=${almacen}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) inputFolio.value = data.folio;
-                })
-                .catch(err => console.error("Error al obtener folio:", err));
-        }
         let solicitudIDI = 0;
         async function gestionarSolicitud(id) {
             try {
@@ -1065,7 +1059,7 @@ error_reporting(E_ALL);
                 console.log(id); solicitudIDI = id;
 
                 const resp = await fetch(`${URL_CONTROLADOR_SOLICITUD}?action=obtenerDetalle&id=${id}`);
-                asignarSiguienteFolioCompra();
+
 
                 if (!resp.ok) throw new Error(`Error de servidor: ${resp.status}`);
 
@@ -1090,6 +1084,7 @@ error_reporting(E_ALL);
                 // 🔹 Datos generales
                 $('#uni-solicitud-id').val(id);
                 $('#uni-folio').text(`#${id.toString().padStart(5, '0')}`);
+                $('#folio_proxima_factura').val(items[0].proximo_folio);
                 $('#uni-proveedor').val(items[0].proveedor_nombre || 'Sin Proveedor');
                 $('#uni-proveedor-nombre').val(items[0].proveedor_nombre || '');
 
@@ -1478,6 +1473,7 @@ error_reporting(E_ALL);
                     $('#uni-proveedor').val()
                 );
 
+                console.log(Object.fromEntries(formData));
                 Swal.fire({
 
                     title: '¿Confirmar Ingreso?',
@@ -1629,13 +1625,15 @@ error_reporting(E_ALL);
                     const infoBase = data[0];
                     const costo = res.costo;
 
-                    $('#print-folio').text(` #${id.toString().padStart(5, '0')}`);
+                    $('#print-folio').text(`${infoBase.almacen_nombre}+ #${id.toString().padStart(5, '0')}`);
                     $('#print-fecha').text(`Fecha: ${new Date().toLocaleDateString()}`);
                     $('#print-almacen').text(infoBase.almacen_nombre);
                     $('#print-proveedor').text(infoBase.proveedor_nombre || 'No especificado');
                     $('#print-direccion').text(infoBase.dp_direccion || 'No especificado');
                     $('#print-rfc').text(infoBase.dp_rfc || 'No especificado');
                     $('#print-telefono').text(infoBase.dp_telefono || 'No especificado');
+                    $('#almacen_nombre_solicitud').text(infoBase.almacen_nombre);
+
 
                     $('#costo_total').text(costo.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }) || 'nohay costo');
 
@@ -1755,6 +1753,8 @@ error_reporting(E_ALL);
                     $select.trigger('change');
                 });
         }
+
+
     </script>
 
 </body>

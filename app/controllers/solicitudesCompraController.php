@@ -9,38 +9,39 @@ require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../controllers/LayoutController.php';
 
 // 2. Carga de Modelos
-require_once __DIR__ . '/../models/solicitudCompraModel.php'; 
+require_once __DIR__ . '/../models/solicitudCompraModel.php';
 require_once __DIR__ . '/../models/productosModel.php';
 require_once __DIR__ . '/../models/proveedoresModel.php';
-require_once __DIR__ . '/../models/almacen_model.php'; 
+require_once __DIR__ . '/../models/almacen_model.php';
 require_once __DIR__ . '/../models/egresos/comprasModel.php';
 
 require_once __DIR__ . '/../models/egresos_model.php';
 
 
-protegerPagina('solicitudesCompra'); 
+protegerPagina('solicitudesCompra');
 
 $solicitudModel = new SolicitudCompra($conexion);
 $productosModel = new ProductosModel($conexion);
-$almacenModel   = new AlmacenModel($conexion);
-$egresoModel   = new EgresoModel($conexion);
+$almacenModel = new AlmacenModel($conexion);
+$egresoModel = new EgresoModel($conexion);
 $proveedorModel = new ProveedoresModel($conexion);
 $comprasModel = new CompraModel($conexion);
-$paginaActual = 'solicitudesCompra'; 
+$paginaActual = 'solicitudesCompra';
 $almacen_usuario = $_SESSION['almacen_id'] ?? 0;
 $es_admin = ($_SESSION['rol_id'] == 1 || $almacen_usuario == 0);
 
 // --- ACCIÓN: GUARDAR (AJAX) ---
 if (isset($_GET['action']) && $_GET['action'] === 'guardar') {
 
-    if (ob_get_level()) ob_clean();
+    if (ob_get_level())
+        ob_clean();
     header('Content-Type: application/json; charset=utf-8');
 
     try {
 
         // 🔹 Validación de almacén
-        $almacen_id = $es_admin 
-            ? intval($_POST['almacen_id'] ?? 0) 
+        $almacen_id = $es_admin
+            ? intval($_POST['almacen_id'] ?? 0)
             : intval($almacen_usuario);
 
         if ($almacen_id <= 0) {
@@ -49,8 +50,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'guardar') {
 
         // 🔹 Cabecera
         $data = [
-            'usuario_id'   => intval($_SESSION['usuario_id']),
-            'almacen_id'   => $almacen_id,
+            'usuario_id' => intval($_SESSION['usuario_id']),
+            'almacen_id' => $almacen_id,
             'proveedor_id' => intval($_POST['proveedor_id'] ?? 0)
         ];
 
@@ -66,11 +67,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'guardar') {
 
             $id_producto = intval($id_producto);
 
-            $cant   = floatval($campos['cant'] ?? 0);
+            $cant = floatval($campos['cant'] ?? 0);
             $factor = floatval($campos['unidad'] ?? 1);
 
             // 🔥 CORRECCIÓN CLAVE
-            $costo  = floatval($campos['precio'] ?? 0);
+            $costo = floatval($campos['precio'] ?? 0);
 
             $total_base = $cant * $factor;
 
@@ -79,7 +80,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'guardar') {
 
                 $items_procesados[$id_producto] = [
                     'cantidad' => $total_base,
-                    'costo'    => $costo
+                    'costo' => $costo
                 ];
             }
         }
@@ -91,11 +92,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'guardar') {
         // 🔹 Guardar
         $resultado = $solicitudModel->crear($data, $items_procesados);
 
-        if ($resultado >0 ) {
+        if ($resultado > 0) {
             echo json_encode([
                 'status' => 'success',
                 'message' => '¡Solicitud guardada con éxito!',
-                'id'=>$resultado
+                'id' => $resultado
             ]);
         } else {
             throw new Exception($resultado ?: "Error en la base de datos.");
@@ -116,11 +117,13 @@ if (isset($_GET['action']) && $_GET['action'] === 'guardar') {
 
 // --- ACCIÓN: ELIMINAR --- (Sin cambios, está correcta)
 if (isset($_GET['action']) && $_GET['action'] === 'eliminar') {
-    if (ob_get_level()) ob_clean();
+    if (ob_get_level())
+        ob_clean();
     header('Content-Type: application/json');
     try {
         $id = intval($_POST['id'] ?? 0);
-        if ($id <= 0) throw new Exception("ID no válido.");
+        if ($id <= 0)
+            throw new Exception("ID no válido.");
         if ($solicitudModel->cancelarOrden($id)) {
             echo json_encode(['status' => 'success', 'message' => 'Eliminado.']);
         } else {
@@ -135,7 +138,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'getSiguienteFolio') {
     $almacen = ($_GET['almacen_id'] ?? 0);
     header('Content-Type: application/json');
     $siguiente = $comprasModel->generarSiguienteFolio($almacen);
-    
+
     echo json_encode(['success' => true, 'folio' => $siguiente]);
     exit;
 }
@@ -143,16 +146,16 @@ if (isset($_GET['action']) && $_GET['action'] === 'getSiguienteFolio') {
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['action'])) {
     try {
         // Nota: Verifica que sea listarTodo() o listarTodos() según tu ProductosModel
-        $productos   = $productosModel->listarTodo(); 
+        $productos = $productosModel->listarTodo();
         $proveedores = $proveedorModel->listarTodos();
-          $listaProductos= $productosModel->listarTodo();
-        $almacenes   = $almacenModel->getAlmacenes($almacen_usuario); 
-        $unidadesMedida= $almacenModel->getUnidadesMedida();
+        $listaProductos = $productosModel->listarTodo();
+        $almacenes = $almacenModel->getAlmacenes($almacen_usuario);
+        $unidadesMedida = $almacenModel->getUnidadesMedida();
 
         $tituloPagina = "Solicitudes de Compra";
-      
+
         require_once __DIR__ . '/../views/solicitudesCompra_view.php';
-        
+
     } catch (Exception $e) {
         die("Error fatal: " . $e->getMessage());
     }
@@ -163,7 +166,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'obtenerDetalle') {
 
     try {
 
-        $id = (int)($_GET['id'] ?? 0);
+        $id = (int) ($_GET['id'] ?? 0);
 
         $detalle = $solicitudModel->obtenerDetalle($id);
 
@@ -203,33 +206,34 @@ if (isset($_GET['action']) && $_GET['action'] === 'listarSolicitudes') {
     header('Content-Type: application/json; charset=utf-8');
 
     try {
-$almacen = !empty($_GET['almacen']) ? (int)$_GET['almacen'] : 0;
+        $almacen = !empty($_GET['almacen']) ? (int) $_GET['almacen'] : 0;
 
-$fechaInicio = !empty($_GET['fechaInicio'])
-    ? $_GET['fechaInicio']
-    : null;
+        $fechaInicio = !empty($_GET['fechaInicio'])
+            ? $_GET['fechaInicio']
+            : null;
 
-$fechaFin = !empty($_GET['fechaFin'])
-    ? $_GET['fechaFin']
-    : null;
+        $fechaFin = !empty($_GET['fechaFin'])
+            ? $_GET['fechaFin']
+            : null;
 
-$estado = !empty($_GET['estado'])
-    ? $_GET['estado']
-    : null;
+        $estado = !empty($_GET['estado'])
+            ? $_GET['estado']
+            : null;
 
-$buscador = !empty($_GET['buscador'])
-    ? trim($_GET['buscador'])
-    : null;
+        $buscador = !empty($_GET['buscador'])
+            ? trim($_GET['buscador'])
+            : null;
 
- $solicitudes = $solicitudModel->listarPorFechas($es_admin,
-       
-    
-    $almacen,
-    $fechaInicio,
-    $fechaFin,
-    $estado,
-    $buscador
-);
+        $solicitudes = $solicitudModel->listarPorFechas(
+            $es_admin,
+
+
+            $almacen,
+            $fechaInicio,
+            $fechaFin,
+            $estado,
+            $buscador
+        );
 
         echo json_encode([
             'status' => 'success',
@@ -320,7 +324,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'guardarCompraCompleta') {
 
             $items,
 
-            $_POST['folio'] ?? '',
+            $folio = 'A' . ($almacen_id ?? '') . 'S' . ($_POST['folio'] ?? ''),
 
             $proveedor,
 
@@ -348,29 +352,29 @@ if (isset($_POST['action']) && $_POST['action'] === 'guardarCompraCompleta') {
         // 🔥 ACTUALIZAR SOLICITUD
         // =====================================================
 
-        
-if (
-    $resultado['success'] === true &&
-    $solicitud_id > 0
-) {
-    $id_generado = intval($resultado['compra_id'] ?? 0);
 
-    $id_generado = intval($_POST['folio'] ?? 0);
+        if (
+            $resultado['success'] === true &&
+            $solicitud_id > 0
+        ) {
+            $id_generado = intval($resultado['compra_id'] ?? 0);
 
-    // 🔥 SOLO ACTUALIZAR SI EXISTE COMPRA VÁLIDA
-    if ($id_generado > 0) {
+            $id_generado = intval($_POST['folio'] ?? 0);
 
-        $solicitudModel->actualizarEstado(
-            $solicitud_id,
-            $almacen_id,
-            'recibido',
-            $id_generado??'0'
-        );
+            // 🔥 SOLO ACTUALIZAR SI EXISTE COMPRA VÁLIDA
+            if ($id_generado > 0) {
 
-        $resultado['message'] .=
-            " (Solicitud #{$solicitud_id} completada)";
-    }
-}
+                $solicitudModel->actualizarEstado(
+                    $solicitud_id,
+                    $almacen_id,
+                    'recibido',
+                    $id_generado ?? '0'
+                );
+
+                $resultado['message'] .=
+                    " (Solicitud #{$solicitud_id} completada)";
+            }
+        }
 
         // =====================================================
         // 🔥 PAGO DE DEUDAS

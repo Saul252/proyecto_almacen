@@ -20,13 +20,13 @@ $usuario_id = $_SESSION['usuario_id'] ?? 0;
 /* =========================
    MODELOS
 ========================= */
-$prestamosModel    = new PrestamosModel($conexion);
+$prestamosModel = new PrestamosModel($conexion);
 $trabajadoresModel = new TrabajadorModel($conexion);
-$almacenModel      = new AlmacenModel($conexion);
-$tesoreria         = new tesoreriaModel($conexion);
-$corteCaja         = new CorteCajaModel($conexion);
-$egreso            = new EgresoModel($conexion);
-$gastosModel       = new GastoModel($conexion);
+$almacenModel = new AlmacenModel($conexion);
+$tesoreria = new tesoreriaModel($conexion);
+$corteCaja = new CorteCajaModel($conexion);
+$egreso = new EgresoModel($conexion);
+$gastosModel = new GastoModel($conexion);
 
 /* =========================
    SESIÓN
@@ -36,9 +36,9 @@ $almacen_usuario = $_SESSION['almacen_id'] ?? 0;
 /* =========================
    INPUT FILTROS
 ========================= */
-$periodo  = $_GET['periodo'] ?? 'hoy';
+$periodo = $_GET['periodo'] ?? 'hoy';
 $f_inicio = $_GET['f_inicio'] ?? date('Y-m-d');
-$f_fin    = $_GET['f_fin'] ?? date('Y-m-d');
+$f_fin = $_GET['f_fin'] ?? date('Y-m-d');
 $almacen_id_req = isset($_GET['almacen_id']) ? intval($_GET['almacen_id']) : 0;
 
 /* =========================
@@ -51,15 +51,12 @@ if (!$usaFechasManual) {
 
     if ($periodo === 'hoy') {
         $f_inicio = $f_fin = date('Y-m-d');
-    } 
-    elseif ($periodo === 'ayer') {
+    } elseif ($periodo === 'ayer') {
         $f_inicio = $f_fin = date('Y-m-d', strtotime("-1 day"));
-    }
-    elseif ($periodo === 'semana') {
+    } elseif ($periodo === 'semana') {
         $f_inicio = date('Y-m-d', strtotime('-7 days'));
         $f_fin = date('Y-m-d');
-    }
-    elseif ($periodo === 'mes') {
+    } elseif ($periodo === 'mes') {
         $f_inicio = date('Y-m-01');
         $f_fin = date('Y-m-d');
     }
@@ -69,9 +66,8 @@ if (!$usaFechasManual) {
 /* =========================
    ALMACÉN ACTIVO
 ========================= */
-$target = ($almacen_usuario != 0)
-    ? $almacen_usuario
-    : ($almacen_id_req ?: 0);
+$target = ($almacen_usuario ?? 0);
+
 
 /* =========================
    AJAX
@@ -84,15 +80,15 @@ if (isset($_GET['action']) && $_GET['action'] === 'ajax') {
 
         // 🔥 LEER LO QUE ENVÍAS DESDE JS
         $almacen_id = intval($_GET['almacen_id'] ?? 0);
-        $f_inicio   = $_GET['f_inicio'] ?? null;
-        $f_fin      = $_GET['f_fin'] ?? null;
+        $f_inicio = $_GET['f_inicio'] ?? null;
+        $f_fin = $_GET['f_fin'] ?? null;
 
         // 👇 ESTE ES TU TARGET REAL
         $target = $almacen_id;
 
         // 🔥 CONSULTAS
         $prestamos = $prestamosModel->listarPrestamos($target, $f_inicio, $f_fin);
-        $deuda     = $prestamosModel->obtenerTotalDeuda($target, $f_inicio, $f_fin);
+        $deuda = $prestamosModel->obtenerTotalDeuda($target, $f_inicio, $f_fin);
         $trabajadores = $trabajadoresModel->listarTrabajadores($target);
 
         echo json_encode([
@@ -144,11 +140,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'crear') {
 
     try {
 
-        $almacen        = intval($_POST['almacen_id'] ?? 0);
-        $trabajador_id  = intval($_POST['trabajador_id'] ?? 0);
-        $monto          = floatval($_POST['monto_total'] ?? 0);
-        $metodo_pago    = $_POST['metodo_pago'] ?? 'efectivo';
-        $descripcion    = trim($_POST['descripcion'] ?? '');
+        $almacen = intval($_POST['almacen_id'] ?? 0);
+        $trabajador_id = intval($_POST['trabajador_id'] ?? 0);
+        $monto = floatval($_POST['monto_total'] ?? 0);
+        $metodo_pago = $_POST['metodo_pago'] ?? 'efectivo';
+        $descripcion = trim($_POST['descripcion'] ?? '');
 
         if ($trabajador_id <= 0 || $monto <= 0) {
             throw new Exception("Datos inválidos");
@@ -164,25 +160,25 @@ if (isset($_GET['action']) && $_GET['action'] === 'crear') {
         // =========================
         $folio = $gastosModel->generarSiguienteFolioGasto($almacen);
 
-        $concepto = "Préstamo a {$nombreTrabajador}" . 
-                    ($descripcion ? " - {$descripcion}" : "");
+        $concepto = "Préstamo a {$nombreTrabajador}" .
+            ($descripcion ? " - {$descripcion}" : "");
 
         $cabecera = [
-            'folio'            => $folio,
-            'fecha'            => date('Y-m-d'),
-            'almacen_id'       => $almacen,
-            'categoria_id'     => 8, // préstamos
-            'usuario_id'       => $usuario_id,
-            'beneficiario'     => $nombreTrabajador,
-            'metodo_pago'      => $metodo_pago,
-            'total'            => $monto,
-            'documento_url'    => '',
-            'observaciones'    => $concepto
+            'folio' => $folio,
+            'fecha' => date('Y-m-d'),
+            'almacen_id' => $almacen,
+            'categoria_id' => 8, // préstamos
+            'usuario_id' => $usuario_id,
+            'beneficiario' => $nombreTrabajador,
+            'metodo_pago' => $metodo_pago,
+            'total' => $monto,
+            'documento_url' => '',
+            'observaciones' => $concepto
         ];
 
         $descripciones = [$concepto];
-        $cantidades    = [1];
-        $precios       = [$monto];
+        $cantidades = [1];
+        $precios = [$monto];
 
         $resultGasto = $egreso->registrarGasto(
             $cabecera,
@@ -207,11 +203,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'crear') {
         // =========================
         $data = [
             'trabajador_id' => $trabajador_id,
-            'almacen_id'    => $almacen,
-            'monto_total'   => $monto,
-            'estado'        => 'activo',
-            'descripcion'   => $descripcion,
-            'gasto_id'      => $gasto_id // 🔥 vínculo clave
+            'almacen_id' => $almacen,
+            'monto_total' => $monto,
+            'estado' => 'activo',
+            'descripcion' => $descripcion,
+            'gasto_id' => $gasto_id // 🔥 vínculo clave
         ];
 
         $ok = $prestamosModel->crearPrestamo($data);
@@ -243,7 +239,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'crear') {
 ========================= */
 if (isset($_GET['action']) && $_GET['action'] === 'abonar') {
 
-    while (ob_get_level()) ob_end_clean();
+    while (ob_get_level())
+        ob_end_clean();
     ob_start();
 
     header('Content-Type: application/json');
@@ -267,34 +264,37 @@ if (isset($_GET['action']) && $_GET['action'] === 'abonar') {
         // =========================
         // DATOS
         // =========================
-        $id_almacen   = intval($_POST['almacen_id'] ?? 0);
-        $id_prestamo  = intval($_POST['prestamo_id'] ?? 0);
-        $monto        = floatval($_POST['monto_abono'] ?? 0);
+        $id_almacen = intval($_POST['almacen_id'] ?? 0);
+        $id_prestamo = intval($_POST['prestamo_id'] ?? 0);
+        $monto = floatval($_POST['monto_abono'] ?? 0);
 
-        $metodo_pago  = $_POST['metodo_pago'] ?? 'efectivo';
+        $metodo_pago = $_POST['metodo_pago'] ?? 'efectivo';
         $observaciones = trim($_POST['observaciones'] ?? '');
 
         $caja_fuerte_id = intval($_POST['caja_fuerte_id'] ?? 0);
-        $banco_id       = intval($_POST['banco_id'] ?? 0);
+        $banco_id = intval($_POST['banco_id'] ?? 0);
 
         $usuario_id = intval($usuario_id ?? 0);
 
         // =========================
         // VALIDACIONES
         // =========================
-        if ($id_almacen <= 0) throw new Exception("Almacén inválido");
-        if ($id_prestamo <= 0) throw new Exception("Préstamo inválido");
-        if ($monto <= 0) throw new Exception("Monto inválido");
+        if ($id_almacen <= 0)
+            throw new Exception("Almacén inválido");
+        if ($id_prestamo <= 0)
+            throw new Exception("Préstamo inválido");
+        if ($monto <= 0)
+            throw new Exception("Monto inválido");
 
         // =========================
         // REGISTRAR ABONO
         // =========================
         $data = [
-            'almacen_id'    => $id_almacen,
-            'prestamo_id'   => $id_prestamo,
-            'monto_abono'   => $monto,
-            'metodo_pago'   => $metodo_pago,
-            'usuario_id'    => $usuario_id,
+            'almacen_id' => $id_almacen,
+            'prestamo_id' => $id_prestamo,
+            'monto_abono' => $monto,
+            'metodo_pago' => $metodo_pago,
+            'usuario_id' => $usuario_id,
             'observaciones' => $observaciones
         ];
 
@@ -334,23 +334,23 @@ if (isset($_GET['action']) && $_GET['action'] === 'abonar') {
         if (!$usado_caja_o_banco) {
 
             $data2 = [
-                'almacen_id'         => $id_almacen,
-                'usuario_id'         => $usuario_id,
-                'categoria_id'       => 13,
-                'monto'              => $monto,
-                'metodo_pago'        => $metodo_pago,
-                'fecha_movimiento'   => date('Y-m-d H:i:s'),
+                'almacen_id' => $id_almacen,
+                'usuario_id' => $usuario_id,
+                'categoria_id' => 13,
+                'monto' => $monto,
+                'metodo_pago' => $metodo_pago,
+                'fecha_movimiento' => date('Y-m-d H:i:s'),
 
-                'concepto'           => "Abono a préstamo ID: $id_prestamo",
-                'tipo_operacion'     => 'entrada',
+                'concepto' => "Abono a préstamo ID: $id_prestamo",
+                'tipo_operacion' => 'entrada',
 
-                'monto_efectivo'      => ($metodo_pago === 'efectivo') ? $monto : 0,
-                'monto_tarjeta'       => ($metodo_pago === 'tarjeta') ? $monto : 0,
+                'monto_efectivo' => ($metodo_pago === 'efectivo') ? $monto : 0,
+                'monto_tarjeta' => ($metodo_pago === 'tarjeta') ? $monto : 0,
                 'monto_transferencia' => ($metodo_pago === 'transferencia') ? $monto : 0,
 
-                'almacen_destino_id'  => $id_almacen,
-                'caja_fuerte_id'      => null,
-                'banco_id'            => null
+                'almacen_destino_id' => $id_almacen,
+                'caja_fuerte_id' => null,
+                'banco_id' => null
             ];
 
             $corteCaja->registrarAperturaDesdeCierreConceptoAbono($data2);
@@ -364,24 +364,25 @@ if (isset($_GET['action']) && $_GET['action'] === 'abonar') {
         echo json_encode([
             'success' => true,
             'message' => 'Abono registrado correctamente',
-            'debug'   => [
+            'debug' => [
                 'caja_fuerte_id' => $caja_fuerte_id,
-                'banco_id'       => $banco_id,
-                'usado_directo'  => $usado_caja_o_banco
+                'banco_id' => $banco_id,
+                'usado_directo' => $usado_caja_o_banco
             ]
         ]);
 
     } catch (Throwable $e) {
 
-        if (ob_get_level()) ob_end_clean();
+        if (ob_get_level())
+            ob_end_clean();
 
         error_log("ERROR ABONO: " . $e->getMessage());
 
         echo json_encode([
             'success' => false,
             'message' => $e->getMessage(),
-            'file'    => $e->getFile(),
-            'line'    => $e->getLine()
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
         ]);
     }
 
@@ -420,7 +421,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'detalle') {
         $id = intval($_GET['id'] ?? 0);
 
         $prestamo = $prestamosModel->obtenerPrestamo($id);
-        $abonos   = $prestamosModel->listarAbonos($id);
+        $abonos = $prestamosModel->listarAbonos($id);
 
         echo json_encode([
             'success' => true,
@@ -464,11 +465,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'eliminarPrestamo') {
         }
 
         echo json_encode([
-            'success'  => true,
-            'message'  => 'Préstamo eliminado correctamente',
-            'debug'    => [
-                'gasto'     => $okGasto,
-                'prestamo'  => $okPrestamo
+            'success' => true,
+            'message' => 'Préstamo eliminado correctamente',
+            'debug' => [
+                'gasto' => $okGasto,
+                'prestamo' => $okPrestamo
             ]
         ]);
 
@@ -488,17 +489,19 @@ if (isset($_GET['action']) && $_GET['action'] === 'eliminarPrestamo') {
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['action'])) {
 
     $prestamos = $prestamosModel->listarPrestamos($target, $f_inicio, $f_fin);
-    $deuda       =$prestamosModel->obtenerTotalDeuda($target, $f_inicio, $f_fin);
+    $deuda = $prestamosModel->obtenerTotalDeuda($target, $f_inicio, $f_fin);
     $trabajadores = $trabajadoresModel->listarTrabajadores($target);
     $cajasFuertes = $tesoreria->getCajasFuertes($target);
     $saldo = $corteCaja->obtenerSaldoInicialMonitor($target, $f_inicio, $f_fin);
 
     if (!isset($saldo[0])) {
-        $saldo = [[
-            'idAlmacen' => $target,
-            'almacen'   => 'Sucursal',
-            'monto'     => $saldo['monto'] ?? 0
-        ]];
+        $saldo = [
+            [
+                'idAlmacen' => $target,
+                'almacen' => 'Sucursal',
+                'monto' => $saldo['monto'] ?? 0
+            ]
+        ];
     }
 
     $almacenes = $almacenModel->getAlmacenes($almacen_usuario);
