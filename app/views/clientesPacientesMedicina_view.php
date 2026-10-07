@@ -1,11 +1,10 @@
 <?php
 /**
  * clientes_view.php
- * Vista de administración de pacientes/clientes: Filtros, CRUD por Modales y AJAX.
- * Estilo: Dental / Clínico Híbrido (Claro por defecto / Oscuro dinámico)
+ * Vista de pacientes/clientes cargada vía AJAX desde action=listar.
  */
 $usosCFDI = ['G01' => 'Adquisición', 'G03' => 'Gastos', 'P01' => 'Por definir', 'S01' => 'Sin efectos'];
-$almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
+$almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 = Admin global
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -20,13 +19,11 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
     <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
         type="image/x-icon">
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
 
-    <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
@@ -38,18 +35,19 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
     } ?>
     <style>
         /* ==========================================
-            VARIABLES MODO CLARO (ESTILO FROSTED GLASS / CRISTAL PULIDO)
-            ========================================== */
+       VARIABLES
+       ========================================== */
         :root {
             --bg-main: #f0f2f5;
             --bg-card: rgba(255, 255, 255, 0.65);
-            --bg-card-header: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
+            --bg-card-header: linear-gradient(135deg, rgba(255, 255, 255, .8) 0%, rgba(255, 255, 255, .4) 100%);
             --bg-input: rgba(255, 255, 255, 0.75);
             --bg-table-header: rgba(255, 255, 255, 0.5);
-            --bg-modal-header: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 242, 245, 0.8) 100%);
+            --bg-modal-header: linear-gradient(135deg, rgba(255, 255, 255, .9) 0%, rgba(240, 242, 245, .8) 100%);
             --bg-modal-footer: rgba(245, 247, 250, 0.8);
 
-            --border-color: rgba(255, 255, 255, 0.4);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --border-color-soft: rgba(0, 0, 0, 0.05);
             --border-color-hover: rgba(0, 113, 227, 0.6);
 
             --text-main: #1d1d1f;
@@ -60,33 +58,30 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
             --dental-accent-hover: #0077ed;
             --dental-mint: #34c759;
             --dental-badge-bg: rgba(0, 113, 227, 0.08);
-            --dental-btn-gradient: linear-gradient(135deg, rgba(0, 113, 227, 0.9) 0%, rgba(64, 156, 255, 0.9) 100%);
+            --dental-btn-gradient: linear-gradient(135deg, rgba(0, 113, 227, .9) 0%, rgba(64, 156, 255, .9) 100%);
             --dental-btn-action-bg: rgba(0, 113, 227, 0.06);
 
             --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
             --shadow-header: 0 10px 30px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8);
             --shadow-btn: 0 4px 14px rgba(0, 113, 227, 0.25);
 
-            --backdrop-blur: blur(25px);
             --backdrop-blur-heavy: blur(35px);
         }
 
-        /* ==========================================
-            VARIABLES MODO OSCURO (ESTILO DARK GLASS / CRISTAL OSCURO)
-            ========================================== */
         body.dark-theme,
         body.dark-mode,
         [data-bs-theme="dark"] body,
         html[data-bs-theme="dark"] body {
             --bg-main: #0b0b0d;
             --bg-card: rgba(30, 30, 35, 0.55);
-            --bg-card-header: linear-gradient(135deg, rgba(45, 45, 52, 0.6) 0%, rgba(30, 30, 35, 0.6) 100%);
+            --bg-card-header: linear-gradient(135deg, rgba(45, 45, 52, .6) 0%, rgba(30, 30, 35, .6) 100%);
             --bg-input: rgba(45, 45, 52, 0.65);
             --bg-table-header: rgba(40, 40, 48, 0.5);
-            --bg-modal-header: linear-gradient(135deg, rgba(38, 38, 45, 0.8) 0%, rgba(25, 25, 30, 0.8) 100%);
+            --bg-modal-header: linear-gradient(135deg, rgba(38, 38, 45, .8) 0%, rgba(25, 25, 30, .8) 100%);
             --bg-modal-footer: rgba(22, 22, 26, 0.8);
 
             --border-color: rgba(255, 255, 255, 0.08);
+            --border-color-soft: rgba(255, 255, 255, 0.05);
             --border-color-hover: rgba(10, 132, 255, 0.5);
 
             --text-main: #f5f5f7;
@@ -97,48 +92,43 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
             --dental-accent-hover: #409cff;
             --dental-mint: #30d158;
             --dental-badge-bg: rgba(10, 132, 255, 0.15);
-            --dental-btn-gradient: linear-gradient(135deg, rgba(10, 132, 255, 0.9) 0%, rgba(0, 98, 210, 0.9) 100%);
+            --dental-btn-gradient: linear-gradient(135deg, rgba(10, 132, 255, .9) 0%, rgba(0, 98, 210, .9) 100%);
             --dental-btn-action-bg: rgba(10, 132, 255, 0.15);
 
             --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
             --shadow-header: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             --shadow-btn: 0 4px 14px rgba(10, 132, 255, 0.35);
-
-            --backdrop-blur: blur(25px);
-            --backdrop-blur-heavy: blur(35px);
         }
 
-        /* Detección automática de preferencia del sistema */
         @media (prefers-color-scheme: dark) {
             :root:not([data-bs-theme="light"]) {
                 --bg-main: #0b0b0d;
                 --bg-card: rgba(30, 30, 35, 0.55);
-                --bg-card-header: linear-gradient(135deg, rgba(45, 45, 52, 0.6) 0%, rgba(30, 30, 35, 0.6) 100%);
                 --bg-input: rgba(45, 45, 52, 0.65);
                 --bg-table-header: rgba(40, 40, 48, 0.5);
-                --bg-modal-header: linear-gradient(135deg, rgba(38, 38, 45, 0.8) 0%, rgba(25, 25, 30, 0.8) 100%);
-                --bg-modal-footer: rgba(22, 22, 26, 0.8);
                 --border-color: rgba(255, 255, 255, 0.08);
+                --border-color-soft: rgba(255, 255, 255, 0.05);
                 --text-main: #f5f5f7;
                 --text-title: #ffffff;
                 --text-muted: #98989d;
                 --dental-accent: #0a84ff;
-                --dental-badge-bg: rgba(10, 132, 255, 0.15);
-                --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
             }
         }
 
-        /* Base Body con tipografía limpia estilo SF Pro / Inter */
+        /* ==========================================
+       BASE
+       ========================================== */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
             background-color: var(--bg-main);
             color: var(--text-main);
-            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: background-color .3s cubic-bezier(.4, 0, .2, 1), color .3s cubic-bezier(.4, 0, .2, 1);
             -webkit-font-smoothing: antialiased;
             background-image:
                 radial-gradient(at 10% 20%, rgba(0, 113, 227, 0.08) 0px, transparent 50%),
                 radial-gradient(at 90% 80%, rgba(52, 199, 89, 0.06) 0px, transparent 50%);
             background-attachment: fixed;
+            min-height: 100vh;
         }
 
         .main-content {
@@ -147,7 +137,9 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
             margin: 0 auto;
         }
 
-        /* Encabezado Clínico con Efecto Glassmorphism Profundo */
+        /* ==========================================
+       HEADER
+       ========================================== */
         .clinic-header {
             background: var(--bg-card-header);
             backdrop-filter: var(--backdrop-blur-heavy);
@@ -170,75 +162,91 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
         }
 
-        /* Tarjeta Contenedora Principal con Transparencia de Cristal */
+        /* ==========================================
+       CARD
+       ========================================== */
         .card-dental {
             background: var(--bg-card);
             backdrop-filter: var(--backdrop-blur-heavy);
             -webkit-backdrop-filter: var(--backdrop-blur-heavy);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-color) !important;
             border-radius: 24px;
             box-shadow: var(--shadow-card);
         }
 
-        /* Form Controls con Efecto Cristal */
+        /* ==========================================
+       INPUTS
+       ========================================== */
         .form-control-dental,
         .form-select-dental {
             background-color: var(--bg-input);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-color) !important;
             border-radius: 12px;
             padding: 10px 16px;
             font-size: 0.9rem;
             color: var(--text-main);
-            transition: all 0.25s ease;
+            transition: all .25s ease;
+            box-shadow: none !important;
         }
 
         .form-control-dental:focus,
         .form-select-dental:focus {
             background-color: var(--bg-card);
-            border-color: var(--dental-accent);
-            box-shadow: 0 0 0 4px var(--dental-badge-bg), 0 0 20px rgba(0, 113, 227, 0.15);
+            border-color: var(--dental-accent) !important;
+            box-shadow: 0 0 0 4px var(--dental-badge-bg) !important;
             color: var(--text-main);
             outline: none;
         }
 
-        /* Botones Pulidos estilo iOS / macOS con Destello de Cristal */
+        .input-group-text {
+            background-color: var(--bg-input) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-muted) !important;
+        }
+
+        .input-group>.input-group-text:first-child {
+            border-right: 0 !important;
+            border-top-left-radius: 12px !important;
+            border-bottom-left-radius: 12px !important;
+        }
+
+        .input-group>.form-control-dental:last-child {
+            border-left: 0 !important;
+            border-top-right-radius: 12px !important;
+            border-bottom-right-radius: 12px !important;
+        }
+
+        /* ==========================================
+       BOTONES
+       ========================================== */
         .btn-dental-primary {
             background: var(--dental-btn-gradient);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            color: #ffffff;
+            color: #fff;
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
             font-weight: 600;
             padding: 10px 22px;
             box-shadow: var(--shadow-btn);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all .2s ease;
         }
 
         .btn-dental-primary:hover {
             transform: translateY(-1px);
             filter: brightness(1.1);
-            color: #ffffff;
-            box-shadow: 0 6px 20px rgba(0, 113, 227, 0.4);
+            color: #fff;
         }
 
         .btn-dental-action {
             background: var(--dental-btn-action-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             color: var(--dental-accent);
             border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 6px 12px;
             font-weight: 600;
             font-size: 0.8rem;
-            transition: all 0.2s ease;
+            transition: all .2s ease;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
@@ -247,63 +255,88 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
 
         .btn-dental-action:hover {
             background: var(--dental-accent);
-            color: #ffffff;
+            color: #fff;
             border-color: var(--dental-accent);
             box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
         }
 
         .btn-dental-excel {
             background: var(--bg-card);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
             color: var(--text-main);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             font-weight: 600;
             padding: 10px 18px;
-            transition: all 0.2s ease;
+            transition: all .2s ease;
         }
 
         .btn-dental-excel:hover {
             background: rgba(52, 199, 89, 0.15);
             color: var(--dental-mint);
             border-color: rgba(52, 199, 89, 0.4);
-            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.2);
         }
 
-        /* Tablas con Efecto Cristal Limpio */
+        /* ==========================================
+       TABLA  ← AQUÍ ESTABA EL PROBLEMA
+       ========================================== */
+        .table-responsive {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            background: transparent;
+        }
+
         .table-dental {
-            margin-bottom: 0;
+            margin-bottom: 0 !important;
             color: var(--text-main);
             background: transparent;
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
         }
 
         .table-dental thead th {
             background: var(--bg-table-header);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
             color: var(--text-muted);
             font-size: 0.72rem;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             font-weight: 700;
             padding: 16px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color) !important;
+            border-top: 0 !important;
+            border-left: 0 !important;
+            border-right: 0 !important;
+            white-space: nowrap;
         }
 
         .table-dental tbody td {
             padding: 16px;
             vertical-align: middle;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color-soft) !important;
+            border-top: 0 !important;
+            border-left: 0 !important;
+            border-right: 0 !important;
             color: var(--text-main);
             font-size: 0.9rem;
             background: transparent;
         }
 
+        .table-dental tbody tr:last-child td {
+            border-bottom: 0 !important;
+        }
+
+        .table-dental tbody tr {
+            transition: background-color .15s ease;
+        }
+
+        .table-dental tbody tr:hover {
+            background-color: var(--dental-badge-bg);
+        }
+
+        /* Badges */
         .badge-rfc {
             background: var(--bg-input);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             color: var(--text-main);
             border: 1px solid var(--border-color);
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -311,39 +344,42 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
             padding: 4px 8px;
             border-radius: 6px;
             font-size: 0.78rem;
+            display: inline-block;
         }
 
         .badge-sucursal {
             background: var(--dental-badge-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             color: var(--dental-accent);
             border: 1px solid var(--border-color);
             padding: 5px 10px;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
+            display: inline-flex;
+            align-items: center;
         }
 
         .form-check-input:checked {
             background-color: var(--dental-mint);
             border-color: var(--dental-mint);
-            box-shadow: 0 0 10px rgba(52, 199, 89, 0.4);
         }
 
-        /* DataTables Personalización con Cristal */
+        /* ==========================================
+       DATATABLES
+       ========================================== */
+        .dataTables_wrapper {
+            padding: 0;
+        }
+
         .dataTables_wrapper .pagination .page-item.active .page-link {
             background-color: var(--dental-accent);
             border-color: var(--dental-accent);
-            color: #ffffff;
+            color: #fff;
             border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 113, 227, 0.3);
         }
 
         .dataTables_wrapper .pagination .page-link {
             background-color: var(--bg-input);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             border-color: var(--border-color);
             border-radius: 8px;
             margin: 0 2px;
@@ -354,31 +390,98 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
             color: var(--text-muted) !important;
         }
 
-        /* Modales Estilo Cristal (Glassmorphism Sheet) */
-        .modal-dental-content {
-            background-color: var(--bg-card);
+        /* ==========================================
+       MODALES
+       ========================================== */
+        .modal-content {
+            background-color: var(--bg-card) !important;
             backdrop-filter: var(--backdrop-blur-heavy);
             -webkit-backdrop-filter: var(--backdrop-blur-heavy);
-            border-radius: 24px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 20px !important;
             box-shadow: var(--shadow-card);
+            color: var(--text-main);
+            overflow: hidden;
         }
 
-        .modal-dental-header {
+        .modal-header {
             background: var(--bg-modal-header);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color) !important;
+            padding: 18px 24px;
             color: var(--text-title);
-            padding: 20px 28px;
-            border-bottom: 1px solid var(--border-color);
         }
 
-        .modal-footer-dental {
-            background-color: var(--bg-modal-footer);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border-color);
+        .modal-title {
+            font-weight: 700;
+            color: var(--text-title);
+        }
+
+        .modal-body {
+            padding: 24px;
+            color: var(--text-main);
+        }
+
+        .modal-footer {
+            background: var(--bg-modal-footer);
+            border-top: 1px solid var(--border-color) !important;
+            padding: 16px 24px;
+            gap: 8px;
+        }
+
+        .modal-footer>* {
+            margin: 0;
+        }
+
+        .modal-body .form-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .modal-body .form-control,
+        .modal-body .form-select {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 10px;
+            padding: 10px 14px;
+        }
+
+        .modal-body .form-control:focus,
+        .modal-body .form-select:focus {
+            background-color: var(--bg-card);
+            border-color: var(--dental-accent);
+            box-shadow: 0 0 0 4px var(--dental-badge-bg);
+            color: var(--text-main);
+        }
+
+        /* ==========================================
+       LOADER
+       ========================================== */
+        #loadingClientes {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        #loadingClientes .spinner {
+            width: 42px;
+            height: 42px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--dental-accent);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+            margin-bottom: 14px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
@@ -387,9 +490,10 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
     <?php if (function_exists('renderizarLayout')) {
         renderizarLayout($paginaActual);
     } ?>
+
     <main class="main-content">
 
-        <!-- Header Principal de la Clínica -->
+        <!-- Header Principal -->
         <div
             class="clinic-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 animate__animated animate__fadeIn">
             <div>
@@ -403,7 +507,6 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
             </div>
 
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                <!-- Botón de Conmutación Manual de Tema (Opcional) -->
                 <button type="button" class="btn btn-dental-excel d-inline-flex align-items-center gap-2"
                     onclick="toggleTheme()" title="Cambiar Tema">
                     <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
@@ -414,6 +517,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
                     <i class="bi bi-file-earmark-spreadsheet-fill text-success fs-5"></i>
                     <span>Exportar Data</span>
                 </button>
+
                 <button class="btn btn-dental-primary d-inline-flex align-items-center gap-2" onclick="nuevoCliente()">
                     <i class="bi bi-person-plus-fill fs-5"></i>
                     <span>NUEVO PACIENTE</span>
@@ -421,10 +525,10 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
             </div>
         </div>
 
-        <!-- Tarjeta de Contenido y Tablas -->
+        <!-- Tarjeta de Contenido -->
         <div class="card card-dental p-4 animate__animated animate__fadeInUp">
 
-            <!-- Barra de Herramientas / Filtros -->
+            <!-- Barra de Filtros -->
             <div class="row mb-4 g-3 align-items-center">
                 <div class="col-md-5">
                     <div class="input-group">
@@ -442,8 +546,8 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
                     <div class="col-md-4">
                         <select id="filtroAlmacenVista" class="form-select form-select-dental">
                             <option value="">🌐 Todas las Clínicas / Sucursales</option>
-                            <?php foreach ($almacenes as $alm): ?>
-                                <option value="<?= $alm['id'] ?>">📍 <?= htmlspecialchars($alm['nombre']) ?></option>
+                            <?php foreach (($almacenes ?? []) as $alm): ?>
+                                <option value="<?= (int) $alm['id'] ?>">📍 <?= htmlspecialchars($alm['nombre']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -457,8 +561,13 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
                 <?php endif; ?>
             </div>
 
-            <!-- Tabla de Clientes / Pacientes -->
-            <div class="table-responsive">
+            <!-- Tabla con estado de carga -->
+            <div id="loadingClientes">
+                <div class="spinner"></div>
+                <span>Cargando pacientes...</span>
+            </div>
+
+            <div class="table-responsive d-none" id="contenedorTabla">
                 <table id="tablaClientes" class="table table-dental align-middle w-100">
                     <thead>
                         <tr>
@@ -469,88 +578,11 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
                             <th class="text-end pe-3">Expediente & Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <?php foreach ($clientes as $c): ?>
-                            <tr class="fila-cliente" data-almacen-id="<?= $c['almacen_id'] ?>">
-                                <td class="ps-3">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold"
-                                            style="width: 40px; height: 40px; font-size: 0.9rem; background-color: var(--bg-input); color: var(--dental-accent); border: 1px solid var(--border-color);">
-                                            <i class="bi bi-person-fill"></i>
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold" style="color: var(--text-title);">
-                                                <?= htmlspecialchars($c['nombre_comercial']) ?>
-                                            </div>
-                                            <?php if (!empty($c['razon_social'])): ?>
-                                                <div class="text-muted small"><?= htmlspecialchars($c['razon_social']) ?></div>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge-rfc">
-                                        <?= htmlspecialchars($c['rfc']) ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge-sucursal">
-                                        <i class="bi bi-geo-alt-fill me-1"></i>
-                                        <?php
-                                        $nombreAlmacen = 'Global';
-                                        foreach ($almacenes as $alm) {
-                                            if ($alm['id'] == $c['almacen_id']) {
-                                                $nombreAlmacen = $alm['nombre'];
-                                                break;
-                                            }
-                                        }
-                                        echo htmlspecialchars($nombreAlmacen);
-                                        ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" <?= $c['activo'] ? 'checked' : '' ?>
-                                            onchange="cambiarEstado(<?= $c['id'] ?>, this.checked ? 1 : 0)"
-                                            id="switch_<?= $c['id'] ?>">
-                                        <label class="form-check-label small fw-medium text-muted"
-                                            for="switch_<?= $c['id'] ?>">
-                                            <?= $c['activo'] ? 'Activo' : 'Inactivo' ?>
-                                        </label>
-                                    </div>
-                                </td>
-                                <td class="text-end pe-3">
-                                    <div class="d-inline-flex align-items-center gap-2">
-                                        <a href="/myvet/consultaMedica?id=<?= $c['id'] ?>" class="btn btn-dental-action"
-                                            title="Abrir Expediente Medicina">
-                                            <i class="bi bi-tooth"></i>
-                                            <span>Nueva consulta</span>
-                                        </a>
-
-                                        <!-- Se añadió la clase btn-dental-action faltante aquí -->
-                                        <a href="/myvet/app/controllers/historialMedicoController.php?id=<?= $c['id'] ?>&fecha_inicio=<?= date('Y-m-d', strtotime('-1 month')) ?>&fecha_fin=<?= date('Y-m-d') ?>"
-                                            class="btn btn-dental-action" title="Abrir Expediente Medico">
-                                            <i class="bi bi-journal-medical"></i>
-                                            <span>EXPEDIENTE</span>
-                                        </a>
-
-                                        <button class="btn btn-dental-action" onclick="editarCliente(<?= $c['id'] ?>)"
-                                            title="Editar Datos">
-                                            <i class="bi bi-pencil-square"></i>
-                                            <span>Editar</span>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
     </main>
-
-    <!-- Modal CRUD Paciente -->
-
 
     <!-- JS Libraries -->
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
@@ -562,13 +594,29 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
     <?php require_once __DIR__ . '/clientes/clientesMedic.php'; ?>
 
     <script>
-        let tabla;
+        // =========================================================
+        // CONFIGURACIÓN INYECTADA DESDE PHP
+        // =========================================================
+        const ENDPOINT_LISTAR = '/myvet/misPacientesMedicina?action=listar';
+        const ES_ADMIN_GLOBAL = <?= ($almacen_usuario == 0) ? 'true' : 'false' ?>;
+        const ALMACEN_SESION = <?= (int) $almacen_usuario ?>;
+        const MAPA_ALMACENES = <?= json_encode(
+            array_column($almacenes ?? [], 'nombre', 'id'),
+            JSON_UNESCAPED_UNICODE
+        ) ?>;
 
-        // Función manual para alternar tema (Claro / Oscuro)
+        let tabla = null;
+        let clientesCache = [];
+
+        // Escapado seguro para HTML (previene XSS)
+        const esc = (s) => $('<div>').text(s ?? '').html();
+
+        // =========================================================
+        // TOGGLE TEMA
+        // =========================================================
         function toggleTheme() {
             const body = document.body;
             const icon = document.getElementById('themeIcon');
-
             if (body.classList.contains('dark-theme') || document.documentElement.getAttribute('data-bs-theme') === 'dark') {
                 body.classList.remove('dark-theme');
                 document.documentElement.setAttribute('data-bs-theme', 'light');
@@ -580,37 +628,184 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
             }
         }
 
+        // =========================================================
+        // RENDER DE CADA FILA
+        // =========================================================
+        function renderPaciente(row) {
+            const nombre = esc(row.nombre_comercial || '');
+            const razon = row.razon_social ? `<div class="text-muted small">${esc(row.razon_social)}</div>` : '';
+            return `
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                        style="width: 40px; height: 40px; font-size: 0.9rem; background-color: var(--bg-input);
+                               color: var(--dental-accent);">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold" style="color: var(--text-title);">${nombre}</div>
+                        ${razon}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderRFC(row) {
+            return `<span class="badge-rfc">${esc(row.rfc || '')}</span>`;
+        }
+
+        function renderClinica(row) {
+            const nombre = MAPA_ALMACENES[row.almacen_id] ?? 'Global';
+            return `<span class="badge-sucursal"><i class="bi bi-geo-alt-fill me-1"></i>${esc(nombre)}</span>`;
+        }
+
+        function renderEstatus(row) {
+            const id = parseInt(row.id, 10);
+            const activo = parseInt(row.activo, 10) === 1;
+            return `
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" ${activo ? 'checked' : ''}
+                        onchange="cambiarEstado(${id}, this.checked ? 1 : 0)" id="switch_${id}">
+                    <label class="form-check-label small fw-medium text-muted" for="switch_${id}">
+                        ${activo ? 'Activo' : 'Inactivo'}
+                    </label>
+                </div>
+            `;
+        }
+
+        function renderAcciones(row) {
+            const id = parseInt(row.id, 10);
+            const hoy = new Date();
+            const hace1mes = new Date();
+            hace1mes.setMonth(hace1mes.getMonth() - 1);
+            const fmt = (d) => d.toISOString().split('T')[0];
+
+            return `
+                <div class="d-inline-flex align-items-center gap-2">
+                    <a href="/myvet/consultaMedica?id=${id}" class="btn btn-dental-action" title="Nueva consulta">
+                        <i class="bi bi-tooth"></i><span>Nueva consulta</span>
+                    </a>
+                    <a href="/myvet/app/controllers/historialMedicoController.php?id=${id}&fecha_inicio=${fmt(hace1mes)}&fecha_fin=${fmt(hoy)}"
+                        class="btn btn-dental-action" title="Expediente Médico">
+                        <i class="bi bi-journal-medical"></i><span>EXPEDIENTE</span>
+                    </a>
+                    <button class="btn btn-dental-action" onclick="editarCliente(${id})" title="Editar">
+                        <i class="bi bi-pencil-square"></i><span>Editar</span>
+                    </button>
+                </div>
+            `;
+        }
+
+        // =========================================================
+        // INICIALIZAR DATATABLE + CARGA AJAX
+        // =========================================================
         $(document).ready(function () {
+
+            // -------- DataTable con filas vacías al inicio --------
             tabla = $('#tablaClientes').DataTable({
                 "language": { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" },
                 "dom": 'rt<"row mt-3 px-3 align-items-center"<"col-sm-12 col-md-5 small text-muted"i><"col-sm-12 col-md-7"p>>',
                 "pageLength": 15,
                 "order": [[0, 'asc']],
+                "columns": [
+                    { "data": null, "render": (d, t, row) => renderPaciente(row) },
+                    { "data": null, "render": (d, t, row) => renderRFC(row) },
+                    { "data": null, "visible": ES_ADMIN_GLOBAL, "render": (d, t, row) => renderClinica(row) },
+                    { "data": null, "orderable": false, "render": (d, t, row) => renderEstatus(row) },
+                    { "data": null, "orderable": false, "render": (d, t, row) => renderAcciones(row) }
+                ],
                 "columnDefs": [
                     { "targets": [4], "orderable": false },
-                    { "targets": [2], "visible": <?= ($almacen_usuario == 0) ? 'true' : 'false' ?> }
+                    { "targets": [2], "visible": ES_ADMIN_GLOBAL }
                 ]
             });
 
+            // -------- Cargar datos vía AJAX --------
+            cargarClientes();
+
+            // -------- Búsqueda global --------
             $('#busquedaCliente').on('keyup', function () { tabla.search(this.value).draw(); });
 
+            // -------- Filtro por almacén (solo admin) --------
             $('#filtroAlmacenVista').on('change', function () {
                 const val = $(this).val();
                 $.fn.dataTable.ext.search.pop();
                 if (val !== "") {
                     $.fn.dataTable.ext.search.push(function (s, d, i) {
-                        return $(tabla.row(i).node()).attr('data-almacen-id') == val;
+                        return String(clientesCache[i]?.almacen_id) === String(val);
                     });
                 }
                 tabla.draw();
             });
         });
 
-        function abrirEnlaceOdontologico(clienteId) {
-            const urlOdontologica = `/myvet/app/controllers/odontogramaController.php?action=expediente&cliente_id=${clienteId}`;
-            window.open(urlOdontologica, '_blank');
+        // =========================================================
+        // PETICIÓN AL CONTROLLER
+        // =========================================================
+        async function cargarClientes() {
+            const $loading = $('#loadingClientes');
+            const $tabla = $('#contenedorTabla');
+
+            $loading.removeClass('d-none');
+            $tabla.addClass('d-none');
+
+            try {
+                // Construimos la URL
+                let url = ENDPOINT_LISTAR;
+
+                // Si el admin tiene un filtro seleccionado, lo mandamos como ?id=
+                const filtroAlmacen = $('#filtroAlmacenVista').val();
+                if (ES_ADMIN_GLOBAL && filtroAlmacen) {
+                    url += '&id=' + encodeURIComponent(filtroAlmacen);
+                }
+
+                const respuesta = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' },
+                    credentials: 'same-origin'
+                });
+
+                if (!respuesta.ok) {
+                    throw new Error(`Error HTTP ${respuesta.status}`);
+                }
+
+                const json = await respuesta.json();
+
+                if (json.status !== 'success' || !Array.isArray(json.clientes)) {
+                    throw new Error(json.message || 'Respuesta inválida del servidor');
+                }
+
+                clientesCache = json.clientes;
+
+                // Limpiar y llenar DataTable
+                tabla.clear();
+                if (clientesCache.length > 0) {
+                    tabla.rows.add(clientesCache).draw();
+                } else {
+                    tabla.draw();
+                }
+
+                // Mostrar tabla, ocultar loader
+                $loading.addClass('d-none');
+                $tabla.removeClass('d-none');
+
+            } catch (err) {
+                console.error('[cargarClientes]', err);
+                $loading.html(`
+                    <div class="text-center">
+                        <i class="bi bi-exclamation-triangle-fill fs-1 text-danger d-block mb-2"></i>
+                        <div class="fw-semibold">No se pudieron cargar los pacientes</div>
+                        <div class="small text-muted mb-3">${esc(err.message)}</div>
+                        <button class="btn btn-dental-primary" onclick="cargarClientes()">
+                            <i class="bi bi-arrow-clockwise"></i> Reintentar
+                        </button>
+                    </div>
+                `);
+            }
         }
 
+        // =========================================================
+        // FILTROS
+        // =========================================================
         function limpiarFiltros() {
             $('#busquedaCliente').val('');
             $('#filtroAlmacenVista').val('');
@@ -618,18 +813,23 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
             tabla.search('').draw();
         }
 
+        function abrirEnlaceOdontologico(clienteId) {
+            const url = `/myvet/app/controllers/odontogramaController.php?action=expediente&cliente_id=${clienteId}`;
+            window.open(url, '_blank');
+        }
 
+        // =========================================================
+        // EXPORTAR CSV
+        // =========================================================
         async function exportarClientesCSV() {
             const almacenId = $('#filtroAlmacenVista').val();
 
             try {
-                const url2 = `/myvet/app/controllers/accesoController.php?action=obtenerClientes&almacen_id=${almacenId}`;
-                const respuesta = await fetch(url2);
-
+                const url = `/myvet/app/controllers/accesoController.php?action=obtenerClientes&almacen_id=${encodeURIComponent(almacenId)}`;
+                const respuesta = await fetch(url);
                 if (!respuesta.ok) throw new Error('Error en la respuesta del servidor');
 
                 const resultado = await respuesta.json();
-
                 if (!resultado.success || !Array.isArray(resultado.data) || resultado.data.length === 0) {
                     alert("No hay registros de clientes para exportar.");
                     return;
@@ -638,11 +838,9 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
                 const clientesFiltrados = resultado.data.filter(cliente => {
                     const nombreNorm = (cliente.nombre_comercial || '').toLowerCase().trim();
                     const esPublicoGeneral = nombreNorm.includes('publico en general') || nombreNorm.includes('público en general');
-
                     if (esPublicoGeneral) {
                         return cliente.almacen_id == almacenId;
                     }
-
                     return true;
                 });
 
@@ -651,19 +849,10 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
                     return;
                 }
 
-                const headers = [
-                    "ID Cliente",
-                    "Nombre Comercial",
-                    "Razón Social",
-                    "RFC",
-                    "Teléfono",
-                    "Email",
-                    "Almacén ID"
-                ];
-
+                const headers = ["ID Cliente", "Nombre Comercial", "Razón Social", "RFC", "Teléfono", "Email", "Almacén ID"];
                 const escapeCSV = (str) => {
                     if (str === null || str === undefined) return '""';
-                    let val = String(str).replace(/"/g, '""');
+                    const val = String(str).replace(/"/g, '""');
                     return `"${val}"`;
                 };
 
@@ -679,17 +868,15 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
 
                 const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const url3 = URL.createObjectURL(blob);
+                const urlBlob = URL.createObjectURL(blob);
                 const link = document.createElement('a');
-
                 const hoy = new Date().toISOString().split('T')[0];
-                link.setAttribute('href', url3);
+                link.setAttribute('href', urlBlob);
                 link.setAttribute('download', `Reporte_Pacientes_${hoy}.csv`);
                 document.body.appendChild(link);
-
                 link.click();
                 document.body.removeChild(link);
-                URL.revokeObjectURL(url3);
+                URL.revokeObjectURL(urlBlob);
 
             } catch (error) {
                 console.error('Error al exportar clientes a CSV:', error);
@@ -697,8 +884,9 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
             }
         }
 
-        document.querySelectorAll('input[type="text"], textarea').forEach(elemento => {
-            elemento.addEventListener('input', function () {
+        // Forzar mayúsculas en inputs de texto
+        document.querySelectorAll('input[type="text"], textarea').forEach(el => {
+            el.addEventListener('input', function () {
                 this.value = this.value.toUpperCase();
             });
         });

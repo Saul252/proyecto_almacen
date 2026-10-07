@@ -35,7 +35,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'guardar') {
             'paciente_id' => intval($_POST['paciente_id'] ?? 0),
             'fecha' => trim($_POST['fecha'] ?? ''),
             'detalles' => trim($_POST['detalles'] ?? ''),
-            'atendera' => trim($_POST['atendera'] ?? '')
+            'atendera' => trim($_POST['atendera'] ?? ''),
+            'tipo' => 'medica'
         ];
 
         if ($datos['paciente_id'] <= 0 || empty($datos['fecha']) || empty($datos['atendera'])) {
@@ -128,7 +129,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'listar') {
         $filtros = [
             'search' => $_GET['f_search'] ?? '',
             'fecha' => $_GET['f_fecha'] ?? '',     // Espera YYYY-MM-DD
-            'almacen' => $_GET['f_almacen'] ?? 0,
+            'almacen' => $_GET['f_almacen'] ?? $almacen_usuario,
             'atendera' => $_GET['f_atendera'] ?? 0   // ID del usuario que atiende
         ];
 

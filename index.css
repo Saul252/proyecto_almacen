@@ -1,0 +1,950 @@
+:root {
+    /* ============================================
+       PALETA: NEGRO / AZUL METÁLICO / MORADO METÁLICO
+       ============================================ */
+
+    /* Azul metálico (acento principal frío) */
+    --blue-metal: #4a9eff;
+    --blue-metal-light: #7db8ff;
+    --blue-metal-soft: #a8d0ff;
+    --blue-metal-deep: #1e5fc4;
+    --blue-metal-dark: #0d3a7a;
+
+    /* Morado metálico (acento secundario) */
+    --purple-metal: #a855f7;
+    --purple-metal-light: #c084fc;
+    --purple-metal-soft: #d8b4fe;
+    --purple-metal-deep: #7c3aed;
+    --purple-metal-dark: #4c1d95;
+
+    /* Negros profundos (base Aero) */
+    --black-deep: #000000;
+    --black-soft: #0a0a0f;
+    --black-glass: #0f0f18;
+    --black-elevated: #15151f;
+
+    /* Transparencias de cristal Aero */
+    --glass-1: rgba(10, 10, 20, 0.72);
+    --glass-2: rgba(5, 5, 15, 0.65);
+    --glass-3: rgba(20, 20, 35, 0.55);
+    --glass-light: rgba(255, 255, 255, 0.06);
+    --glass-border-soft: rgba(255, 255, 255, 0.10);
+    --glass-border-medium: rgba(255, 255, 255, 0.16);
+
+    /* Textos */
+    --text-primary: #f5f7fa;
+    --text-secondary: #b8bcc8;
+    --text-muted: #6b7280;
+    --text-blue: #a8d0ff;
+    --text-purple: #d8b4fe;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: var(--black-deep);
+}
+
+/* ============================================
+   FONDO CON PARALLAX
+   ============================================ */
+.hero-bg {
+    position: fixed;
+    inset: -40px;
+    z-index: 0;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+}
+
+.hero-bg .carousel,
+.hero-bg .carousel-inner,
+.hero-bg .carousel-item,
+.hero-bg .carousel-item img {
+    height: 100%;
+    width: 100%;
+}
+
+.hero-bg .carousel-item img {
+    object-fit: cover;
+    filter: brightness(0.45) saturate(1.1) contrast(1.15);
+    transform: scale(1.08);
+    transition: transform 8s ease-out;
+}
+
+.hero-bg .carousel-item.active img {
+    transform: scale(1.15);
+}
+
+/* Capa con acentos azul metálico + morado metálico */
+.hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background:
+        radial-gradient(ellipse 60% 50% at 15% 25%, rgba(74, 158, 255, 0.32) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 50% at 85% 30%, rgba(168, 85, 247, 0.28) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 55% at 50% 90%, rgba(124, 58, 237, 0.22) 0%, transparent 60%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.88) 100%);
+    pointer-events: none;
+}
+
+/* ============================================
+   PARTÍCULAS FLOTANTES (azul + morado metálico)
+   ============================================ */
+.particles {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(168, 208, 255, 0.7);
+    box-shadow: 0 0 14px rgba(74, 158, 255, 0.95);
+    animation: floatParticle linear infinite;
+}
+
+.particle:nth-child(2n) {
+    background: rgba(216, 180, 254, 0.7);
+    box-shadow: 0 0 14px rgba(168, 85, 247, 0.95);
+}
+
+.particle:nth-child(3n) {
+    background: rgba(192, 132, 252, 0.65);
+    box-shadow: 0 0 16px rgba(124, 58, 237, 0.9);
+}
+
+@keyframes floatParticle {
+    0% {
+        transform: translateY(100vh) translateX(0) scale(0);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+        transform: translateY(90vh) translateX(10px) scale(1);
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-10vh) translateX(-30px) scale(0.5);
+        opacity: 0;
+    }
+}
+
+/* ============================================
+   CONTENEDOR CENTRAL
+   ============================================ */
+.center-stage {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+/* ============================================
+   TARJETA DE CRISTAL AERO (iOS style)
+   ============================================ */
+.glass-card {
+    position: relative;
+    width: 100%;
+    max-width: 430px;
+    padding: 3rem 2.75rem 2.5rem;
+    border-radius: 32px;
+
+    /* Cristal ahumado con matiz azul/morado profundo */
+    background:
+        linear-gradient(160deg,
+            rgba(18, 18, 32, 0.72) 0%,
+            rgba(8, 8, 18, 0.68) 40%,
+            rgba(15, 10, 28, 0.78) 100%);
+    backdrop-filter: blur(32px) saturate(180%);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+
+    /* Borde con gradiente metálico azul → morado */
+    border: 1.5px solid transparent;
+    background-clip: padding-box;
+
+    /* Sombras multicapa: negra profunda + azul + morado */
+    box-shadow:
+        /* Sombra exterior negra profunda */
+        0 40px 80px -20px rgba(0, 0, 0, 0.9),
+        0 25px 50px -15px rgba(0, 0, 0, 0.7),
+        /* Resplandor azul metálico */
+        0 20px 60px -20px rgba(74, 158, 255, 0.4),
+        /* Resplandor morado metálico */
+        0 20px 60px -20px rgba(168, 85, 247, 0.35),
+        /* Anillo blanco sutil */
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        /* Highlights internos (cristal superior) */
+        0 2px 0 rgba(255, 255, 255, 0.14) inset,
+        0 1px 1px rgba(255, 255, 255, 0.2) inset,
+        /* Reflejos laterales */
+        1px 0 0 rgba(168, 208, 255, 0.08) inset,
+        -1px 0 0 rgba(216, 180, 254, 0.08) inset,
+        /* Sombra inferior interna */
+        0 -2px 15px rgba(0, 0, 0, 0.6) inset;
+
+    text-align: center;
+    animation: floatIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+    overflow: hidden;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.5s ease;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+/* Pseudo-borde metálico (azul → morado) */
+.glass-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 32px;
+    padding: 1.5px;
+    background: linear-gradient(135deg,
+            rgba(168, 208, 255, 0.55) 0%,
+            rgba(74, 158, 255, 0.4) 20%,
+            rgba(255, 255, 255, 0.15) 40%,
+            rgba(216, 180, 254, 0.45) 60%,
+            rgba(168, 85, 247, 0.5) 80%,
+            rgba(192, 132, 252, 0.4) 100%);
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.9;
+    transition: opacity 0.5s ease;
+}
+
+.glass-card:hover::before {
+    opacity: 1;
+}
+
+/* Hover: tarjeta se eleva con glow azul + morado */
+.glass-card:hover {
+    box-shadow:
+        0 55px 100px -20px rgba(0, 0, 0, 0.95),
+        0 35px 70px -15px rgba(0, 0, 0, 0.75),
+        0 30px 80px -20px rgba(74, 158, 255, 0.55),
+        0 30px 80px -20px rgba(168, 85, 247, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.12),
+        0 2px 0 rgba(255, 255, 255, 0.2) inset,
+        0 1px 1px rgba(255, 255, 255, 0.25) inset,
+        1px 0 0 rgba(168, 208, 255, 0.12) inset,
+        -1px 0 0 rgba(216, 180, 254, 0.12) inset,
+        0 -2px 20px rgba(0, 0, 0, 0.7) inset;
+}
+
+/* Reflejo superior de cristal (efecto Aero) */
+.glass-card .glass-reflection {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 55%;
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, 0.1) 0%,
+            rgba(168, 208, 255, 0.05) 30%,
+            rgba(216, 180, 254, 0.03) 60%,
+            transparent 100%);
+    border-radius: 32px 32px 50% 50%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Destello radial superior (brillo de cristal) */
+.glass-card::after {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle,
+            rgba(168, 208, 255, 0.35) 0%,
+            rgba(74, 158, 255, 0.2) 30%,
+            rgba(168, 85, 247, 0.15) 55%,
+            transparent 75%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(15px);
+    transition: transform 0.6s ease;
+}
+
+.glass-card:hover::after {
+    transform: translate(-40px, 40px) scale(1.35);
+}
+
+/* Línea de luz que recorre la tarjeta */
+.glass-card .shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(105deg,
+            transparent 40%,
+            rgba(168, 208, 255, 0.15) 45%,
+            rgba(255, 255, 255, 0.25) 48%,
+            rgba(216, 180, 254, 0.2) 52%,
+            rgba(192, 132, 252, 0.15) 55%,
+            transparent 60%);
+    pointer-events: none;
+    z-index: 2;
+    transition: left 0.9s ease;
+}
+
+.glass-card:hover .shine {
+    left: 100%;
+}
+
+.glass-card>*:not(.shine):not(.glass-reflection) {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes floatIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.96);
+        filter: blur(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+/* ============================================
+   ICONO DE MARCA
+   ============================================ */
+.brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 62px;
+    height: 62px;
+    border-radius: 22px;
+    background: linear-gradient(145deg,
+            #4a9eff 0%,
+            #7c3aed 45%,
+            #a855f7 75%,
+            #4c1d95 100%);
+    background-size: 220% 220%;
+    background-position: 0% 50%;
+    box-shadow:
+        0 14px 32px rgba(74, 158, 255, 0.4),
+        0 10px 28px rgba(168, 85, 247, 0.35),
+        0 6px 15px rgba(0, 0, 0, 0.6),
+        0 1px 0 rgba(255, 255, 255, 0.35) inset,
+        0 -2px 0 rgba(0, 0, 0, 0.5) inset;
+    margin-bottom: 1.25rem;
+    position: relative;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.5s ease,
+        background-position 0.8s ease;
+    cursor: pointer;
+}
+
+.brand-mark:hover {
+    transform: translateY(-5px) rotate(-6deg) scale(1.08);
+    background-position: 100% 50%;
+    box-shadow:
+        0 22px 50px rgba(74, 158, 255, 0.55),
+        0 18px 45px rgba(168, 85, 247, 0.5),
+        0 12px 25px rgba(0, 0, 0, 0.65),
+        0 1px 0 rgba(255, 255, 255, 0.5) inset,
+        0 -2px 0 rgba(0, 0, 0, 0.6) inset;
+}
+
+.brand-mark::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    right: 8px;
+    height: 42%;
+    border-radius: 16px 16px 50% 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.brand-mark i {
+    font-size: 1.75rem;
+    color: #f5f7fa;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+    z-index: 1;
+    transition: transform 0.5s ease;
+}
+
+.brand-mark:hover i {
+    transform: scale(1.15);
+}
+
+/* ============================================
+   TÍTULOS
+   ============================================ */
+.logo-title {
+    font-size: 1.95rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin: 0;
+    background: linear-gradient(135deg,
+            #f5f7fa 0%,
+            #a8d0ff 25%,
+            #7db8ff 45%,
+            #c084fc 70%,
+            #d8b4fe 90%,
+            #f5f7fa 100%);
+    background-size: 280% 280%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 2px 12px rgba(74, 158, 255, 0.35));
+    transition: background-position 1s ease;
+    background-position: 0% 50%;
+}
+
+.glass-card:hover .logo-title {
+    background-position: 100% 50%;
+}
+
+.logo-subtitle {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 8px;
+    margin-bottom: 2.25rem;
+    opacity: 0.9;
+}
+
+/* ============================================
+   INPUTS (cristal Aero)
+   ============================================ */
+.form-label {
+    color: var(--text-blue);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+    transition: color 0.3s ease;
+}
+
+.input-group {
+    background: rgba(10, 10, 22, 0.55);
+    border-radius: 16px;
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.4),
+        0 1px 0 rgba(255, 255, 255, 0.06) inset,
+        0 -1px 0 rgba(0, 0, 0, 0.5) inset;
+}
+
+.input-group:hover {
+    background: rgba(15, 15, 30, 0.65);
+    border-color: rgba(168, 208, 255, 0.25);
+    box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(74, 158, 255, 0.12),
+        0 1px 0 rgba(255, 255, 255, 0.08) inset,
+        0 -1px 0 rgba(0, 0, 0, 0.5) inset;
+}
+
+.input-group:focus-within {
+    border-color: rgba(168, 208, 255, 0.5);
+    background: rgba(15, 15, 35, 0.8);
+    box-shadow:
+        0 0 0 4px rgba(74, 158, 255, 0.15),
+        0 8px 25px rgba(74, 158, 255, 0.25),
+        0 0 25px rgba(168, 85, 247, 0.2),
+        0 1px 0 rgba(255, 255, 255, 0.12) inset,
+        0 -1px 0 rgba(0, 0, 0, 0.5) inset;
+    transform: translateY(-2px);
+}
+
+.input-group-text {
+    background: transparent;
+    border: none;
+    color: var(--blue-metal-light);
+    padding-left: 1.15rem;
+    font-size: 1rem;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.input-group:hover .input-group-text {
+    color: var(--blue-metal-soft);
+}
+
+.input-group:focus-within .input-group-text {
+    transform: scale(1.15);
+    color: var(--purple-metal-light);
+}
+
+.form-control {
+    background: transparent !important;
+    border: none !important;
+    color: var(--text-primary) !important;
+    padding: 0.8rem 1rem 0.8rem 0.5rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    box-shadow: none !important;
+}
+
+.form-control::placeholder {
+    color: rgba(184, 188, 200, 0.4);
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.input-group:focus-within .form-control::placeholder {
+    color: rgba(168, 208, 255, 0.5);
+}
+
+.btn-show-pass {
+    background: transparent;
+    border: none;
+    color: rgba(184, 188, 200, 0.55);
+    padding-right: 1.15rem;
+    transition: color 0.2s, transform 0.3s ease;
+}
+
+.btn-show-pass:hover {
+    color: var(--purple-metal-light);
+    transform: scale(1.15);
+}
+
+/* ============================================
+   BOTÓN LOGIN (degradado azul → morado metálico)
+   ============================================ */
+.btn-login {
+    position: relative;
+    margin-top: 1.5rem;
+    padding: 0.95rem;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(145deg,
+            #4a9eff 0%,
+            #3b82f6 20%,
+            #7c3aed 50%,
+            #a855f7 75%,
+            #4c1d95 100%);
+    background-size: 260% 260%;
+    background-position: 0% 50%;
+    color: #f5f7fa;
+    box-shadow:
+        0 14px 30px rgba(74, 158, 255, 0.4),
+        0 12px 28px rgba(168, 85, 247, 0.35),
+        0 8px 20px rgba(0, 0, 0, 0.5),
+        0 1px 0 rgba(255, 255, 255, 0.35) inset,
+        0 -2px 0 rgba(0, 0, 0, 0.5) inset;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.btn-login::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 5%;
+    right: 5%;
+    height: 45%;
+    border-radius: 16px 16px 50% 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.btn-login::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(105deg,
+            transparent 40%,
+            rgba(168, 208, 255, 0.2) 45%,
+            rgba(255, 255, 255, 0.35) 50%,
+            rgba(216, 180, 254, 0.25) 55%,
+            transparent 60%);
+    transition: left 0.9s ease;
+}
+
+.btn-login:hover::after {
+    left: 100%;
+}
+
+.btn-login:hover {
+    transform: translateY(-3px) scale(1.015);
+    background-position: 100% 50%;
+    box-shadow:
+        0 22px 45px rgba(74, 158, 255, 0.55),
+        0 20px 45px rgba(168, 85, 247, 0.5),
+        0 15px 30px rgba(0, 0, 0, 0.6),
+        0 1px 0 rgba(255, 255, 255, 0.5) inset,
+        0 -2px 0 rgba(0, 0, 0, 0.6) inset;
+    color: #fff;
+}
+
+.btn-login:active {
+    transform: translateY(-1px) scale(0.99);
+    box-shadow:
+        0 8px 18px rgba(74, 158, 255, 0.5),
+        0 6px 15px rgba(168, 85, 247, 0.4),
+        0 4px 10px rgba(0, 0, 0, 0.5),
+        0 1px 0 rgba(255, 255, 255, 0.3) inset,
+        0 -1px 0 rgba(0, 0, 0, 0.5) inset;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.card-footer-text {
+    margin-top: 2rem;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    letter-spacing: 0.3px;
+    line-height: 1.7;
+    opacity: 0.85;
+}
+
+.card-footer-text .accent {
+    background: linear-gradient(90deg,
+            var(--blue-metal-light),
+            var(--blue-metal-soft),
+            var(--purple-metal-light),
+            var(--purple-metal-soft));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+}
+
+/* ============================================
+   ELEMENTOS DECORATIVOS
+   ============================================ */
+.corner-brand {
+    position: fixed;
+    top: 1.75rem;
+    left: 2rem;
+    z-index: 11;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #f5f7fa;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 9px 18px;
+    border-radius: 100px;
+    background: rgba(10, 10, 20, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.4),
+        0 1px 0 rgba(255, 255, 255, 0.08) inset;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+}
+
+.corner-brand:hover {
+    background: rgba(15, 15, 30, 0.75);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow:
+        0 12px 30px rgba(74, 158, 255, 0.3),
+        0 10px 25px rgba(168, 85, 247, 0.25),
+        0 8px 20px rgba(0, 0, 0, 0.5),
+        0 1px 0 rgba(255, 255, 255, 0.12) inset;
+    border-color: rgba(168, 208, 255, 0.4);
+}
+
+.corner-brand i {
+    font-size: 1.2rem;
+    color: var(--blue-metal-soft);
+    transition: transform 0.5s ease, color 0.4s ease;
+}
+
+.corner-brand:hover i {
+    transform: rotate(360deg);
+    color: var(--purple-metal-light);
+}
+
+.corner-version {
+    position: fixed;
+    top: 1.9rem;
+    right: 2rem;
+    z-index: 11;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 15px;
+    border-radius: 100px;
+    background: rgba(10, 10, 20, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: #f5f7fa;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.4),
+        0 1px 0 rgba(255, 255, 255, 0.08) inset;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+}
+
+.corner-version:hover {
+    background: rgba(15, 15, 30, 0.75);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow:
+        0 12px 30px rgba(168, 85, 247, 0.4),
+        0 10px 25px rgba(74, 158, 255, 0.3),
+        0 8px 20px rgba(0, 0, 0, 0.5);
+    border-color: rgba(216, 180, 254, 0.5);
+}
+
+.corner-version .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 10px #4ade80;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px #4ade80;
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 18px #4ade80, 0 0 28px rgba(74, 222, 128, 0.5);
+        transform: scale(1.2);
+    }
+}
+
+.side-text {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    z-index: 11;
+    color: rgba(184, 188, 200, 0.5);
+    font-size: 0.68rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 600;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    transition: color 0.4s ease;
+}
+
+.side-text:hover {
+    color: var(--purple-metal-light);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 576px) {
+    .glass-card {
+        padding: 2.5rem 1.75rem 2rem;
+        border-radius: 28px;
+        max-width: 92%;
+    }
+
+    .corner-brand {
+        top: 1rem;
+        left: 1rem;
+        font-size: 0.75rem;
+        padding: 7px 13px;
+    }
+
+    .corner-version {
+        top: 1.1rem;
+        right: 1rem;
+        font-size: 0.68rem;
+    }
+
+    .side-text {
+        display: none;
+    }
+
+    .logo-title {
+        font-size: 1.7rem;
+    }
+
+    .brand-mark {
+        width: 56px;
+        height: 56px;
+        border-radius: 20px;
+    }
+
+    .brand-mark i {
+        font-size: 1.5rem;
+    }
+
+    .hero-bg {
+        inset: 0;
+        transform: none !important;
+    }
+}
+
+/* ============================================
+   SEPARADOR "¿NUEVO POR AQUÍ?"
+   ============================================ */
+.signup-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 1.5rem 0 1rem;
+    color: rgba(90, 90, 110, 0.7);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.signup-divider::before,
+.signup-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(10, 10, 20, 0.12),
+            transparent);
+}
+
+/* ============================================
+   BOTÓN "CREAR CUENTA" (estilo cristal iOS)
+   ============================================ */
+.btn-signup {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 0.85rem;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    color: #0060df !important;
+    background: rgba(13, 13, 13, 0.35) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    box-shadow:
+        0 4px 15px rgba(10, 132, 255, 0.08),
+        0 1px 0 rgba(255, 255, 255, 0.95) inset,
+        0 -1px 0 rgba(10, 132, 255, 0.06) inset;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.btn-signup::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(105deg,
+            transparent 40%,
+            rgba(168, 208, 255, 0.4) 50%,
+            transparent 60%);
+    transition: left 0.8s ease;
+    pointer-events: none;
+}
+
+.btn-signup:hover::before {
+    left: 100%;
+}
+
+.btn-signup:hover {
+    background: rgba(52, 1, 62, 0.55) !important;
+    border-color: rgba(10, 132, 255, 0.5) !important;
+    color: #edeeef !important;
+    text-decoration: none !important;
+    transform: translateY(-2px);
+    box-shadow:
+        0 10px 25px rgba(10, 132, 255, 0.2),
+        0 1px 0 rgba(255, 255, 255, 1) inset,
+        0 -1px 0 rgba(10, 132, 255, 0.1) inset;
+}
+
+.btn-signup:active {
+    transform: translateY(0) scale(0.99);
+    background: rgba(255, 255, 255, 0.45) !important;
+    color: #0060df !important;
+}
+
+.btn-signup:focus,
+.btn-signup:focus-visible {
+    outline: none;
+    text-decoration: none !important;
+    color: #0060df !important;
+    box-shadow:
+        0 0 0 4px rgba(10, 132, 255, 0.2),
+        0 4px 15px rgba(10, 132, 255, 0.15),
+        0 1px 0 rgba(255, 255, 255, 0.95) inset;
+}
+
+.btn-signup i {
+    font-size: 1.05rem;
+    transition: transform 0.4s ease;
+    display: inline-block;
+}
+
+.btn-signup:hover i {
+    transform: scale(1.15) rotate(-6deg);
+}

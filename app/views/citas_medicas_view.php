@@ -247,7 +247,7 @@
                                 <option value="<?= $a['id'] ?>"><?= htmlspecialchars($a['nombre']) ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <input type="hidden" id="tipoCita" name="tipoCita" value="medica">
+                        <input type="text" id="tipoCita" name="tipoCita" value="medica">
 
                         <div class="mb-3">
                             <label class="form-label text-body-secondary fw-semibold small mb-1">
@@ -419,14 +419,14 @@
             const params = new URLSearchParams({
                 action: 'listar',
                 f_fecha: fechaStr,
-                f_almacen: almacenId,
+                f_almacen: 0,
                 f_atendera: doctor,
                 f_search: search,
                 f_tipo: 'medica'
             });
 
             // Petición a la URL específica del controlador
-            fetch(`/myvet/app/controllers/citasController.php?${params.toString()}`)
+            fetch(`/myvet/app/controllers/citasMedicasController.php?${params.toString()}`)
                 .then(res => res.json())
                 .then(citasFiltradas => {
                     tbody.innerHTML = '';
@@ -545,7 +545,7 @@
         function editarCita(id) {
             cargarDoctores();
             cargarPacientes();
-            fetch(`/myvet/app/controllers/citasController.php?action=obtenerPorId&id=${id}`)
+            fetch(`/myvet/app/controllers/citasMedicasController.php?action=obtenerPorId&id=${id}`)
                 .then(res => res.json())
                 .then(res => {
                     if (res.success) {
@@ -595,7 +595,7 @@
                 });
         }
         function imprimirCitaPDF(id) {
-            fetch(`citasController.php?action=obtenerPorId&id=${id}`)
+            fetch(`/myvet/app/controllers/citasMedicasController.php?action=obtenerPorId&id=${id}`)
                 .then(res => res.json())
                 .then(res => {
                     if (res.success) {
@@ -811,7 +811,7 @@
             e.preventDefault();
             const formData = new FormData(document.getElementById('formCita'));
 
-            fetch('/myvet/app/controllers/citasController.php?action=guardar', {
+            fetch('/myvet/app/controllers/citasMedicasController.php?action=guardar', {
                 method: 'POST',
                 body: formData
             })
@@ -850,7 +850,7 @@
             formData.append('id', id);
             formData.append('estado', nuevoEstado);
 
-            fetch('/myvet/app/controllers/citasController.php?action=cambiarEstado', {
+            fetch('/myvet/app/controllers/citasMedicasController.php?action=cambiarEstado', {
                 method: 'POST',
                 body: formData
             })

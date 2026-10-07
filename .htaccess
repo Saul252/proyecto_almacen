@@ -51,7 +51,7 @@
     RewriteRule ^consultas/?$ app/controllers/consultaController.php [QSA,L]
     RewriteRule ^consultaDental/?$ app/controllers/consultaDentalController.php [QSA,L] 
     RewriteRule ^consultaMedica/?$ app/controllers/consultaMedicaController.php [QSA,L]
-    RewriteRule ^citasDentales/?$ app/controllers/citasController.php [QSA,L]
+    RewriteRule ^citasDental/?$ app/controllers/citasController.php [QSA,L]
     RewriteRule ^citasMedicas/?$ app/controllers/citasMedicasController.php [QSA,L]
     RewriteRule ^expedienteMedico/?$ app/controllers/consultaHIstorialClienteController.php [QSA,L]
 
@@ -75,4 +75,8 @@
     # --- ADMINISTRACIÓN ---
     RewriteRule ^usuarios/?$ app/controllers/usuariosController.php [QSA,L]
     RewriteRule ^miAcceso/?$ app/controllers/miAccesoController.php [QSA,L]
+    RewriteRule ^correo/?$ app/controllers/correoController.php [QSA,L]
+    RewriteRule ^registrate/?$ app/controllers/registroController.php [QSA,L]
+    RewriteRule ^registraCuenta/?$ app/controllers/authController.php [QSA,L]
+    RewriteRule ^configuracionSistema/?$ app/controllers/configuracionController.php [QSA,L]
 </IfModule>

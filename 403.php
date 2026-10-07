@@ -1,280 +1,438 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <title>Acceso Restringido | CF SISTEM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Acceso Restringido | MYVET SISTEM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
     <style>
+        @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Mono|Sedgwick+Ave+Display');
+
         :root {
-            --truck-body: #a80909; /* El rojo de tu sistema */
-            --truck-cab: #333;
-            --wheel-color: #222;
-            --road-color: #dee2e6;
-            --police-blue: #0d6efd;
-            --warning-bg: #fff3cd;
-            --warning-border: #ffeeba;
-            --warning-text: #856404;
+            --font-display: 'Sedgwick Ave Display';
+            --font-sans-serif: 'IBM Plex Mono';
+            --box-shadow: 0px 21px 34px 0px rgba(0, 0, 0, 0.89);
+            --color-bg: linear-gradient(to bottom, rgba(35, 37, 38, 1) 0%, rgba(32, 38, 40, 1) 100%);
+            --delay-base: 500ms;
+            --delay-added: 100ms;
+            --acc-back: cubic-bezier(0.390, 0.575, 0.565, 1.000);
+
+            /* Tamaños adaptables */
+            --scene-size: clamp(260px, 82vw, 400px);
+            --font-403: clamp(180px, 62vw, 440px);
+            --font-msg: clamp(22px, 6vw, 34px);
+            --font-support: clamp(13px, 3.6vw, 21px);
+        }
+
+        *,
+        *:before,
+        *:after {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            /* para móviles con barra dinámica */
+            background: var(--color-bg);
+            color: #fff;
+            overflow: hidden;
+            font-family: var(--font-sans-serif);
         }
 
         body {
-            background-color: #f4f7fb;
-            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0;
-            overflow: hidden;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .container-403 {
-            text-align: center;
-            width: 100%;
-            max-width: 800px;
             padding: 20px;
         }
 
-        /* --- ESCENARIO --- */
-        .stage {
+        .scene {
             position: relative;
-            height: 150px;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        .bubble-police {
-            background: #dc3545;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 15px;
-            font-weight: bold;
-            position: absolute;
-            top: -20px;
-            right: 15%;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: pop-text 0.5s 2.2s forwards;
-            z-index: 100;
-        }
-
-        .bubble-police::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-top: 10px solid #dc3545;
-        }
-
-        /* --- CAMIÓN --- */
-        .truck-container {
-            position: absolute;
-            width: 200px;
-            height: 100px;
-            left: -250px;
-            animation: drive-and-stop 2.5s cubic-bezier(0.18, 0.89, 0.32, 1) forwards;
-        }
-
-        .cab {
-            position: absolute;
-            width: 60px;
-            height: 70px;
-            background: var(--truck-cab);
-            right: 0;
-            bottom: 25px;
-            border-radius: 10px 15px 5px 5px;
-        }
-
-        .window {
-            position: absolute;
-            width: 35px;
-            height: 25px;
-            background: #87CEEB;
-            top: 10px;
-            right: 5px;
-            border-radius: 5px;
-        }
-
-        .trailer {
-            position: absolute;
-            width: 135px;
-            height: 80px;
-            background: var(--truck-body);
-            left: 0;
-            bottom: 25px;
-            border-radius: 5px;
+            width: var(--scene-size);
+            height: var(--scene-size);
+            transition: transform 600ms var(--acc-back);
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
-            border-right: 3px solid rgba(0,0,0,0.1);
         }
 
-        .wheel {
-            position: absolute;
-            width: 25px;
-            height: 25px;
-            background: var(--wheel-color);
-            border-radius: 50%;
-            bottom: 12px;
-            border: 3px dashed #555;
-            animation: spin 0.5s 5 linear;
-        }
-        .w1 { left: 15px; }
-        .w2 { left: 45px; }
-        .w3 { right: 8px; }
+        /* Hover 3D solo en dispositivos con mouse */
+        @media (hover: hover) and (pointer: fine) {
+            .scene:hover {
+                transform: scale(.98) skewY(-1deg);
+            }
 
-        /* --- POLICÍA --- */
-        .police-officer {
-            position: absolute;
-            right: 100px;
-            bottom: 25px;
-            font-size: 80px;
-            color: var(--police-blue);
+            .scene:hover .text {
+                opacity: 1;
+                transform: scale(.91);
+            }
+        }
+
+        .scene>* {
+            transition: transform 600ms var(--acc-back);
+        }
+
+        .text {
+            transition: transform 600ms var(--acc-back), opacity 100ms ease-in;
+            height: 100%;
+            width: 100%;
+            z-index: 7;
+            position: relative;
+            pointer-events: none;
+        }
+
+        @keyframes popInImg {
+            0% {
+                transform: skewY(5deg) scaleX(.89) scaleY(.89);
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .text span {
+            display: block;
+            font-family: var(--font-sans-serif);
+            text-align: center;
+            text-shadow: var(--box-shadow);
+            animation: popIn 600ms var(--acc-back) 1 forwards;
             opacity: 0;
-            transform: scale(0.5);
-            animation: appear-police 0.5s 1.8s forwards;
         }
 
-        .siren {
+        @keyframes popIn {
+
+            0%,
+            13% {
+                transform: scaleX(.89) scaleY(.75);
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* ============================================================
+           EL "403" GIGANTE DE FONDO
+           ============================================================ */
+        .bg-403 {
+            font-size: var(--font-403);
+            font-family: var(--font-display);
+            line-height: 0.85;
+            animation-delay: calc(var(--delay-base) + 2 * var(--delay-added));
+            z-index: 0;
+            background: linear-gradient(to top, rgba(32, 38, 40, 0) 25%, rgba(49, 57, 61, 1) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transform: translateX(-22%) skewY(-3deg) translateZ(-100px);
             position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 15px;
-            background: red;
-            border-radius: 10px;
-            animation: blink 0.2s infinite;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            transition: transform 1200ms var(--acc-back);
+            white-space: nowrap;
         }
 
-        .road {
-            width: 80%;
-            height: 4px;
-            background: var(--road-color);
-            position: absolute;
-            bottom: 15px;
-            border-radius: 2px;
+        /* ============================================================
+           TEXTOS
+           ============================================================ */
+        .msg {
+            font-size: var(--font-msg);
+            animation-delay: calc(var(--delay-base) + 3 * var(--delay-added));
+            color: #8b8b8b;
+            margin-top: 22vh;
+            letter-spacing: 2px;
+            line-height: 1.2;
         }
 
-        /* --- TEXTO Y BOTONES --- */
-        .text-content h1 { font-size: 100px; margin: 0; color: #333; opacity: 0.1; line-height: 1; }
-        .text-content h2 { color: #a80909; margin-top: -25px; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; }
-        
-        /* Cuadro de aviso animado */
-        .admin-contact {
+        .msg span {
+            transform: skewX(-13deg);
             display: inline-block;
-            margin-top: 15px;
-            padding: 12px 25px;
-            background: var(--warning-bg);
-            border: 1px solid var(--warning-border);
-            color: var(--warning-text);
-            border-radius: 10px;
-            font-size: 0.95rem;
-            animation: shake-gentle 3s ease-in-out infinite;
+            color: #fff;
+            letter-spacing: -1px;
         }
 
-        .btn-back {
+        .support {
+            font-size: var(--font-support);
+            animation-delay: calc(var(--delay-base) + 4 * var(--delay-added));
+            display: block;
+            margin-top: 6vh;
+            color: #686a6b;
+            line-height: 1.5;
+            padding: 0 8px;
+        }
+
+        .support span {
+            margin-bottom: 8px;
+        }
+
+        .support a {
             display: inline-block;
-            margin-top: 25px;
-            padding: 12px 30px;
-            background: var(--truck-cab);
-            color: white;
+            color: #b2b3b4;
             text-decoration: none;
-            border-radius: 50px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
+            pointer-events: auto;
+            /* IMPORTANTE: reactiva interacción */
+            transition: color .2s ease;
+            word-break: break-word;
         }
 
-        .btn-back:hover {
-            background: transparent;
-            color: var(--truck-cab);
-            border-color: var(--truck-cab);
-            transform: translateY(-3px);
+        .support a:hover,
+        .support a:active {
+            color: #fff;
         }
 
-        /* --- ANIMACIONES --- */
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        
-        @keyframes drive-and-stop {
-            0% { left: -250px; }
-            80% { left: 30%; }
-            90% { left: 28%; }
-            100% { left: 29%; }
+        .support a:after {
+            content: '';
+            width: 100%;
+            height: 3px;
+            display: block;
+            background: #fff;
+            opacity: .35;
+            margin-top: 8px;
+            transition: opacity .2s ease;
         }
 
-        @keyframes appear-police { to { opacity: 1; transform: scale(1); } }
-        @keyframes pop-text { to { opacity: 1; transform: translateY(0); } }
-        @keyframes blink {
-            0%, 100% { background: red; box-shadow: 0 0 15px red; }
-            50% { background: blue; box-shadow: 0 0 15px blue; }
+        .support a:hover:after,
+        .support a:active:after {
+            opacity: .9;
         }
 
-        @keyframes shake-gentle {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-            20%, 40%, 60%, 80% { transform: translateX(2px); }
+        .support a:focus,
+        .support a:active {
+            outline: none;
         }
 
+        /* ============================================================
+           OVERLAYS — solo activos en desktop con mouse
+           ============================================================ */
+        .overlay {
+            display: none;
+            /* ocultos por defecto (móvil) */
+            position: absolute;
+            cursor: pointer;
+            width: 50%;
+            height: 50%;
+            z-index: 1;
+            transform: translateZ(34px);
+        }
+
+        .overlay:nth-of-type(1) {
+            left: 0;
+            top: 0;
+        }
+
+        .overlay:nth-of-type(2) {
+            right: 0;
+            top: 0;
+        }
+
+        .overlay:nth-of-type(3) {
+            bottom: 0;
+            right: 0;
+        }
+
+        .overlay:nth-of-type(4) {
+            bottom: 0;
+            left: 0;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .overlay {
+                display: block;
+            }
+
+            .overlay:nth-of-type(1):hover~.lock,
+            .overlay:nth-of-type(1):focus~.lock {
+                transform-origin: right top;
+                transform: translateY(-3px) translateX(5px) rotateX(-13deg) rotateY(3deg) rotateZ(-2deg) translateZ(0) scale(.89);
+            }
+
+            .overlay:nth-of-type(1):hover~.bg-403,
+            .overlay:nth-of-type(1):focus~.bg-403 {
+                transform: translateX(-24%) skewY(-3deg) rotateX(-13deg) rotateY(3deg) translateZ(-100px) scale(.89);
+            }
+
+            .overlay:nth-of-type(2):hover~.lock,
+            .overlay:nth-of-type(2):focus~.lock {
+                transform-origin: left top;
+                transform: translateY(-3px) translateX(5px) rotateX(13deg) rotateY(3deg) rotateZ(2deg) translateZ(0) scale(1.03);
+            }
+
+            .overlay:nth-of-type(2):hover~.bg-403,
+            .overlay:nth-of-type(2):focus~.bg-403 {
+                transform: translateX(-18%) skewY(-3deg) rotateX(13deg) rotateY(3deg) translateZ(-100px);
+            }
+
+            .overlay:nth-of-type(3):hover~.lock,
+            .overlay:nth-of-type(3):focus~.lock {
+                transform-origin: left bottom;
+                transform: translateY(3px) translateX(-5px) rotateX(-13deg) rotateY(3deg) rotateZ(-2deg) scale(.96);
+            }
+
+            .overlay:nth-of-type(3):hover~.bg-403,
+            .overlay:nth-of-type(3):focus~.bg-403 {
+                transform: translateX(-20%) rotateX(-13deg) rotateY(3deg) translateZ(-100px);
+            }
+
+            .overlay:nth-of-type(4):hover~.lock,
+            .overlay:nth-of-type(4):focus~.lock {
+                transform-origin: right bottom;
+                transform: translateY(3px) translateX(5px) rotateX(-13deg) rotateY(-3deg) rotateZ(2deg) translateZ(0) scale(.89);
+            }
+
+            .overlay:nth-of-type(4):hover~.bg-403,
+            .overlay:nth-of-type(4):focus~.bg-403 {
+                transform: translateX(-16%) rotateX(-13deg) rotateY(-3deg) translateZ(-100px);
+            }
+        }
+
+        /* ============================================================
+           CANDADO (pixel art)
+           ============================================================ */
+        .lock {
+            box-shadow:
+                32px 8px 0 0 #e4e4e4, 40px 8px 0 0 #e4e4e4, 48px 8px 0 0 #e4e4e4, 56px 8px 0 0 #e4e4e4,
+                24px 16px 0 0 #cbcbcb, 32px 16px 0 0 #cbcbcb, 40px 16px 0 0 #909090, 48px 16px 0 0 #909090, 56px 16px 0 0 #cbcbcb, 64px 16px 0 0 #e4e4e4,
+                16px 24px 0 0 #cbcbcb, 24px 24px 0 0 #cbcbcb, 32px 24px 0 0 #909090, 56px 24px 0 0 #909090, 64px 24px 0 0 #cbcbcb, 72px 24px 0 0 #e4e4e4,
+                16px 32px 0 0 #cbcbcb, 24px 32px 0 0 #909090, 64px 32px 0 0 #909090, 72px 32px 0 0 #cbcbcb,
+                16px 40px 0 0 #cbcbcb, 24px 40px 0 0 #909090, 64px 40px 0 0 #909090, 72px 40px 0 0 #cbcbcb,
+                16px 48px 0 0 #909090, 24px 48px 0 0 #909090, 64px 48px 0 0 #909090, 72px 48px 0 0 #909090,
+                8px 56px 0 0 #fbec79, 16px 56px 0 0 #fbec79, 24px 56px 0 0 #fbec79, 32px 56px 0 0 #fbec79, 40px 56px 0 0 #fbec79, 48px 56px 0 0 #fbec79, 56px 56px 0 0 #fbec79, 64px 56px 0 0 #fbec79, 72px 56px 0 0 #fbec79, 80px 56px 0 0 #fbec79,
+                8px 64px 0 0 #ffc107, 16px 64px 0 0 #ffc107, 24px 64px 0 0 #ffc107, 32px 64px 0 0 #ffc107, 40px 64px 0 0 #ffc107, 48px 64px 0 0 #ffc107, 56px 64px 0 0 #ffc107, 64px 64px 0 0 #ffc107, 72px 64px 0 0 #ffc107, 80px 64px 0 0 #ffc107,
+                8px 72px 0 0 #ffc107, 16px 72px 0 0 #ffc107, 24px 72px 0 0 #ffc107, 32px 72px 0 0 #ffc107, 40px 72px 0 0 #ffc107, 48px 72px 0 0 #ffc107, 56px 72px 0 0 #ffc107, 64px 72px 0 0 #ffc107, 72px 72px 0 0 #ffc107, 80px 72px 0 0 #ffc107,
+                8px 80px 0 0 #ff9800, 16px 80px 0 0 #ffc107, 24px 80px 0 0 #ffc107, 32px 80px 0 0 #ffc107, 40px 80px 0 0 #ffc107, 48px 80px 0 0 #ff9800, 56px 80px 0 0 #ff9800, 64px 80px 0 0 #ff9800, 72px 80px 0 0 #ff9800,
+                16px 88px 0 0 #ff9800, 24px 88px 0 0 #ff9800, 32px 88px 0 0 #ff9800, 40px 88px 0 0 #ff9800, 48px 88px 0 0 #ff9800, 56px 88px 0 0 #ff9800, 64px 88px 0 0 #ff9800, 72px 88px 0 0 #ff9800,
+                24px 96px 0 0 #ff9800, 32px 96px 0 0 #ff9800, 40px 96px 0 0 #ff9800, 48px 96px 0 0 #ff9800, 56px 96px 0 0 #ff9800, 64px 96px 0 0 #ff9800;
+
+            height: 8px;
+            width: 8px;
+            position: absolute;
+            left: calc(50% - 44px);
+            /* centrar según el ancho (88px de ancho total ÷ 2) */
+            top: 6%;
+
+            /* Escala el candado junto con la escena */
+            transform: scale(clamp(0.55, 0.6vw + 0.4, 1));
+            transform-origin: center top;
+
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            pointer-events: none;
+            outline: 1px solid transparent;
+            z-index: 5;
+        }
+
+        /* ============================================================
+           AJUSTES PARA MÓVIL
+           ============================================================ */
+        @media (max-width: 540px) {
+            body {
+                padding: 16px;
+                align-items: flex-start;
+                padding-top: 8vh;
+            }
+
+            .scene {
+                width: 100%;
+                max-width: 360px;
+                height: auto;
+                min-height: 70vh;
+                flex-direction: column;
+                justify-content: flex-start;
+            }
+
+            .bg-403 {
+                position: relative;
+                /* deja de ser absoluto */
+                transform: none;
+                text-align: center;
+                margin-bottom: -12vw;
+                margin-top: 4vh;
+                width: 100%;
+            }
+
+            .text {
+                height: auto;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .msg {
+                margin-top: 12px;
+                font-size: clamp(24px, 7vw, 32px);
+            }
+
+            .support {
+                margin-top: 28px;
+                padding: 0 12px;
+            }
+
+            .support a:after {
+                height: 2px;
+            }
+
+            .lock {
+                /* Ocultar el candado en pantallas pequeñas — ya hay un 403 grande */
+                display: none;
+            }
+        }
+
+        /* Pantallas muy pequeñas */
+        @media (max-width: 360px) {
+            :root {
+                --font-403: clamp(140px, 55vw, 220px);
+            }
+
+            .support {
+                font-size: 12px;
+            }
+        }
+
+        /* Reducir animaciones si el usuario lo prefiere */
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *:before,
+            *:after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 </head>
+
 <body>
 
-    <div class="container-403">
-        <div class="stage">
-            <div class="bubble-police">¡ALTO! Zona restringida ✋</div>
-
-            <div class="truck-container">
-                <div class="trailer"><b>CF SISTEM</b></div>
-                <div class="cab">
-                    <div class="window"></div>
-                </div>
-                <div class="wheel w1"></div>
-                <div class="wheel w2"></div>
-                <div class="wheel w3"></div>
-            </div>
-
-            <div class="police-officer">
-                <div class="siren"></div>
-                <i class="bi bi-person-fill-lock"></i>
-            </div>
-            
-            <div class="road"></div>
+    <div class="scene">
+        <div class="overlay"></div>
+        <div class="overlay"></div>
+        <div class="overlay"></div>
+        <div class="overlay"></div>
+        <span class="bg-403">403</span>
+        <div class="text">
+            <span class="hero-text"></span>
+            <span class="msg">Sin <span>Acceso</span></span>
+            <span class="support">
+                <span>¿Deberías poder entrar?</span>
+                <a href="javascript:void(0);" onclick="history.back(); return false;">Contacta con tu administrador</a>
+            </span>
         </div>
-
-        <div class="text-content">
-            <h1>403</h1>
-            <h2>Acceso Denegado</h2>
-            <p class="text-muted">Tu usuario no tiene los permisos necesarios para circular por esta ruta.</p>
-            
-            <div class="admin-contact">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                ¿Crees que esto es un error? <strong>Contacta a tu administrador.</strong>
-            </div>
-
-            <br>
-
-            <a href="javascript:void(0);" onclick="history.back();" class="btn-back">
-                <i class="bi bi-arrow-left-circle-fill me-2"></i> Regresar a ruta segura
-            </a>
-        </div>
+        <div class="lock"></div>
     </div>
 
-    <script>
-        // Detener la rotación de las ruedas después del frenazo (2.5s)
-        setTimeout(() => {
-            const wheels = document.querySelectorAll('.wheel');
-            wheels.forEach(w => w.style.animation = 'none');
-        }, 2500);
-    </script>
 </body>
+
 </html>

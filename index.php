@@ -1,4 +1,32 @@
-<?php session_start(); ?>
+<?php
+session_start();
+
+// ============================================
+// ESCANEO DINÁMICO DE IMÁGENES
+// ============================================
+$imgDir = __DIR__ . '/public/assets/img/';
+$imgUrl = 'public/assets/img/';
+$allowed = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+
+$images = [];
+if (is_dir($imgDir)) {
+    $files = glob($imgDir . '*.{jpg,jpeg,png,webp,gif}', GLOB_BRACE);
+    if ($files && count($files) > 0) {
+        usort($files, fn($a, $b) => filemtime($b) - filemtime($a));
+        $files = array_slice($files, 0, 15);
+        foreach ($files as $file) {
+            $images[] = $imgUrl . basename($file);
+        }
+    }
+}
+
+if (empty($images)) {
+    $images = [
+        $imgUrl . 'almacen3.jpg',
+        $imgUrl . 'almacen2.jpg'
+    ];
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -6,396 +34,293 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MYVET SISTEM | Acceso</title>
-    <link rel="icon" type="image/png" href="/myvet/public/assets/logo.png') ?>">
+    <link rel="icon" type="image/png" href="/myvet/public/assets/logo.png">
     <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
         type="image/x-icon">
 
     <!-- Frameworks & Fonts -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+    <link href="index.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <style>
-        :root {
-            --primary-vivid: #8b5cf6;
-            --accent-cyan: #06b6d4;
-            --accent-pink: #ec4899;
-            --glass-bg: rgba(255, 255, 255, 0.12);
-            --glass-border: rgba(255, 255, 255, 0.28);
-            --glass-input: rgba(255, 255, 255, 0.18);
-        }
-
-        * {
-            box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            overflow: hidden;
-            background: #0f172a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* --- FONDO DINÁMICO ANIMADO CON ORBES CROMÁTICOS --- */
-        .dynamic-bg {
-            position: fixed;
-            inset: 0;
-            z-index: 1;
-            overflow: hidden;
-            background: radial-gradient(circle at 50% 50%, #1e1b4b, #0f172a);
-        }
-
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(90px);
-            opacity: 0.75;
-            animation: floatOrb 18s infinite alternate ease-in-out;
-        }
-
-        .orb-1 {
-            width: 450px;
-            height: 450px;
-            background: linear-gradient(135deg, #7c3aed, #db2777);
-            top: -10%;
-            left: -10%;
-            animation-duration: 14s;
-        }
-
-        .orb-2 {
-            width: 500px;
-            height: 500px;
-            background: linear-gradient(135deg, #0284c7, #0d9488);
-            bottom: -15%;
-            right: -10%;
-            animation-duration: 20s;
-        }
-
-        .orb-3 {
-            width: 350px;
-            height: 350px;
-            background: linear-gradient(135deg, #f43f5e, #8b5cf6);
-            top: 40%;
-            left: 55%;
-            animation-duration: 16s;
-        }
-
-        @keyframes floatOrb {
-            0% {
-                transform: translate(0, 0) scale(1);
-            }
-
-            50% {
-                transform: translate(60px, 80px) scale(1.15);
-            }
-
-            100% {
-                transform: translate(-50px, 40px) scale(0.9);
-            }
-        }
-
-        /* --- LAYOUT SPLIT CON CRISTAL --- */
-        .glass-container {
-            position: relative;
-            z-index: 10;
-            width: 92%;
-            max-width: 1050px;
-            height: 600px;
-            display: flex;
-            border-radius: 28px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45),
-                inset 0 1px 0 rgba(255, 255, 255, 0.35);
-            overflow: hidden;
-        }
-
-        /* LADO IZQUIERDO (CAROUSEL / BANNER) */
-        .left-side {
-            flex: 1.1;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 3rem;
-            overflow: hidden;
-            border-right: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .carousel-bg {
-            position: absolute;
-            inset: 0;
-            z-index: 1;
-        }
-
-        .carousel-inner,
-        .carousel-item,
-        .carousel-item img {
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .carousel-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 15%, rgba(15, 23, 42, 0.25));
-            z-index: 2;
-        }
-
-        .brand-content {
-            position: relative;
-            z-index: 3;
-            color: #fff;
-        }
-
-        .brand-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 16px;
-            border-radius: 30px;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            font-size: 0.85rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            margin-bottom: 1rem;
-            color: #38bdf8;
-        }
-
-        /* LADO DERECHO (FORMULARIO CRISTAL) */
-        .right-side {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2.5rem;
-            background: rgba(15, 23, 42, 0.25);
-        }
-
-        .login-card {
-            width: 100%;
-            max-width: 360px;
-            text-align: center;
-        }
-
-        .logo-title {
-            font-size: 2rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ffffff 30%, #38bdf8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
-            margin-bottom: 2px;
-        }
-
-        .logo-subtitle {
-            color: #94a3b8;
-            font-size: 0.88rem;
-            margin-bottom: 2.2rem;
-            font-weight: 500;
-        }
-
-        /* INPUTS ESTILO CRISTAL VÍVIDO */
-        .form-label {
-            color: #e2e8f0;
-            font-size: 0.82rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-            letter-spacing: 0.3px;
-        }
-
-        .input-group {
-            background: var(--glass-input);
-            border-radius: 14px;
-            border: 1px solid var(--glass-border);
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
-
-        .input-group:focus-within {
-            border-color: #38bdf8;
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
-            background: rgba(255, 255, 255, 0.22);
-        }
-
-        .input-group-text {
-            background: transparent;
-            border: none;
-            color: #38bdf8;
-            padding-left: 1.1rem;
-            font-size: 1.1rem;
-        }
-
-        .form-control {
-            background: transparent !important;
-            border: none !important;
-            color: #ffffff !important;
-            padding: 0.75rem 1rem 0.75rem 0.5rem;
-            font-size: 0.95rem;
-            box-shadow: none !important;
-        }
-
-        .form-control::placeholder {
-            color: #94a3b8;
-        }
-
-        .btn-show-pass {
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            padding-right: 1.1rem;
-            transition: color 0.2s;
-        }
-
-        .btn-show-pass:hover {
-            color: #38bdf8;
-        }
-
-        /* BOTÓN VÍVIDO GLOW */
-        .btn-login {
-            margin-top: 1rem;
-            padding: 0.85rem;
-            border-radius: 14px;
-            font-weight: 700;
-            font-size: 0.95rem;
-            letter-spacing: 0.5px;
-            border: none;
-            background: linear-gradient(135deg, #06b6d4, #8b5cf6, #ec4899);
-            background-size: 200% 200%;
-            color: #ffffff;
-            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
-            transition: all 0.4s ease;
-        }
-
-        .btn-login:hover {
-            background-position: right center;
-            box-shadow: 0 15px 35px rgba(236, 72, 153, 0.5);
-            transform: translateY(-2px);
-            color: #fff;
-        }
-
-        .btn-login:active {
-            transform: translateY(0);
-        }
-
-        .login-footer {
-            margin-top: 2rem;
-            color: #64748b;
-            font-size: 0.78rem;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 850px) {
-            .left-side {
-                display: none;
-            }
-
-            .glass-container {
-                max-width: 440px;
-                height: auto;
-            }
-
-            .right-side {
-                padding: 3rem 2rem;
-            }
-        }
-    </style>
 </head>
+
+<style>
+    /* ===== PEGA AQUÍ TU CSS ACTUAL ===== */
+
+    /* ============================================
+       BOTÓN "CREAR CUENTA" (estilo cristal iOS)
+       ============================================ */
+    .signup-divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 1.5rem 0 1rem;
+        color: rgba(90, 90, 110, 0.7);
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+    }
+
+    .signup-divider::before,
+    .signup-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg,
+                transparent,
+                rgba(10, 10, 20, 0.12),
+                transparent);
+    }
+
+    .btn-signup {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 0.85rem;
+        border-radius: 16px;
+        font-weight: 600;
+        font-size: 0.82rem;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        text-decoration: none;
+        color: var(--text-blue, #0060df);
+        background: rgba(255, 255, 255, 0.35);
+        border: 1.5px solid rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        box-shadow:
+            0 4px 15px rgba(10, 132, 255, 0.08),
+            0 1px 0 rgba(255, 255, 255, 0.95) inset,
+            0 -1px 0 rgba(10, 132, 255, 0.06) inset;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .btn-signup::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(105deg,
+                transparent 40%,
+                rgba(168, 208, 255, 0.4) 50%,
+                transparent 60%);
+        transition: left 0.8s ease;
+    }
+
+    .btn-signup:hover::before {
+        left: 100%;
+    }
+
+    .btn-signup:hover {
+        background: rgba(255, 255, 255, 0.55);
+        border-color: rgba(10, 132, 255, 0.5);
+        color: var(--blue-metal, #0a84ff);
+        transform: translateY(-2px);
+        box-shadow:
+            0 10px 25px rgba(10, 132, 255, 0.2),
+            0 1px 0 rgba(255, 255, 255, 1) inset,
+            0 -1px 0 rgba(10, 132, 255, 0.1) inset;
+    }
+
+    .btn-signup:active {
+        transform: translateY(0) scale(0.99);
+    }
+
+    .btn-signup i {
+        font-size: 1.05rem;
+        transition: transform 0.4s ease;
+    }
+
+    .btn-signup:hover i {
+        transform: scale(1.15) rotate(-6deg);
+    }
+</style>
 
 <body>
 
-    <!-- FONDO ANIMADO DE CRISTAL VÍVIDO -->
-    <div class="dynamic-bg">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
+    <!-- FONDO PARALLAX CON CARRUSEL DINÁMICO -->
+    <div class="hero-bg" id="heroBg">
+        <div id="heroCarousel" class="carousel slide carousel-fade h-100" data-bs-ride="carousel"
+            data-bs-interval="5000">
+            <div class="carousel-inner h-100">
+                <?php foreach ($images as $index => $img): ?>
+                    <div class="carousel-item h-100 <?= $index === 0 ? 'active' : '' ?>">
+                        <img src="<?= htmlspecialchars($img) ?>" class="d-block w-100 h-100" alt="Imagen <?= $index + 1 ?>"
+                            loading="<?= $index === 0 ? 'eager' : 'lazy' ?>">
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
     </div>
 
-    <!-- CONTENEDOR PRINCIPAL GLASSMORPHISM -->
-    <div class="glass-container">
+    <!-- Partículas flotantes -->
+    <div class="particles" id="particles"></div>
 
-        <!-- BANNER IZQUIERDO -->
-        <div class="left-side">
-            <div class="carousel-bg">
-                <div id="labCarousel" class="carousel slide carousel-fade h-100" data-bs-ride="carousel"
-                    data-bs-interval="4000">
-                    <div class="carousel-inner">
-                        <div class="carousel-item active"><img src="public/assets/almacen3.jpg" class="d-block w-100">
-                        </div>
-                        <div class="carousel-item"><img src="public/assets/almacen2.jpg" class="d-block w-100"></div>
+    <!-- Marca superior izquierda -->
+    <div class="corner-brand">
+        <i class="bi bi-shield-check"></i> MYVET
+    </div>
+
+    <!-- Versión superior derecha -->
+    <div class="corner-version">
+        <span class="dot"></span> v2.0 PRO
+    </div>
+
+    <!-- Texto lateral decorativo -->
+    <div class="side-text">Sistema de Gestión Inteligente</div>
+
+    <!-- CONTENEDOR CENTRAL DEL FORMULARIO -->
+    <div class="center-stage">
+        <div class="glass-card" id="glassCard">
+            <div class="shine"></div>
+
+            <!-- Icono de marca -->
+            <div class="brand-mark">
+                <i class="bi bi-shield-lock-fill"></i>
+            </div>
+
+            <h1 class="logo-title">MYVET SISTEM</h1>
+            <p class="logo-subtitle">Gestión Inteligente</p>
+
+            <form id="formLogin">
+                <div class="mb-3 text-start">
+                    <label class="form-label">Usuario</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input type="text" name="usuario" class="form-control" placeholder="Ingresa tu usuario" required
+                            autocomplete="off">
                     </div>
                 </div>
-            </div>
-            <div class="carousel-overlay"></div>
 
-            <div class="brand-content">
-                <div class="brand-badge">
-                    <i class="bi bi-shield-check"></i> v2.0
+                <div class="mb-2 text-start">
+                    <label class="form-label">Contraseña</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-key"></i></span>
+                        <input type="password" name="password" id="passwordField" class="form-control"
+                            placeholder="••••••••" required>
+                        <button type="button" class="btn btn-show-pass" id="togglePassword">
+                            <i class="bi bi-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
                 </div>
-                <h1 class="fw-extrabold display-6 text-white mb-2">Eficiencia y velocidad</h1>
-                <p class="text-light opacity-75 mb-0">Gestión e inventarios de alta precisión.</p>
+
+                <button type="submit" id="btnIngresar" class="btn btn-login w-100">
+                    <span>Ingresar al Sistema</span>
+                </button>
+            </form>
+
+            <!-- ============================================
+                 SEPARADOR + BOTÓN CREAR CUENTA
+                 ============================================ -->
+            <div class="signup-divider">
+                <span class="text-white">¿Nuevo por aquí?</span>
             </div>
+
+            <a href="/myvet/registro.php" class="btn-signup">
+                <i class="bi bi-person-plus-fill"></i>
+                <span>¿No tienes cuenta? Crear una</span>
+            </a>
+
+            <div class="card-footer-text">
+                © <?php echo date('Y'); ?> <span class="accent">MYVET SISTEM</span><br>
+                Desarrollado por JSEA — Todos los derechos reservados
+            </div>
+
         </div>
-
-        <!-- FORMULARIO DERECHO -->
-        <div class="right-side">
-            <div class="login-card">
-                <div class="logo-title">MYVET</div>
-                <div class="logo-subtitle">Gestión Inteligente de Negocio</div>
-
-                <form id="formLogin">
-                    <div class="mb-3 text-start">
-                        <label class="form-label">USUARIO</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
-                            <input type="text" name="usuario" class="form-control" placeholder="Ej: admin" required
-                                autocomplete="off">
-                        </div>
-                    </div>
-
-                    <div class="mb-4 text-start">
-                        <label class="form-label">CONTRASEÑA</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
-                            <input type="password" name="password" id="passwordField" class="form-control"
-                                placeholder="••••••••" required>
-                            <button type="button" class="btn btn-show-pass" id="togglePassword">
-                                <i class="bi bi-eye-fill" id="eyeIcon"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <button type="submit" id="btnIngresar" class="btn btn-login w-100">
-                        <span>INGRESAR AL SISTEMA</span>
-                    </button>
-                </form>
-
-                <div class="login-footer">
-                    © <?php echo date('Y'); ?> <span class="text-light fw-semibold">MYVET SISTEM</span><br>
-                    <span>Desarollado por JSEA Todos los derechos reservados</span> <span>Todos los derechos
-                        reservados</span>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <!-- JS Bootstrap & Lógica -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // ============================================
+        // PARALLAX DEL FONDO CON EL MOUSE
+        // ============================================
+        const heroBg = document.getElementById('heroBg');
+        const glassCard = document.getElementById('glassCard');
+        const isMobile = window.matchMedia('(max-width: 576px)').matches;
+
+        if (!isMobile) {
+            let mouseX = 0, mouseY = 0;
+            let currentX = 0, currentY = 0;
+            const strength = 25;
+            const cardStrength = 10;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+                mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+            });
+
+            function animateParallax() {
+                currentX += (mouseX - currentX) * 0.06;
+                currentY += (mouseY - currentY) * 0.06;
+
+                heroBg.style.transform =
+                    `translate(${currentX * strength}px, ${currentY * strength}px)`;
+
+                if (glassCard) {
+                    glassCard.style.transform =
+                        `translate(${currentX * cardStrength}px, ${currentY * cardStrength}px)`;
+                }
+
+                requestAnimationFrame(animateParallax);
+            }
+
+            animateParallax();
+        }
+
+        // ============================================
+        // PARTÍCULAS FLOTANTES
+        // ============================================
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 18;
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDuration = (Math.random() * 15 + 15) + 's';
+            particle.style.animationDelay = (Math.random() * 15) + 's';
+            particle.style.width = particle.style.height = (Math.random() * 3 + 2) + 'px';
+            particle.style.opacity = Math.random() * 0.6 + 0.3;
+            particlesContainer.appendChild(particle);
+        }
+
+        // ============================================
+        // TILT 3D DE LA TARJETA AL MOVER EL MOUSE
+        // ============================================
+        if (!isMobile && glassCard) {
+            glassCard.addEventListener('mousemove', (e) => {
+                const rect = glassCard.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+                const rotateX = -y * 6;
+                const rotateY = x * 6;
+
+                glassCard.style.transform =
+                    `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px) scale(1.01)`;
+            });
+
+            glassCard.addEventListener('mouseleave', () => {
+                glassCard.style.transform = '';
+            });
+        }
+
+        // ============================================
         // VER/OCULTAR CONTRASEÑA
+        // ============================================
         const togglePassword = document.querySelector('#togglePassword');
         const passwordField = document.querySelector('#passwordField');
         const eyeIcon = document.querySelector('#eyeIcon');
@@ -403,11 +328,13 @@
         togglePassword.addEventListener('click', function () {
             const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordField.setAttribute('type', type);
-            eyeIcon.classList.toggle('bi-eye-fill');
-            eyeIcon.classList.toggle('bi-eye-slash-fill');
+            eyeIcon.classList.toggle('bi-eye');
+            eyeIcon.classList.toggle('bi-eye-slash');
         });
 
+        // ============================================
         // LÓGICA DE LOGIN
+        // ============================================
         document.getElementById('formLogin').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -420,7 +347,7 @@
             const formData = new FormData(e.target);
 
             try {
-                const response = await fetch('/myvet/app/controllers/authController.php?action=login', {
+                const response = await fetch('/myvet/registraCuenta?action=login', {
                     method: 'POST',
                     body: formData
                 });
@@ -437,7 +364,7 @@
                         showConfirmButton: false,
                         timer: 1500,
                         timerProgressBar: true,
-                        background: '#0f172a',
+                        background: '#1e1235',
                         color: '#fff'
                     }).then(() => {
                         window.location.href = res.redirect;
@@ -447,8 +374,8 @@
                         icon: res.status,
                         title: 'Atención',
                         text: res.message,
-                        confirmButtonColor: '#8b5cf6',
-                        background: '#0f172a',
+                        confirmButtonColor: '#7c3aed',
+                        background: '#1e1235',
                         color: '#fff'
                     });
                     btn.disabled = false;
@@ -459,8 +386,8 @@
                     icon: 'error',
                     title: 'Error de conexión',
                     text: 'No se pudo conectar con el servidor. Inténtalo más tarde.',
-                    confirmButtonColor: '#8b5cf6',
-                    background: '#0f172a',
+                    confirmButtonColor: '#7c3aed',
+                    background: '#1e1235',
                     color: '#fff'
                 });
                 btn.disabled = false;

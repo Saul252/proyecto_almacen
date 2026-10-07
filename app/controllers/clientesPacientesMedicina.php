@@ -15,7 +15,7 @@ $paginaActual = 'misPacientesMedicina';
 // Capturamos el almacén de la sesión para las consultas
 $almacen_id = $_SESSION['almacen_id'] ?? 0;
 $almacenModel = new AlmacenModel($conexion);
-$almacenes = $almacenModel->getAlmacenes($almacen_usuario);
+$almacenes = $almacenModel->getAlmacenes($almacen_id);
 
 if (isset($_GET['action']) && $_GET['action'] === 'obtenerEstadoCuenta') {
     if (ob_get_level())
@@ -176,6 +176,53 @@ if (isset($_GET['action']) && $_GET['action'] === 'obtenerPorId') {
 
 // --- CARGA DE VISTA (GET) ---
 // --- CARGA DE VISTA (GET) ---
+if (isset($_GET['action']) && $_GET['action'] === 'listar') {
+
+    if (ob_get_level())
+        ob_clean();
+    header('Content-Type: application/json; charset=utf-8');
+
+    try {
+        // ============================================
+        // ALMACÉN: usa ?id= si viene, si no el de la sesión
+        // ============================================
+        $almacen_usuario = intval($_GET['id'] ?? $_SESSION['almacen_id'] ?? 0);
+
+        // ============================================
+        // LISTAR
+        // ============================================
+        $resultado = $clientesModel->listarTodos($almacen_usuario);
+
+        // mysqli devuelve mysqli_result → convertir a array para JSON
+        $clientes = [];
+        if ($resultado instanceof mysqli_result) {
+            while ($fila = $resultado->fetch_assoc()) {
+                $clientes[] = $fila;
+            }
+        } elseif (is_array($resultado)) {
+            $clientes = $resultado;
+        }
+
+        // ============================================
+        // RESPUESTA
+        // ============================================
+        echo json_encode([
+            'status' => 'success',
+            'total' => count($clientes),
+            'clientes' => $clientes
+        ]);
+
+    } catch (Throwable $e) {
+        error_log('[listar clientes] ' . $e->getMessage());
+        http_response_code(400);
+        echo json_encode([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ]);
+    }
+
+    exit;
+}
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['action'])) {
     try {
         // Cambiamos el nombre de la variable para que coincida con la vista

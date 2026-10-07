@@ -4,20 +4,23 @@
  * Modelo para la gestión de Almacenes / Licencias / Cuentas
  */
 
-class controlAlmacenesModel {
+class controlAlmacenesModel
+{
     private $db;
 
-    public function __construct($conexion) {
+    public function __construct($conexion)
+    {
         $this->db = $conexion;
     }
 
     /**
      * Listar almacenes filtrados por sesión o criterio
      */
-  /**
+    /**
      * Listar todos los almacenes incluyendo la relación con planes
      */
-    public function listarTodos($almacen_sesion = 0) {
+    public function listarTodos($almacen_sesion = 0)
+    {
         $where = " WHERE 1=1 ";
         if ($almacen_sesion > 0) {
             $where .= " AND a.id = " . intval($almacen_sesion) . " ";
@@ -33,9 +36,11 @@ class controlAlmacenesModel {
         $res = $this->db->query($sql);
         return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
     }
-public function planes($almacen_id=0 ) {
+    public function planes($almacen_id = 0)
+    {
         $sql = "SELECT * FROM planes WHERE 1 = 1";
-        if ($almacen_id > 0) $sql .= " AND id = " . intval($almacen_id);
+        if ($almacen_id > 0)
+            $sql .= " AND id = " . intval($almacen_id);
         $sql .= " ORDER BY nombre ASC";
         return $this->db->query($sql)->fetch_all(MYSQLI_ASSOC);
     }
@@ -43,7 +48,8 @@ public function planes($almacen_id=0 ) {
     /**
      * Obtener almacén por ID incluyendo la relación con planes
      */
-    public function obtenerPorId($id) {
+    public function obtenerPorId($id)
+    {
         $sql = "SELECT a.`id`, a.`codigo`, a.`nombre`, a.`hora_cierre_programada`, a.`ubicacion`, 
                        a.`activo`, a.`fecha_creacion`, a.`tipo_plan`, a.`pago`, p.nombre AS plan
                 FROM `almacenes` a
@@ -57,47 +63,61 @@ public function planes($almacen_id=0 ) {
     /**
      * Registrar un NUEVO almacén (incluyendo su contraseña encriptada)
      */
-    public function guardar($datos) {
-    // 1. Columnas encerradas con backticks (`) y no comillas simples (')
-    $sql = "INSERT INTO `almacenes` 
-            (`codigo`, `nombre`, `hora_cierre_programada`, `ubicacion`, `activo`, `tipo_plan`, `pago`, `logo`, `ico`) 
+    public function guardar($datos)
+    {
+        // INSERT con los campos correctos (sin logo ni ico, con correo y telefono)
+        $sql = "INSERT INTO `almacenes` 
+            (`codigo`, `nombre`, `hora_cierre_programada`, `ubicacion`, `activo`, `tipo_plan`, `pago`, `correo`, `telefono`) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            
-    $stmt = $this->db->prepare($sql);
-    
-    if (!$stmt) {
-        throw new Exception("Error en la preparación de la consulta: " . $this->db->error);
+
+        $stmt = $this->db->prepare($sql);
+
+        if (!$stmt) {
+            throw new Exception("Error en la preparación de la consulta: " . $this->db->error);
+        }
+
+        // Valores por defecto / conversiones
+        $activo = 0; // Pendiente de activación
+        $tipo_plan = isset($datos['tipo_plan']) ? intval($datos['tipo_plan']) : 4;
+        $pago = isset($datos['pago']) ? intval($datos['pago']) : 0;
+        $correo = $datos['correo'] ?? '';
+        $telefono = $datos['telefono'] ?? '';
+
+        // Tipos: s s s s i i i s s
+        //        │ │ │ │ │ │ │ │ └── telefono (string, puede tener +, espacios, guiones)
+        //        │ │ │ │ │ │ │ └──── correo (string)
+        //        │ │ │ │ │ │ └────── pago (int)
+        //        │ │ │ │ │ └──────── tipo_plan (int)
+        //        │ │ │ │ └────────── activo (int)
+        //        │ │ │ └──────────── ubicacion (string)
+        //        │ │ └────────────── hora_cierre_programada (string)
+        //        │ └──────────────── nombre (string)
+        //        └────────────────── codigo (string)
+        $stmt->bind_param(
+            "ssssiiiss",
+            $datos['codigo'],
+            $datos['nombre'],
+            $datos['hora_cierre_programada'],
+            $datos['ubicacion'],
+            $activo,
+            $tipo_plan,
+            $pago,
+            $correo,
+            $telefono
+        );
+
+        if (!$stmt->execute()) {
+            throw new Exception("Error al insertar almacén: " . $stmt->error);
+        }
+
+        return $this->db->insert_id;
     }
-    
-    $activo = 0;
-    $tipo_plan = isset($datos['tipo_plan']) ? intval($datos['tipo_plan']) : 1;
-    $logo = $datos['logo'] ?? '';
-    $ico = $datos['ico'] ?? '';
-    
-    // 2. Definición exacta de 9 tipos para 9 parámetros: s s s s i i s s s
-    $stmt->bind_param("ssssiisss", 
-        $datos['codigo'], 
-        $datos['nombre'], 
-        $datos['hora_cierre_programada'], 
-        $datos['ubicacion'], 
-        $activo, 
-        $tipo_plan, 
-        $datos['pago'],
-        $logo,
-        $ico
-    );
-    
-    if (!$stmt->execute()) {
-        throw new Exception("Error al insertar almacén: " . $stmt->error);
-    }
-    
-    return $this->db->insert_id;
-}
 
     /**
      * Actualizar la información completa de un almacén existente (sin alterar password)
      */
-    public function actualizar($id, $datos) {
+    public function actualizar($id, $datos)
+    {
         $sql = "UPDATE `almacenes` 
                 SET `codigo` = ?, 
                     `nombre` = ?, 
@@ -107,16 +127,17 @@ public function planes($almacen_id=0 ) {
                     `pago` = ? 
                 WHERE `id` = ?";
         $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("ssssssi", 
-            $datos['codigo'], 
-            $datos['nombre'], 
-            $datos['hora_cierre_programada'], 
-            $datos['ubicacion'], 
-            $datos['tipo_plan'], 
-            $datos['pago'], 
+        $stmt->bind_param(
+            "ssssssi",
+            $datos['codigo'],
+            $datos['nombre'],
+            $datos['hora_cierre_programada'],
+            $datos['ubicacion'],
+            $datos['tipo_plan'],
+            $datos['pago'],
             $id
         );
-        
+
         if (!$stmt->execute()) {
             throw new Exception("Error al actualizar almacén: " . $stmt->error);
         }
@@ -126,11 +147,12 @@ public function planes($almacen_id=0 ) {
     /**
      * Cambiar estado activo/inactivo (Activar o desactivar cuenta)
      */
-    public function cambiarEstado($id, $estado) {
+    public function cambiarEstado($id, $estado)
+    {
         $sql = "UPDATE `almacenes` SET `activo` = ? WHERE `id` = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("ii", $estado, $id);
-        
+
         if (!$stmt->execute()) {
             throw new Exception("Error al cambiar estado: " . $stmt->error);
         }
@@ -140,11 +162,12 @@ public function planes($almacen_id=0 ) {
     /**
      * Cambiar estado de pago de forma independiente (al_dia, pendiente, vencido)
      */
-    public function cambiarEstadoPago($id, $pago) {
+    public function cambiarEstadoPago($id, $pago)
+    {
         $sql = "UPDATE `almacenes` SET `pago` = ? WHERE `id` = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("si", $pago, $id);
-        
+
         if (!$stmt->execute()) {
             throw new Exception("Error al actualizar el estado de pago: " . $stmt->error);
         }
@@ -154,11 +177,12 @@ public function planes($almacen_id=0 ) {
     /**
      * Cambiar el tipo de plan de forma independiente (basico, pro, enterprise)
      */
-    public function cambiarTipoPlan($id, $tipo_plan) {
+    public function cambiarTipoPlan($id, $tipo_plan)
+    {
         $sql = "UPDATE `almacenes` SET `tipo_plan` = ? WHERE `id` = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("si", $tipo_plan, $id);
-        
+
         if (!$stmt->execute()) {
             throw new Exception("Error al actualizar el tipo de plan: " . $stmt->error);
         }
@@ -168,11 +192,12 @@ public function planes($almacen_id=0 ) {
     /**
      * Cambiar el nombre del almacén de forma independiente
      */
-    public function cambiarNombre($id, $nombre) {
+    public function cambiarNombre($id, $nombre)
+    {
         $sql = "UPDATE `almacenes` SET `nombre` = ? WHERE `id` = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("si", $nombre, $id);
-        
+
         if (!$stmt->execute()) {
             throw new Exception("Error al actualizar el nombre: " . $stmt->error);
         }
@@ -182,11 +207,12 @@ public function planes($almacen_id=0 ) {
     /**
      * Actualizar contraseña/clave de acceso del almacén o la cuenta asociada
      */
-    public function actualizarPassword($id, $passwordHash) {
+    public function actualizarPassword($id, $passwordHash)
+    {
         $sql = "UPDATE `almacenes` SET `password` = ? WHERE `id` = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("si", $passwordHash, $id);
-        
+
         if (!$stmt->execute()) {
             throw new Exception("Error al actualizar la contraseña: " . $stmt->error);
         }

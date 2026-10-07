@@ -145,6 +145,7 @@ $modulos = [
         'submodulos' => [
             ['id' => 'usuarios', 'url' => '/myvet/usuarios', 'icon' => 'bi-person-lock', 'label' => 'Usuarios', 'active' => ($archivoActual == 'usuariosController.php')],
             ['id' => 'miAcceso', 'url' => '/myvet/miAcceso', 'icon' => 'bi-person', 'label' => 'MI Cuenta', 'active' => ($archivoActual == 'miAccesoController.php')],
+            ['id' => 'Configuracion', 'url' => '/myvet/configuracionSistema', 'icon' => 'bi-person', 'label' => 'configuracion', 'active' => ($archivoActual == 'configuracionController.php')],
         ]
     ]
 ];

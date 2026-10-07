@@ -10,7 +10,7 @@ require_once __DIR__ . '/../controllers/LayoutController.php';
 require_once __DIR__ . '/../models/miAccesoModel.php';
 require_once __DIR__ . '/../models/almacen_model.php';
 
-protegerPagina('ventas');
+protegerPagina('miAcceso');
 
 $almacen_id = $_SESSION['almacen_id'] ?? 0;
 $miAccesoModel = new MiAccesoModel($conexion);
@@ -19,13 +19,15 @@ $almacenes = $almacenModel->getAlmacenes($almacen_id);
 
 // --- ACCIÓN: OBTENER DATOS DEL ALMACÉN (AJAX) ---
 if (isset($_GET['action']) && $_GET['action'] === 'obtenerDatos') {
-    if (ob_get_level()) ob_clean();
+    if (ob_get_level())
+        ob_clean();
     header('Content-Type: application/json');
 
     try {
         $id = intval($_GET['id'] ?? $almacen_id);
 
-        if ($id <= 0) throw new Exception("ID de almacén no válido.");
+        if ($id <= 0)
+            throw new Exception("ID de almacén no válido.");
 
         $datosAlmacen = $miAccesoModel->obtenerPorId($id);
 
@@ -41,14 +43,16 @@ if (isset($_GET['action']) && $_GET['action'] === 'obtenerDatos') {
 }
 // --- ACCIÓN: GUARDAR / ACTUALIZAR DATOS DE ALMACÉN Y LOGO (AJAX) ---
 if (isset($_GET['action']) && $_GET['action'] === 'guardar') {
-    if (ob_get_level()) ob_clean();
+    if (ob_get_level())
+        ob_clean();
     header('Content-Type: application/json');
 
     try {
         $id = intval($_POST['almacen_id'] ?? $almacen_id);
 
-        if ($id <= 0) throw new Exception("Identificador de almacén no válido.");
-        
+        if ($id <= 0)
+            throw new Exception("Identificador de almacén no válido.");
+
         // 1. Guardar en sesión solo si viene un color válido y sanitizado
         if (!empty($_POST['colorId'])) {
             // Elimina caracteres no válidos para expresiones de color en CSS (Previene XSS)
@@ -57,11 +61,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'guardar') {
         }
 
         $datos = [
-            'nombre'                 => trim($_POST['nombre'] ?? ''),
+            'nombre' => trim($_POST['nombre'] ?? ''),
             'hora_cierre_programada' => $_POST['hora_cierre_programada'] ?? null,
-            'ubicacion'              => trim($_POST['ubicacion'] ?? ''),
-            'logo_actual'            => $_POST['logo_actual'] ?? null,
-            'ico_actual'             => $_POST['ico_actual'] ?? null
+            'ubicacion' => trim($_POST['ubicacion'] ?? ''),
+            'logo_actual' => $_POST['logo_actual'] ?? null,
+            'ico_actual' => $_POST['ico_actual'] ?? null
         ];
 
         if (empty($datos['nombre'])) {
@@ -69,7 +73,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'guardar') {
         }
 
         $archivoLogo = $_FILES['logo'] ?? null;
-        $archivoIco  = $_FILES['ico'] ?? null;
+        $archivoIco = $_FILES['ico'] ?? null;
 
         $resultado = $miAccesoModel->actualizar($id, $datos, $archivoLogo, $archivoIco);
 

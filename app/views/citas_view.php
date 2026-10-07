@@ -812,7 +812,7 @@
             e.preventDefault();
             const formData = new FormData(document.getElementById('formCita'));
 
-            fetch('citasController.php?action=guardar', {
+            fetch('/myvet/app/controllers/citasController.php?action=guardar', {
                 method: 'POST',
                 body: formData
             })

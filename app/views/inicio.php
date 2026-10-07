@@ -127,7 +127,7 @@ $gruposModulos = [
         'submodulos' => [
             ['id' => 'usuarios', 'url' => '/myvet/usuarios', 'icon' => 'bi-person-lock', 'class' => 'text-danger', 'label' => 'Usuarios'],
             ['id' => 'miAcceso', 'url' => '/myvet/miAcceso', 'icon' => 'bi-person', 'class' => 'text-success', 'label' => 'MI Cuenta'],
-
+            ['id' => 'Configuracion', 'url' => '/myvet/configuracionSistema', 'icon' => 'bi-speedometer2', 'class' => 'text-success', 'label' => 'Configuracion'],
         ]
     ]
 ];

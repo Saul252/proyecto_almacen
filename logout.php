@@ -14,7 +14,8 @@ session_destroy();
     <link rel="icon" type="image/png" href="/myvet/public/assets/logo.png">
     <link rel="shortcut icon" href="/myvet/public/assets/logo.ico" type="image/x-icon">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <style>
         /* ============================================================
@@ -29,15 +30,10 @@ session_destroy();
         }
 
         :root {
-            /* Colores tipo Microsoft / Apple vivos */
-            --c-red: #ff3b30;
-            --c-red-2: #d70015;
-            --c-green: #34c759;
-            --c-green-2: #248a3d;
-            --c-blue: #007aff;
-            --c-blue-2: #0051d5;
-            --c-yellow: #ffcc00;
-            --c-yellow-2: #d9a800;
+            --c-accent: #0a84ff;
+            --c-accent-soft: #5ac8fa;
+            --c-accent-deep: #003d99;
+            --c-glow: rgba(10, 132, 255, 0.55);
         }
 
         html,
@@ -48,7 +44,7 @@ session_destroy();
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
-            background: #000;
+            background: #05060a;
             color: #fff;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -61,26 +57,39 @@ session_destroy();
         }
 
         /* ============================================================
-           FONDO (auroras de colores)
+           FONDO — auroras azules suaves
            ============================================================ */
         .bg {
             position: fixed;
             inset: 0;
             z-index: 0;
             background:
-                radial-gradient(ellipse at 15% 20%, rgba(255, 59, 48, 0.18) 0%, transparent 45%),
-                radial-gradient(ellipse at 85% 25%, rgba(255, 204, 0, 0.15) 0%, transparent 45%),
-                radial-gradient(ellipse at 15% 85%, rgba(0, 122, 255, 0.18) 0%, transparent 45%),
-                radial-gradient(ellipse at 85% 85%, rgba(52, 199, 89, 0.15) 0%, transparent 45%),
-                radial-gradient(ellipse at 50% 50%, rgba(30, 30, 40, 1) 0%, #05050a 100%);
+                radial-gradient(ellipse at 25% 30%, rgba(10, 132, 255, 0.15) 0%, transparent 55%),
+                radial-gradient(ellipse at 75% 25%, rgba(90, 200, 250, 0.10) 0%, transparent 55%),
+                radial-gradient(ellipse at 30% 75%, rgba(0, 61, 153, 0.18) 0%, transparent 55%),
+                radial-gradient(ellipse at 75% 80%, rgba(10, 132, 255, 0.10) 0%, transparent 55%),
+                radial-gradient(ellipse at 50% 50%, #0a0d18 0%, #05060a 100%);
+            animation: bgBreath 8s ease-in-out infinite;
+        }
+
+        @keyframes bgBreath {
+
+            0%,
+            100% {
+                filter: brightness(1);
+            }
+
+            50% {
+                filter: brightness(1.15);
+            }
         }
 
         /* ============================================================
-           ESCENA
+           ESCENA CENTRAL
            ============================================================ */
         .scene {
             position: relative;
-            z-index: 1;
+            z-index: 2;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -92,7 +101,7 @@ session_destroy();
         @keyframes sceneIn {
             from {
                 opacity: 0;
-                transform: scale(0.95);
+                transform: scale(0.94);
             }
 
             to {
@@ -102,39 +111,88 @@ session_destroy();
         }
 
         /* ============================================================
-           CONTENEDOR DE LA RULETA
+           NÚCLEO DE ONDAS + PARTÍCULAS
            ============================================================ */
-        .wheel-wrap {
+        .pulse-wrap {
             position: relative;
-            width: 200px;
-            height: 200px;
+            width: 220px;
+            height: 220px;
             display: flex;
             align-items: center;
             justify-content: center;
-            perspective: 1000px;
         }
 
-        /* Halo multicolor detrás */
-        .wheel-wrap::before {
-            content: '';
+        /* --- Núcleo central (esfera luminosa) --- */
+        .core {
             position: absolute;
-            inset: -40px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
-            background:
-                conic-gradient(from 0deg,
-                    rgba(255, 59, 48, 0.4),
-                    rgba(255, 204, 0, 0.4),
-                    rgba(52, 199, 89, 0.4),
-                    rgba(0, 122, 255, 0.4),
-                    rgba(255, 59, 48, 0.4));
-            filter: blur(40px);
-            opacity: 0.6;
-            animation: haloSpin 6s linear infinite, haloPulse 3s ease-in-out infinite;
-            z-index: 0;
+            background: radial-gradient(circle at 35% 30%, #ffffff 0%, #5ac8fa 40%, #0a84ff 80%, #003d99 100%);
+            box-shadow:
+                0 0 20px rgba(90, 200, 250, 0.9),
+                0 0 40px rgba(10, 132, 255, 0.7),
+                0 0 80px rgba(10, 132, 255, 0.4),
+                inset 0 0 8px rgba(255, 255, 255, 0.6);
+            animation: corePulse 1.6s ease-in-out infinite;
+            z-index: 5;
+        }
+
+        @keyframes corePulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow:
+                    0 0 20px rgba(90, 200, 250, 0.9),
+                    0 0 40px rgba(10, 132, 255, 0.7),
+                    0 0 80px rgba(10, 132, 255, 0.4),
+                    inset 0 0 8px rgba(255, 255, 255, 0.6);
+            }
+
+            50% {
+                transform: scale(1.15);
+                box-shadow:
+                    0 0 28px rgba(90, 200, 250, 1),
+                    0 0 60px rgba(10, 132, 255, 0.9),
+                    0 0 110px rgba(10, 132, 255, 0.55),
+                    inset 0 0 12px rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        /* --- Anillos orbitales girando --- */
+        .orbit {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid transparent;
+            border-top-color: rgba(90, 200, 250, 0.7);
+            border-right-color: rgba(10, 132, 255, 0.35);
             pointer-events: none;
         }
 
-        @keyframes haloSpin {
+        .orbit--1 {
+            width: 70px;
+            height: 70px;
+            animation: orbitSpin 2.4s linear infinite;
+        }
+
+        .orbit--2 {
+            width: 110px;
+            height: 110px;
+            border-top-color: rgba(10, 132, 255, 0.6);
+            border-right-color: rgba(90, 200, 250, 0.25);
+            animation: orbitSpin 3.6s linear infinite reverse;
+        }
+
+        .orbit--3 {
+            width: 160px;
+            height: 160px;
+            border-top-color: rgba(90, 200, 250, 0.35);
+            border-right-color: rgba(10, 132, 255, 0.15);
+            animation: orbitSpin 5.2s linear infinite;
+        }
+
+        @keyframes orbitSpin {
             from {
                 transform: rotate(0deg);
             }
@@ -144,198 +202,203 @@ session_destroy();
             }
         }
 
-        @keyframes haloPulse {
-
-            0%,
-            100% {
-                opacity: 0.5;
-            }
-
-            50% {
-                opacity: 0.85;
-            }
+        /* --- Ondas expansivas (los "cuadros" reemplazados) --- */
+        .wave {
+            position: absolute;
+            border-radius: 50%;
+            border: 1.5px solid rgba(10, 132, 255, 0.7);
+            opacity: 0;
+            animation: waveExpand 2.8s cubic-bezier(0.15, 0.6, 0.35, 1) infinite;
+            pointer-events: none;
         }
 
-        /* ============================================================
-           RULETA — 4 CUADRANTES DE COLORES
-           ============================================================ */
-        .wheel {
-            position: relative;
-            width: 180px;
-            height: 180px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 8px;
-            transform-style: preserve-3d;
-            animation: wheelSpin 4.5s cubic-bezier(0.6, 0, 0.4, 1) forwards;
-            animation-delay: 0.4s;
-            will-change: transform;
+        .wave:nth-child(4) {
+            animation-delay: 0s;
         }
 
-        @keyframes wheelSpin {
+        .wave:nth-child(5) {
+            animation-delay: 0.7s;
+        }
+
+        .wave:nth-child(6) {
+            animation-delay: 1.4s;
+        }
+
+        .wave:nth-child(7) {
+            animation-delay: 2.1s;
+        }
+
+        @keyframes waveExpand {
             0% {
-                transform: rotate(0deg) scale(1);
-            }
-
-            15% {
-                transform: rotate(-15deg) scale(1.05);
+                width: 26px;
+                height: 26px;
+                opacity: 0.9;
+                border-width: 2px;
+                border-color: rgba(90, 200, 250, 0.9);
             }
 
             70% {
-                transform: rotate(540deg) scale(1);
-            }
-
-            85% {
-                transform: rotate(680deg) scale(0.95);
+                opacity: 0.35;
+                border-color: rgba(10, 132, 255, 0.5);
             }
 
             100% {
-                transform: rotate(720deg) scale(0.9);
+                width: 220px;
+                height: 220px;
+                opacity: 0;
+                border-width: 0.5px;
+                border-color: rgba(0, 61, 153, 0);
             }
         }
 
-        /* ============================================================
-           CADA CUADRANTE (colores distintos)
-           ============================================================ */
-        .quad {
-            position: relative;
-            border-radius: 14px;
+        /* --- Partículas ascendentes --- */
+        .particles {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
             overflow: hidden;
-            animation: quadClose 0.9s cubic-bezier(0.6, 0, 0.4, 1) forwards;
-            will-change: opacity, transform, filter;
         }
 
-        /* ---- Cuadrante 1: ROJO (arriba izquierda) ---- */
-        .quad:nth-child(1) {
-            background: linear-gradient(145deg, var(--c-red) 0%, var(--c-red-2) 100%);
-            box-shadow:
-                0 8px 24px rgba(255, 59, 48, 0.45),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3),
-                inset 0 -2px 6px rgba(0, 0, 0, 0.2);
-            animation-delay: 3.2s;
-            transform-origin: top left;
+        .particle {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: rgba(90, 200, 250, 0.9);
+            box-shadow: 0 0 6px rgba(90, 200, 250, 0.8);
+            opacity: 0;
+            animation: particleRise 3.2s ease-out infinite;
         }
 
-        /* ---- Cuadrante 2: AMARILLO (arriba derecha) ---- */
-        .quad:nth-child(2) {
-            background: linear-gradient(145deg, var(--c-yellow) 0%, var(--c-yellow-2) 100%);
-            box-shadow:
-                0 8px 24px rgba(255, 204, 0, 0.45),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3),
-                inset 0 -2px 6px rgba(0, 0, 0, 0.2);
-            animation-delay: 3.5s;
-            transform-origin: top right;
-        }
-
-        /* ---- Cuadrante 3: AZUL (abajo izquierda) ---- */
-        .quad:nth-child(3) {
-            background: linear-gradient(145deg, var(--c-blue) 0%, var(--c-blue-2) 100%);
-            box-shadow:
-                0 8px 24px rgba(0, 122, 255, 0.45),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3),
-                inset 0 -2px 6px rgba(0, 0, 0, 0.2);
-            animation-delay: 4.1s;
-            transform-origin: bottom left;
-        }
-
-        /* ---- Cuadrante 4: VERDE (abajo derecha) ---- */
-        .quad:nth-child(4) {
-            background: linear-gradient(145deg, var(--c-green) 0%, var(--c-green-2) 100%);
-            box-shadow:
-                0 8px 24px rgba(52, 199, 89, 0.45),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3),
-                inset 0 -2px 6px rgba(0, 0, 0, 0.2);
-            animation-delay: 3.8s;
-            transform-origin: bottom right;
-        }
-
-        /* Animación de cierre */
-        @keyframes quadClose {
+        @keyframes particleRise {
             0% {
-                opacity: 1;
-                transform: scale(1) rotate(0deg);
-                filter: blur(0);
+                opacity: 0;
+                transform: translate(0, 0) scale(0.5);
             }
 
-            40% {
+            15% {
                 opacity: 1;
-                transform: scale(1.05) rotate(3deg);
-                filter: blur(0);
             }
 
             100% {
                 opacity: 0;
-                transform: scale(0.15) rotate(-25deg);
-                filter: blur(12px);
+                transform:
+                    translate(var(--px, 0), calc(-1 * var(--py, 100px))) scale(0.2);
             }
         }
 
-        /* Brillo superior cristal */
-        .quad::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 10%;
-            right: 10%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.95), transparent);
-            z-index: 2;
+        /* Generamos posiciones dispersas con nth-child */
+        .particle:nth-child(1) {
+            --px: -90px;
+            --py: 130px;
+            animation-delay: 0.0s;
         }
 
-        /* Reflejo diagonal interno */
-        .quad::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg,
-                    rgba(255, 255, 255, 0.25) 0%,
-                    transparent 40%,
-                    transparent 60%,
-                    rgba(0, 0, 0, 0.2) 100%);
-            z-index: 1;
+        .particle:nth-child(2) {
+            --px: 70px;
+            --py: 140px;
+            animation-delay: 0.3s;
+        }
+
+        .particle:nth-child(3) {
+            --px: -40px;
+            --py: 160px;
+            animation-delay: 0.6s;
+        }
+
+        .particle:nth-child(4) {
+            --px: 100px;
+            --py: 120px;
+            animation-delay: 0.9s;
+        }
+
+        .particle:nth-child(5) {
+            --px: -110px;
+            --py: 150px;
+            animation-delay: 1.2s;
+        }
+
+        .particle:nth-child(6) {
+            --px: 20px;
+            --py: 170px;
+            animation-delay: 1.5s;
+        }
+
+        .particle:nth-child(7) {
+            --px: -70px;
+            --py: 110px;
+            animation-delay: 1.8s;
+        }
+
+        .particle:nth-child(8) {
+            --px: 90px;
+            --py: 160px;
+            animation-delay: 2.1s;
+        }
+
+        .particle:nth-child(9) {
+            --px: -20px;
+            --py: 140px;
+            animation-delay: 2.4s;
+        }
+
+        .particle:nth-child(10) {
+            --px: 50px;
+            --py: 130px;
+            animation-delay: 2.7s;
+        }
+
+        .particle:nth-child(11) {
+            --px: -100px;
+            --py: 120px;
+            animation-delay: 3.0s;
+        }
+
+        .particle:nth-child(12) {
+            --px: 80px;
+            --py: 150px;
+            animation-delay: 3.3s;
+        }
+
+        .particle:nth-child(13) {
+            --px: -55px;
+            --py: 170px;
+            animation-delay: 3.6s;
+        }
+
+        .particle:nth-child(14) {
+            --px: 40px;
+            --py: 110px;
+            animation-delay: 3.9s;
+        }
+
+        .particle:nth-child(15) {
+            --px: -85px;
+            --py: 140px;
+            animation-delay: 4.2s;
+        }
+
+        .particle:nth-child(16) {
+            --px: 65px;
+            --py: 130px;
+            animation-delay: 4.5s;
+        }
+
+        /* Colores alternos suaves para dar vida */
+        .particle:nth-child(3n) {
+            background: rgba(10, 132, 255, 0.9);
+            box-shadow: 0 0 8px rgba(10, 132, 255, 0.8);
+        }
+
+        .particle:nth-child(3n+2) {
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.7);
         }
 
         /* ============================================================
-           CENTRO BRILLANTE
-           ============================================================ */
-        .wheel-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 18px;
-            height: 18px;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            background: radial-gradient(circle at 35% 35%, #ffffff 0%, #e0e0e0 40%, #999 100%);
-            box-shadow:
-                0 0 16px rgba(255, 255, 255, 0.9),
-                0 0 32px rgba(255, 255, 255, 0.5),
-                inset 0 1px 2px rgba(0, 0, 0, 0.15);
-            z-index: 10;
-            animation: centerGlow 1.5s ease-in-out infinite;
-        }
-
-        @keyframes centerGlow {
-
-            0%,
-            100% {
-                box-shadow:
-                    0 0 16px rgba(255, 255, 255, 0.9),
-                    0 0 32px rgba(255, 255, 255, 0.5),
-                    inset 0 1px 2px rgba(0, 0, 0, 0.15);
-            }
-
-            50% {
-                box-shadow:
-                    0 0 24px rgba(255, 255, 255, 1),
-                    0 0 48px rgba(255, 255, 255, 0.7),
-                    inset 0 1px 2px rgba(0, 0, 0, 0.15);
-            }
-        }
-
-        /* ============================================================
-           TEXTO
+           TEXTO DE ESTADO
            ============================================================ */
         .status {
             text-align: center;
@@ -349,10 +412,10 @@ session_destroy();
             letter-spacing: -0.025em;
             margin-bottom: 8px;
             background: linear-gradient(90deg,
-                    #ff3b30 0%,
-                    #ffcc00 33%,
-                    #34c759 66%,
-                    #007aff 100%);
+                    #ffffff 0%,
+                    #5ac8fa 35%,
+                    #0a84ff 70%,
+                    #ffffff 100%);
             background-size: 200% 100%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -416,7 +479,7 @@ session_destroy();
         }
 
         /* ============================================================
-           BARRA DE PROGRESO MULTICOLOR
+           BARRA DE PROGRESO
            ============================================================ */
         .progress {
             width: 220px;
@@ -431,17 +494,16 @@ session_destroy();
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg,
-                    #ff3b30 0%,
-                    #ffcc00 33%,
-                    #34c759 66%,
-                    #007aff 100%);
+                    #5ac8fa 0%,
+                    #0a84ff 50%,
+                    #0066cc 100%);
             background-size: 200% 100%;
             border-radius: 3px;
             animation:
                 progressFill 6s linear forwards,
                 barShine 2s linear infinite;
             animation-delay: 0.4s, 0.4s;
-            box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 12px rgba(10, 132, 255, 0.6);
         }
 
         @keyframes progressFill {
@@ -465,7 +527,7 @@ session_destroy();
         }
 
         /* ============================================================
-           MARCA
+           MARCA (pie)
            ============================================================ */
         .brand {
             position: fixed;
@@ -491,6 +553,119 @@ session_destroy();
         }
 
         /* ============================================================
+           TEXTO METÁLICO FINAL — JSEA / Nos vemos pronto
+           ============================================================ */
+        .farewell {
+            position: fixed;
+            inset: 0;
+            z-index: 90;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            pointer-events: none;
+            opacity: 0;
+            animation: farewellIn 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: 4.2s;
+        }
+
+        @keyframes farewellIn {
+            0% {
+                opacity: 0;
+                transform: translateY(14px) scale(0.96);
+                filter: blur(6px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+        }
+
+        .farewell-brand {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            font-size: clamp(2.4rem, 6vw, 4.2rem);
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            line-height: 1;
+            text-align: center;
+
+            background: linear-gradient(100deg,
+                    #6b6b6b 0%,
+                    #b8b8b8 18%,
+                    #ffffff 30%,
+                    #e8e8e8 40%,
+                    #8a8a8a 55%,
+                    #ffffff 68%,
+                    #c8c8c8 82%,
+                    #6b6b6b 100%);
+            background-size: 250% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+
+            filter:
+                drop-shadow(0 1px 0 rgba(255, 255, 255, 0.15)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7)) drop-shadow(0 6px 24px rgba(10, 132, 255, 0.15));
+
+            animation: metalShine 3.2s linear infinite;
+            animation-delay: 5.4s;
+        }
+
+        @keyframes metalShine {
+            0% {
+                background-position: 250% 50%;
+            }
+
+            100% {
+                background-position: -50% 50%;
+            }
+        }
+
+        .farewell-brand::after {
+            content: '';
+            display: block;
+            width: 60%;
+            height: 1px;
+            margin: 14px auto 0;
+            background: linear-gradient(90deg,
+                    transparent 0%,
+                    rgba(255, 255, 255, 0.4) 50%,
+                    transparent 100%);
+            opacity: 0.6;
+        }
+
+        .farewell-msg {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            font-size: clamp(0.8rem, 1.6vw, 1rem);
+            font-weight: 400;
+            letter-spacing: 0.42em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.55);
+            text-align: center;
+
+            opacity: 0;
+            animation: msgIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: 4.9s;
+        }
+
+        @keyframes msgIn {
+            0% {
+                opacity: 0;
+                transform: translateY(8px);
+                letter-spacing: 0.6em;
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+                letter-spacing: 0.42em;
+            }
+        }
+
+        /* ============================================================
            FUNDIDO FINAL
            ============================================================ */
         .curtain {
@@ -501,7 +676,7 @@ session_destroy();
             opacity: 0;
             pointer-events: none;
             animation: curtainFade 1s ease-in forwards;
-            animation-delay: 5.8s;
+            animation-delay: 6.4s;
         }
 
         @keyframes curtainFade {
@@ -518,19 +693,24 @@ session_destroy();
            RESPONSIVE
            ============================================================ */
         @media (max-width: 480px) {
-            .wheel-wrap {
-                width: 160px;
-                height: 160px;
+            .pulse-wrap {
+                width: 180px;
+                height: 180px;
             }
 
-            .wheel {
-                width: 150px;
-                height: 150px;
-                gap: 6px;
+            .orbit--1 {
+                width: 60px;
+                height: 60px;
             }
 
-            .quad {
-                border-radius: 12px;
+            .orbit--2 {
+                width: 95px;
+                height: 95px;
+            }
+
+            .orbit--3 {
+                width: 140px;
+                height: 140px;
             }
 
             .status-title {
@@ -560,15 +740,41 @@ session_destroy();
 
     <div class="scene">
 
-        <!-- RULETA -->
-        <div class="wheel-wrap">
-            <div class="wheel">
-                <div class="quad"></div>
-                <div class="quad"></div>
-                <div class="quad"></div>
-                <div class="quad"></div>
+        <!-- NÚCLEO + ONDAS + PARTÍCULAS -->
+        <div class="pulse-wrap">
+            <!-- Ondas expansivas -->
+            <span class="wave"></span>
+            <span class="wave"></span>
+            <span class="wave"></span>
+            <span class="wave"></span>
+
+            <!-- Anillos orbitales -->
+            <span class="orbit orbit--1"></span>
+            <span class="orbit orbit--2"></span>
+            <span class="orbit orbit--3"></span>
+
+            <!-- Núcleo -->
+            <span class="core"></span>
+
+            <!-- Partículas ascendentes -->
+            <div class="particles">
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
             </div>
-            <div class="wheel-center"></div>
         </div>
 
         <!-- TEXTO -->
@@ -576,7 +782,7 @@ session_destroy();
             <div class="status-title">Cerrando sesión</div>
             <div class="status-subtitle">
                 Finalizando de forma segura
-                <span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+                <span class="dot">.</span><span class="dot">.</span><span class="dot"></span>
             </div>
         </div>
 
@@ -587,7 +793,13 @@ session_destroy();
 
     </div>
 
-    <!-- Marca -->
+    <!-- TEXTO METÁLICO FINAL -->
+    <div class="farewell">
+        <div class="farewell-brand">JSEA</div>
+        <div class="farewell-msg">Nos vemos pronto</div>
+    </div>
+
+    <!-- Marca (pie) -->
     <div class="brand">
         <span>myvet</span>
         <span class="brand-dot"></span>
@@ -599,7 +811,7 @@ session_destroy();
     <script>
         setTimeout(() => {
             window.location.href = 'index.php';
-        }, 6800);
+        }, 7400);
     </script>
 
 </body>

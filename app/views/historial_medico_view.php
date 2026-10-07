@@ -400,7 +400,7 @@ $idex = $_GET['id'] ?? null;
                     </button>
 
                     <!-- Botón de Nueva Consulta Médico -->
-                    <a href="/myvet/consultaDental?id=<?= $idex ?? '' ?>"
+                    <a href="/myvet/consultaMedica?id=<?= $idex ?? '' ?>"
                         class="btn btn-dark btn-sm px-3 py-2 rounded-3 d-inline-flex align-items-center gap-2 shadow-sm fw-bold"
                         title="Abrir Consulta Clínica">
                         <i class="bi bi-plus-circle-fill fs-6 text-info"></i>
@@ -709,7 +709,7 @@ $idex = $_GET['id'] ?? null;
                                             <h6 class="fw-bold text-main mb-1">Sin Consultas Registradas</h6>
                                             <p class="small text-muted mb-3">No existen atenciones médicas registradas en el
                                                 rango seleccionado.</p>
-                                            <a href="/myvet/consultaDental?id=<?= $idex ?? '' ?>"
+                                            <a href="/myvet/consultaMedica?id=<?= $idex ?? '' ?>"
                                                 class="btn btn-sm btn-primary rounded-3 px-3 py-1.5 fw-bold">
                                                 <i class="bi bi-plus-lg me-1"></i> Iniciar Primera Consulta
                                             </a>
@@ -964,7 +964,7 @@ $idex = $_GET['id'] ?? null;
             }
 
             Swal.fire({
-                title: 'Subir Archivo Adjunto Dental',
+                title: 'Subir Archivo Adjunto ',
                 html: `
             <input type="file" id="swal_archivo" class="form-control mb-2 bg-dark text-white border-secondary" accept=".pdf,.png,.jpg,.jpeg,.webp">
             <small class="text-muted">Formatos permitidos: PDF, JPG, PNG, WEBP.</small>
