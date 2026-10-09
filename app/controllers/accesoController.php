@@ -14,6 +14,7 @@ require_once __DIR__ . '/../models/RepartosModel.php';
 require_once __DIR__ . '/../models/usuariosModel.php';
 require_once __DIR__ . '/../models/almacen_model.php';
 require_once __DIR__ . '/../models/entregasModel.php';
+require_once __DIR__ . '/../models/registroActividadModel.php';
 
 require_once __DIR__ . '/../models/almacen/productosModel.php';
 
@@ -37,6 +38,7 @@ $modelo = new UsuarioModel($conexion);
 $ventasModel = new VentaHistorialModel($conexion);
 $clientesModel = new ClientesModel($conexion);
 $repartosModel = new RepartoModel($conexion);
+$registroActividadModel = new registroActividadModel($conexion);
 
 $productosModel = new ProductoModel($conexion);
 
@@ -270,6 +272,90 @@ if (isset($_GET['action']) && $_GET['action'] === 'obtenerProductosAlmacen') {
         'success' => true,
         'data' => $productos
     ]);
+
+    exit;
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'registrarMovimiento') {
+    if (ob_get_level()) {
+        ob_clean();
+    }
+
+    header('Content-Type: application/json; charset=utf-8');
+
+    try {
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            throw new Exception('Método no permitido.');
+        }
+
+        // Obtener motivo enviado por el sistema
+        $motivo = trim($_POST['motivo'] ?? '');
+        $tipo = trim($_POST['tipo'] ?? '');
+
+        if ($motivo === '') {
+            throw new Exception('El motivo del movimiento es obligatorio.');
+        }
+
+        // Obtener usuario desde la sesión
+        $usuarioId = (int) (
+            $_SESSION['usuario_id']
+            ?? $_SESSION['id']
+            ?? 0
+        );
+
+        $username = (string) (
+            $_SESSION['nombre']
+            ?? $_SESSION['username']
+            ?? $_SESSION['usuario']
+            ?? 'Usuario desconocido'
+        );
+
+        // Obtener IP del cliente
+        $ipReal = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+
+        if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+            $ipReal = trim($_SERVER['HTTP_CF_CONNECTING_IP']);
+
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+            $ipReal = trim($ips[0]);
+        }
+
+        $ipReal = substr($ipReal, 0, 45);
+
+        // Obtener navegador y sistema operativo
+        $userAgent = substr(
+            $_SERVER['HTTP_USER_AGENT'] ?? '',
+            0,
+            500
+        );
+
+        // Registrar movimiento
+        $resultado = $registroActividadModel->registrarMovimientoMedico(
+            $usuarioId > 0 ? $usuarioId : null,
+            $username,
+            $ipReal,
+            $userAgent,
+            true,
+            $motivo,
+            $tipo
+        );
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Movimiento registrado correctamente.'
+        ]);
+
+    } catch (Throwable $e) {
+
+        error_log('[auditoriaController] ' . $e->getMessage());
+
+        echo json_encode([
+            'success' => false,
+            'message' => 'No se pudo registrar el movimiento.'
+        ]);
+    }
 
     exit;
 }

@@ -654,21 +654,65 @@ $idex = $_GET['id'] ?? null;
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id');
             idc = id;
+            registrarAuditoria(`Consultó el historial dental del paciente ID: ${idc}`);
+
 
             // Si existen parámetros en la URL, los limpiamos
-            if (window.location.search) {
-                const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-                window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
-            }
+
         });
-        function filtrarExpediente() {
+
+        async function registrarAuditoria(motivo) {
+            try {
+                const response = await fetch(
+                    '/myvet/app/controllers/accesoController.php?action=registrarMovimiento',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                        },
+                        body: new URLSearchParams({
+                            motivo: motivo,
+                            tipo: 'dental'
+                        })
+                    }
+                );
+
+                const resultado = await response.json();
+
+                if (!response.ok || !resultado.success) {
+                    console.error(
+                        'No se pudo registrar la auditoría:',
+                        resultado.message || response.statusText
+                    );
+                    return false;
+                }
+
+                return true;
+
+            } catch (error) {
+                console.error('Error al enviar la auditoría:', error);
+                return false;
+            }
+        }
+
+
+        async function filtrarExpediente() {
             const fechaInicio = document.getElementById('fecha_inicio').value;
             const fechaFin = document.getElementById('fecha_fin').value;
 
+            // 1. Registrar la consulta del historial dental
+            registrarAuditoria(`Consultó el historial dental del paciente ID: ${idc}. Rango de fechas: ${fechaInicio || 'Sin fecha inicial'} al ${fechaFin || 'Sin fecha final'}.`)
+            // 2. Mantener el filtrado original
+            const parametros = new URLSearchParams({
+                id: idc,
+                fecha_inicio: fechaInicio,
+                fecha_fin: fechaFin
+            });
 
-
-            window.location.href = `/myvet/app/controllers/historialDentalController.php?id=${idc}&fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+            window.location.href =
+                `/myvet/app/controllers/historialDentalController.php?${parametros.toString()}`;
         }
+
 
         async function cargarDetalleHistorial(historialId) {
             try {
@@ -1049,6 +1093,7 @@ $idex = $_GET['id'] ?? null;
         }
 
         // Modal interactivo SweetAlert2 para subir archivos
+
         function subirDocumentoHistorial(pacienteId) {
             if (!pacienteId || pacienteId <= 0) {
                 Swal.fire('Error', 'Identificador de paciente no válido.', 'error');
@@ -1065,6 +1110,7 @@ $idex = $_GET['id'] ?? null;
                 confirmButtonText: 'Subir',
                 cancelButtonText: 'Cancelar',
                 showLoaderOnConfirm: true,
+
                 preConfirm: async () => {
                     const fileInput = document.getElementById('swal_archivo');
                     const file = fileInput.files[0];
@@ -1073,6 +1119,7 @@ $idex = $_GET['id'] ?? null;
                         Swal.showValidationMessage('Por favor selecciona un archivo');
                         return false;
                     }
+
                     const urlParams = new URLSearchParams(window.location.search);
                     const id = urlParams.get('id');
 
@@ -1082,28 +1129,43 @@ $idex = $_GET['id'] ?? null;
                     formData.append('documento', file);
 
                     try {
-                        const response = await fetch('/myvet/app/controllers/historialDentalController.php?action=subirDocumento', {
-                            method: 'POST',
-                            body: formData
-                        });
+                        // 1. Subir documento dental
+                        const response = await fetch(
+                            '/myvet/app/controllers/historialDentalController.php?action=subirDocumento',
+                            {
+                                method: 'POST',
+                                body: formData
+                            }
+                        );
 
                         if (!response.ok) {
-                            throw new Error(`Error en el servidor (${response.status} ${response.statusText})`);
+                            throw new Error(
+                                `Error en el servidor (${response.status} ${response.statusText})`
+                            );
                         }
 
                         const data = await response.json();
 
                         if (!data.success) {
-                            throw new Error(data.message || 'Error desconocido al subir el archivo.');
+                            throw new Error(
+                                data.message || 'Error desconocido al subir el archivo.'
+                            );
                         }
 
-                        return data; // Se envía a result.value en .then()
+                        // 2. Registrar auditoría después de una subida exitosa
+                        registraregistrarAuditoria(`Subió un documento al historial dental. Paciente ID: ${id}. Consulta dental ID: ${pacienteId}. Archivo: ${file.name}`);
+
+
+                        return data;
+
                     } catch (error) {
                         Swal.showValidationMessage(error.message);
                         return false;
                     }
                 },
+
                 allowOutsideClick: () => !Swal.isLoading()
+
             }).then((result) => {
                 if (result.isConfirmed && result.value && result.value.success) {
                     Swal.fire({
@@ -1116,33 +1178,75 @@ $idex = $_GET['id'] ?? null;
                 }
             });
         }
+
+
+
+
         function eliminarDocumento(idDoc) {
             Swal.fire({
                 title: '¿Eliminar documento?',
-                text: "Esta acción no se puede deshacer.",
+                text: 'Esta acción no se puede deshacer.',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
                 confirmButtonText: 'Sí, eliminar',
                 cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`/myvet/app/controllers/historialExpedienteController.php?action=eliminarDocumento&id=${idDoc}`, {
-                        method: 'DELETE'
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire('Eliminado', 'El documento ha sido borrado.', 'success').then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire('Error', data.message || 'No se pudo eliminar', 'error');
-                            }
-                        });
+            }).then(async (result) => {
+                if (!result.isConfirmed) return;
+
+                try {
+                    // 1. Eliminar documento mediante POST
+                    const response = await fetch(
+                        '/myvet/app/controllers/historialDentalController.php?action=eliminarDocumento',
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                            },
+                            body: new URLSearchParams({
+                                id: idDoc
+                            })
+                        }
+                    );
+
+                    const texto = await response.text();
+                    let data;
+
+                    try {
+                        data = JSON.parse(texto);
+                    } catch {
+                        console.error('Respuesta del controlador:', texto);
+                        throw new Error('El controlador de eliminación no devolvió JSON válido.');
+                    }
+
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'No se pudo eliminar el documento.');
+                    }
+
+                    // 2. Registrar auditoría después de eliminar correctamente
+                    registrarAuditoria(`Eliminó un documento del expediente dental. Documento ID: ${idDoc}.`);
+
+                    // 3. Confirmar eliminación
+                    Swal.fire(
+                        'Eliminado',
+                        'El documento ha sido borrado.',
+                        'success'
+                    ).then(() => location.reload());
+
+                } catch (error) {
+                    console.error('Error al eliminar documento:', error);
+
+                    Swal.fire(
+                        'Error',
+                        error.message || 'No se pudo eliminar el documento.',
+                        'error'
+                    );
                 }
             });
         }
+
+
+
     </script>
 </body>
 

@@ -125,9 +125,9 @@ $gruposModulos = [
         'icono' => 'bi-shield-lock-fill',
         'theme' => 'red',
         'submodulos' => [
-            ['id' => 'usuarios', 'url' => '/myvet/usuarios', 'icon' => 'bi-person-lock', 'class' => 'text-danger', 'label' => 'Usuarios'],
-            ['id' => 'miAcceso', 'url' => '/myvet/miAcceso', 'icon' => 'bi-person', 'class' => 'text-success', 'label' => 'MI Cuenta'],
-            ['id' => 'Configuracion', 'url' => '/myvet/configuracionSistema', 'icon' => 'bi-speedometer2', 'class' => 'text-success', 'label' => 'Configuracion'],
+            ['id' => 'usuarios', 'url' => '/myvet/usuarios', 'icon' => 'bi-people-fill', 'class' => 'text-danger', 'label' => 'Usuarios'],
+            ['id' => 'miAcceso', 'url' => '/myvet/miAcceso', 'icon' => 'bi-person-circle', 'class' => 'text-success', 'label' => 'Mi Cuenta'],
+            ['id' => 'Configuracion', 'url' => '/myvet/configuracionSistema', 'icon' => 'bi-gear-fill', 'class' => 'text-success', 'label' => 'Configuración'],
         ]
     ]
 ];

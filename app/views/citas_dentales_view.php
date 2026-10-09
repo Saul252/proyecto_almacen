@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($tituloPagina ?? 'Gestión de Citas Médicas') ?></title>
+    <title><?= htmlspecialchars('Gestión de Citas Dentales') ?></title>
 
     <link rel="icon" type="image/png"
         href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
@@ -122,8 +122,8 @@
         <!-- Encabezado -->
         <div class="d-flex justify-content-between align-items-center  p-3 rounded border mb-4 shadow-sm">
             <div>
-                <h3 class="m-0 fw-bold"><i
-                        class="fa-solid fa-calendar-check text-primary me-2"></i><?= htmlspecialchars($tituloPagina) ?>
+                <h3 class="m-0 fw-bold"><i class="fa-solid fa-calendar-check text-primary me-2"></i>
+                    Gestión de Citas Dentales
                 </h3>
                 <small class="text-muted">Control de agenda, filtrado por fecha e impresión</small>
             </div>
@@ -164,7 +164,7 @@
                     <div
                         class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-3 border-bottom">
                         <div>
-                            <h5 class="fw-bold m-0 text-dark" id="tituloFecha">Citas del día</h5>
+                            <h5 class="fw-bold m-0 " id="tituloFecha">Citas del día</h5>
                             <span class="badge  text-secondary border mt-1 no-print px-2 py-1" id="contadorCitas">0
                                 citas</span>
                         </div>
@@ -465,11 +465,11 @@
                 <div class=" text-primary rounded-3 p-2 me-2 d-flex align-items-center justify-content-center shadow-xs" style="width: 38px; height: 38px;">
                     <i class="bi bi-clock fs-6"></i>
                 </div>
-                <span class="fw-bold text-dark fs-6">${horaFormatted}</span>
+                <span class="fw-bold  fs-6">${horaFormatted}</span>
             </div>
         </td>
         <td class="py-3">
-            <div class="fw-bold text-dark mb-0.5">${escapeHtml(c.paciente_nombre || c.paciente || 'Paciente N/A')}</div>
+            <div class="fw-bold  mb-0.5">${escapeHtml(c.paciente_nombre || c.paciente || 'Paciente N/A')}</div>
             ${c.paciente_telefono ? `<div class="text-muted small d-flex align-items-center gap-1"><i class="bi bi-telephone "></i><span>${escapeHtml(c.paciente_telefono)}</span></div>` : ''}
         </td>
         <td class="py-3">
@@ -491,7 +491,7 @@
         </td>
         <td class="no-print text-end pe-4 py-3">
           <!-- Botón Editar con estilo limpio -->
-                <button class="btn btn-sm btn-light border text-dark shadow-sm rounded-pill px-2.5 py-1.5 d-inline-flex align-items-center gap-1" onclick="editarCita(${c.id})" title="Editar">
+                <button class="btn btn-sm btn-light border  shadow-sm rounded-pill px-2.5 py-1.5 d-inline-flex align-items-center gap-1" onclick="editarCita(${c.id})" title="Editar">
                     <i class="bi bi-pencil-square text-warning"></i>
                    
                 </button>
@@ -543,58 +543,100 @@
         }
 
         // Modal Editar - Carga AJAX a action=obtenerPorId
-        function editarCita(id) {
-            cargarDoctores();
-            cargarPacientes();
-            fetch(`/myvet/app/controllers/citasController.php?action=obtenerPorId&id=${id}`)
-                .then(res => res.json())
-                .then(res => {
-                    if (res.success) {
-                        const data = res.data;
-                        document.getElementById('cita_id').value = data.id;
 
-                        // Seleccionar el paciente asignándole el valor numérico y disparando el evento para Select2
-                        const $pacienteSelect = $('#paciente_id');
-                        if ($pacienteSelect.find(`option[value="${data.paciente_id}"]`).length) {
-                            $pacienteSelect.val(data.paciente_id).trigger('change');
-                        } else {
-                            // Si el paciente no está en las opciones cargadas actualmente, lo agregamos de manera dinámica
-                            let newOption = new Option(data.paciente_nombre, data.paciente_id, true, true);
-                            $pacienteSelect.append(newOption).trigger('change');
-                        }
+        async function editarCita(id) {
+            try {
+                // Esperar a que terminen de cargar los catálogos.
+                await Promise.all([
+                    cargarDoctores(),
+                    cargarPacientes()
+                ]);
 
-                        // Ajustar formato datetime-local (YYYY-MM-DDTHH:MM)
-                        let fechaFormatted = data.fecha.replace(' ', 'T');
-                        document.getElementById('fecha').value = fechaFormatted.substring(0, 16);
+                const response = await fetch(
+                    `/myvet/app/controllers/citasController.php?action=obtenerPorId&id=${encodeURIComponent(id)}`
+                );
 
-                        // Seleccionar el doctor (atenderá) asignándole el valor numérico y disparando el evento para Select2
-                        const $atenderaSelect = $('#atendera');
-                        if ($atenderaSelect.find(`option[value="${data.atendera}"]`).length) {
-                            $atenderaSelect.val(data.atendera).trigger('change');
-                        } else {
-                            $atenderaSelect.val(data.atendera).trigger('change');
-                        }
+                const res = await response.json();
 
-                        document.getElementById('detalles').value = data.detalles;
-
-                        document.getElementById('modalCitaLabel').innerText = 'Editar Cita Médica';
-                        modalCitaBS.show();
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: res.message || 'Error al obtener datos de la cita.'
-                        });
-                    }
-                })
-                .catch(err => {
+                if (!res.success) {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Error de servidor',
-                        text: 'Error en la petición: ' + err
+                        title: 'Error',
+                        text: res.message || 'Error al obtener datos de la cita.'
                     });
+                    return;
+                }
+
+                const data = res.data;
+
+                console.log(data);
+
+                document.getElementById('cita_id').value = data.id;
+
+                // Seleccionar paciente después de cargar las opciones.
+                const $pacienteSelect = $('#paciente_id');
+                const pacienteId = String(data.paciente_id);
+
+                let $opcionPaciente = $pacienteSelect.find('option').filter(function () {
+                    return String(this.value) === pacienteId;
                 });
+
+                // Si el paciente no está en las opciones, agregarlo.
+                if (!$opcionPaciente.length) {
+                    const nuevaOpcion = new Option(
+                        data.paciente_nombre || `Paciente ${pacienteId}`,
+                        pacienteId,
+                        true,
+                        true
+                    );
+
+                    $pacienteSelect.append(nuevaOpcion);
+                }
+
+                $pacienteSelect.val(pacienteId).trigger('change');
+
+                // Fecha y hora.
+                const fechaFormatted = String(data.fecha || '').replace(' ', 'T');
+                document.getElementById('fecha').value =
+                    fechaFormatted.substring(0, 16);
+
+                // Seleccionar doctor.
+                const $atenderaSelect = $('#atendera');
+                const doctorId = String(data.atendera);
+
+                const existeDoctor = $atenderaSelect.find('option').filter(function () {
+                    return String(this.value) === doctorId;
+                }).length > 0;
+
+                if (existeDoctor) {
+                    $atenderaSelect.val(doctorId).trigger('change');
+                } else {
+                    console.warn(
+                        'El doctor de la cita no está entre las opciones cargadas:',
+                        doctorId
+                    );
+                    $atenderaSelect.val(null).trigger('change');
+                }
+
+                document.getElementById('detalles').value = data.detalles || '';
+
+                document.getElementById('modalCitaLabel').innerText =
+                    'Editar Cita Médica';
+
+                modalCitaBS.show();
+
+            } catch (err) {
+                console.error('Error al editar la cita:', err);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de servidor',
+                    text: 'No se pudieron cargar los datos de la cita.'
+                });
+            }
         }
+
+
         function imprimirCitaPDF(id) {
             fetch(`citasController.php?action=obtenerPorId&id=${id}`)
                 .then(res => res.json())

@@ -435,4 +435,9 @@ class PacientesHistorialMedicoModel
             "total_pacientes" => $total
         ];
     }
+
+
+
+
+
 }

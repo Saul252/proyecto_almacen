@@ -2,7 +2,8 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ✅ Meta viewport corregido (antes estaba duplicado y mal formado) -->
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Almacenes | Sistema</title>
     <link rel="icon" type="image/png"
@@ -11,26 +12,83 @@
     <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
         type="image/x-icon">
 
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <?php require_once __DIR__ . '/layout/icono.php' ?>
     <link href="/myvet/css/almacenes.css" rel="stylesheet">
     <?php
-    // Llamamos a la función que imprime Bootstrap y layout.css
     if (function_exists('cargarEstilos')) {
         cargarEstilos();
     }
     ?>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- ✅ Estilos para evitar desplazamiento del contenido -->
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
+            /* Evita scroll horizontal */
+        }
+
+        /* ✅ Overlay del sidebar (hermano del contenido) */
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .3s ease;
+            z-index: 1040;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ✅ Contenido principal: NO usa margin dinámico */
+        .main-content {
+            width: 100%;
+            padding: 1rem;
+            transition: padding-left .3s ease;
+        }
+
+        /* ✅ Desktop: el sidebar ocupa espacio fijo, el contenido respeta ese espacio */
+        @media (min-width: 992px) {
+            .main-content {
+                padding-left: 265px;
+                /* 250px sidebar + 15px gap */
+            }
+        }
+
+        /* ✅ Móvil: el sidebar se superpone, el contenido no se mueve */
+        @media (max-width: 991.98px) {
+            .main-content {
+                padding-left: 1rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
+    <!-- ✅ Overlay (debe estar ANTES del sidebar y del contenido) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <?php renderizarLayout($paginaActual); ?>
+
     <script>
-        // Asegúrate de que el JSON incluya factor_conversion y unidad_reporte
         const productosInventario = <?= json_encode($productos) ?>;
     </script>
 
@@ -47,12 +105,10 @@
             $cobertura = ($total_cat > 0) ? round(($cant_prod / $total_cat) * 100, 1) : 0;
             ?>
 
-            <div class="d-flex align-items-center" style="gap: 8px;">
-
+            <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
                 <div class="ios-micro-card border-blue">
                     <span class="ios-micro-label">Total de innversion</span>
                     <div class="ios-micro-value">$<?= number_format($inversion, 2, '.', ',') ?></div>
-
                 </div>
 
                 <div class="ios-micro-card border-blue">
@@ -80,8 +136,8 @@
                         style="height: 3px; background-color: #f2f2f7; border-radius: 10px; margin-top: 4px; width: 100%;">
                         <div class="progress-bar" style="width: <?= $cobertura ?>%; background-color: #34c759;"></div>
                     </div>
-
                 </div>
+
                 <div class="d-flex justify-content-end align-items-center mb-3">
                     <button type="button"
                         class="btn btn-success rounded-pill px-3 py-2 d-inline-flex align-items-center gap-2 fw-semibold shadow-sm"
@@ -90,10 +146,7 @@
                     </button>
                 </div>
             </div>
-
         </div>
-
-
 
         <div class="card p-3 shadow-sm">
             <div class="row mb-3 g-2 align-items-center">
@@ -124,8 +177,8 @@
                 </div>
 
                 <div class="col-md-5">
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-success w-100 flex-fill" data-bs-toggle="modal"
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn btn-success flex-fill" data-bs-toggle="modal"
                             data-bs-target="#modalAgregarProducto">
                             <i class="bi bi-plus-lg"></i> Producto
                         </button>
@@ -135,16 +188,14 @@
                             <i class="bi bi-sliders fs-6"></i> Iniciales
                         </button>
 
-                        <button class="btn btn-dark w-100 flex-fill" data-bs-toggle="modal"
-                            data-bs-target="#modalTraspaso">
+                        <button class="btn btn-dark flex-fill" data-bs-toggle="modal" data-bs-target="#modalTraspaso">
                             <i class="bi bi-arrow-left-right"></i> Traspaso
                         </button>
 
-                        <button class="btn btn-primary w-100 flex-fill" data-bs-toggle="modal"
+                        <button class="btn btn-primary flex-fill" data-bs-toggle="modal"
                             data-bs-target="#modalTraspasosGestion" onclick="cargarTraspasos()">
                             <i class="bi bi-shield-check"></i> Autorizar
                         </button>
-
                     </div>
                 </div>
             </div>
@@ -174,7 +225,6 @@
     --bs-badge-padding-y: 0.35em;
     --bs-badge-font-size: 0.75em;
     --bs-badge-font-weight: 700;
-  
     --bs-badge-border-radius: var(--bs-border-radius);
     display: inline-block;
     padding: var(--bs-badge-padding-y) var(--bs-badge-padding-x);
@@ -186,20 +236,20 @@
     white-space: nowrap;
     vertical-align: baseline;
     border-radius: var(--bs-badge-border-radius);"
-                                        class="   card-title-text "><?= htmlspecialchars($p['categoria_nombre'] ?? 'Sin Categoría') ?></span>
+                                        class="card-title-text"><?= htmlspecialchars($p['categoria_nombre'] ?? 'Sin Categoría') ?></span>
                                 </td>
                                 <td>
                                     <?php
                                     $cantidad = $p['stock'] / $p['factor_conversion'];
 
                                     if ($cantidad <= 0) {
-                                        $color = 'bg-danger';       // Sin stock
+                                        $color = 'bg-danger';
                                     } elseif ($cantidad <= 5) {
-                                        $color = 'bg-warning text-dark'; // Stock bajo
+                                        $color = 'bg-warning text-dark';
                                     } elseif ($cantidad <= 20) {
-                                        $color = 'bg-info text-dark';    // Stock medio
+                                        $color = 'bg-info text-dark';
                                     } else {
-                                        $color = 'bg-success';      // Stock alto
+                                        $color = 'bg-success';
                                     }
                                     ?>
 
@@ -223,9 +273,8 @@
                 </table>
             </div>
         </div>
-
-
     </div>
+
     <!-- Scripts Externos -->
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -236,9 +285,7 @@
 
     <script src="/myvet/app/backend/js/filtros_almacen.js"></script>
 
-    <!-- --- Lógica de Control de Conversión --- -->
     <?php require_once __DIR__ . '/almacenes/ModalAgregarCantidadesIniciales.php'; ?>
-
     <?php require_once __DIR__ . '/almacenes/ModalCategoria.php'; ?>
     <?php require_once __DIR__ . '/almacenes/ModalTraspasos.php'; ?>
     <?php require_once __DIR__ . '/almacenes/ModalAgregarProducto.php'; ?>
@@ -247,32 +294,23 @@
     <?php require_once __DIR__ . '/productos/modalListaMedidas.php' ?>
 
     <script>
-        // Selecciona todos los inputs de texto y también los textareas
         document.querySelectorAll('input[type="text"], textarea').forEach(elemento => {
             elemento.addEventListener('input', function () {
-                // Convierte el valor a mayúsculas en tiempo real
                 this.value = this.value.toUpperCase();
             });
         });
     </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', async function () {
-
             const params = new URLSearchParams(window.location.search);
 
             if (params.get('abrirTraspasos') === '1') {
-
                 await cargarTraspasos();
-
-                // limpiar URL
-                window.history.replaceState(
-                    {},
-                    document.title,
-                    window.location.pathname
-                );
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
-
         });
+
         async function exportarProductosCSV() {
             const id = $('#filtroAlmacen').val();
 
@@ -301,7 +339,6 @@
                     return;
                 }
 
-                // Encabezados del archivo CSV
                 const headers = [
                     "ID Producto",
                     "SKU",
@@ -315,14 +352,12 @@
                     "Precio Distribuidor ($)"
                 ];
 
-                // Función para sanitizar texto en formato CSV
                 const escapeCSV = (str) => {
                     if (str === null || str === undefined) return '""';
                     let val = String(str).replace(/"/g, '""');
                     return `"${val}"`;
                 };
 
-                // Construir cada fila sanitizada
                 const rows = res.data.map(pr => {
                     const stock = parseFloat(pr.stock || 0);
                     const factor = parseFloat(pr.factor_conversion || 1);
@@ -344,10 +379,8 @@
                     ].join(',');
                 });
 
-                // Ensamblar contenido CSV agregando el BOM UTF-8 para Excel
                 const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
 
-                // Generar descarga del archivo
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const downloadUrl = URL.createObjectURL(blob);
                 const link = document.createElement('a');

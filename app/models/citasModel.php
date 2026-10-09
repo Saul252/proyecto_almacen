@@ -105,6 +105,61 @@ class CitasModel
         $resultado = $this->conexion->query($sql);
         return $resultado ? $resultado->fetch_all(MYSQLI_ASSOC) : [];
     }
+    public function listarCitasFiltrosMedico($filtros = [], $usuario_id = 0)
+    {
+        $where = " WHERE c.id > 0 and tipo='medica'";
+
+        // Filtro por Almacén
+        if (!empty($filtros['almacen'])) {
+            $where .= " AND c.almacen = " . intval($filtros['almacen']);
+        }
+
+        // Filtro explícito por usuario que atenderá
+        if (!empty($filtros['atendera']) && intval($filtros['atendera']) > 0) {
+            $where .= " AND c.atendera = " . intval($filtros['atendera']);
+        }
+
+        // Filtro por Tipo (Escapado y entre comillas para evitar errores de sintaxis / SQL Injection)
+        if (!empty($filtros['tipo'])) {
+            $tipo = $this->conexion->real_escape_string($filtros['tipo']);
+            $where .= " AND c.tipo = '$tipo'";
+        }
+
+        // Filtro por Fecha específica (Compara solo el día YYYY-MM-DD)
+        if (!empty($filtros['fecha'])) {
+            $fecha = $this->conexion->real_escape_string($filtros['fecha']);
+            $where .= " AND DATE(c.fecha) = '$fecha' ";
+        }
+
+        // Buscador general (Paciente o Detalles)
+        if (!empty($filtros['search'])) {
+            $s = $this->conexion->real_escape_string($filtros['search']);
+            $where .= " AND (cl.nombre_comercial LIKE '%$s%' OR c.detalles LIKE '%$s%') ";
+        }
+
+        $sql = "SELECT 
+                c.id, 
+                c.almacen, 
+                c.paciente_id, 
+                u.nombre as doctor,
+                c.fecha, 
+                c.tipo,
+                c.detalles, 
+                c.atendera, 
+                c.estado,
+                c.fecha_creacion,
+                cl.nombre_comercial AS paciente_nombre,
+                cl.contacto AS dueno_contacto,
+                cl.telefono AS paciente_telefono
+            FROM citas_medicas c
+            LEFT JOIN usuarios u ON u.id = c.atendera
+            LEFT JOIN clientes cl ON c.paciente_id = cl.id
+            $where
+            ORDER BY c.fecha ASC";
+
+        $resultado = $this->conexion->query($sql);
+        return $resultado ? $resultado->fetch_all(MYSQLI_ASSOC) : [];
+    }
     public function listarCitasFiltrosOriginal($filtros = [], $usuario_id = 0)
     {
         $where = " WHERE c.id > 0 ";
@@ -325,5 +380,61 @@ class CitasModel
             'completadas' => 0,
             'canceladas' => 0
         ];
+    }
+    public function registrarEntrada(
+        ?int $usuarioId,
+        string $usernameIntentado,
+        string $ip,
+        string $userAgent,
+        bool $exito,
+        string $motivo,
+        string $tipo
+    ): bool {
+
+        $sql = "INSERT INTO audit_mov_medic (
+                usuario_id,
+                username_intentado,
+                exito,
+                ip,
+                user_agent,
+                fecha_hora,
+                motivo,
+                tipo
+            ) VALUES (?, ?, ?, ?, ?, NOW(), ?,?)";
+
+        $stmt = $this->conexion->prepare($sql);
+
+        if (!$stmt) {
+            throw new Exception(
+                "Error al preparar auditoría de login: " .
+                $this->conexion->error
+            );
+        }
+
+        $exitoInt = $exito ? 1 : 0;
+
+        $stmt->bind_param(
+            "isissss",
+            $usuarioId,
+            $usernameIntentado,
+            $exitoInt,
+            $ip,
+            $userAgent,
+            $motivo,
+            $tipo
+        );
+
+        if (!$stmt->execute()) {
+            $error = $stmt->error;
+            $stmt->close();
+
+            throw new Exception(
+                "Error al registrar auditoría de login: " . $error
+            );
+        }
+
+        $stmt->close();
+
+        return true;
     }
 }

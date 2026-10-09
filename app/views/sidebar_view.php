@@ -83,7 +83,7 @@ $modulos = [
         'submodulos' => [
             [
                 'id' => 'clientesPacientes',
-                'url' => '/myvet/misPacientesDentales',
+                'url' => '/myvet/misPacientesDental',
                 'class' => 'text-primary',
                 'icon' => 'bi-heart-pulse-fill',
                 'label' => 'Pacientes Dentales',
@@ -91,7 +91,7 @@ $modulos = [
             ],
             [
                 'id' => 'citasDentales',
-                'url' => '/myvet/citasDentales',
+                'url' => '/myvet/citasDental',
                 'class' => 'text-warning',
                 'icon' => 'bi-calendar-check-fill',
                 'label' => 'Citas Dentales',
@@ -143,9 +143,9 @@ $modulos = [
         'titulo' => 'Administración',
         'icono' => 'bi-shield-lock-fill',
         'submodulos' => [
-            ['id' => 'usuarios', 'url' => '/myvet/usuarios', 'icon' => 'bi-person-lock', 'label' => 'Usuarios', 'active' => ($archivoActual == 'usuariosController.php')],
-            ['id' => 'miAcceso', 'url' => '/myvet/miAcceso', 'icon' => 'bi-person', 'label' => 'MI Cuenta', 'active' => ($archivoActual == 'miAccesoController.php')],
-            ['id' => 'Configuracion', 'url' => '/myvet/configuracionSistema', 'icon' => 'bi-person', 'label' => 'configuracion', 'active' => ($archivoActual == 'configuracionController.php')],
+            ['id' => 'usuarios', 'url' => '/myvet/usuarios', 'icon' => 'bi-people-fill', 'label' => 'Usuarios', 'active' => ($archivoActual == 'usuariosController.php')],
+            ['id' => 'miAcceso', 'url' => '/myvet/miAcceso', 'icon' => 'bi-person-circle', 'label' => 'Mi Cuenta', 'active' => ($archivoActual == 'miAccesoController.php')],
+            ['id' => 'Configuracion', 'url' => '/myvet/configuracionSistema', 'icon' => 'bi-gear-fill', 'label' => 'Configuración', 'active' => ($archivoActual == 'configuracionController.php')],
         ]
     ]
 ];

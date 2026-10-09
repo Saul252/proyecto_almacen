@@ -919,19 +919,52 @@ $idex = $_GET['id'] ?? null;
     <script>
         // Obtenemos el ID de forma segura desde PHP para evitar perderlo al limpiar la URL
         const idc = <?= json_encode($idex) ?>;
+        async function registrarAuditoria(motivo) {
+            try {
+                const response = await fetch(
+                    '/myvet/app/controllers/accesoController.php?action=registrarMovimiento',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                        },
+                        body: new URLSearchParams({
+                            motivo: motivo,
+                            tipo: 'medico'
+                        })
+                    }
+                );
+
+                const resultado = await response.json();
+
+                if (!response.ok || !resultado.success) {
+                    console.error(
+                        'No se pudo registrar la auditoría:',
+                        resultado.message || response.statusText
+                    );
+                    return false;
+                }
+
+                return true;
+
+            } catch (error) {
+                console.error('Error al enviar la auditoría:', error);
+                return false;
+            }
+        }
+
 
         document.addEventListener('DOMContentLoaded', function () {
             // Limpiamos los parámetros largos de la URL de forma limpia al iniciar
-            if (window.location.search && window.location.search.includes('fecha_')) {
-                const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + (idc ? `?id=${idc}` : '');
-                window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
-            }
+
+            registrarAuditoria(`Consultó el historial medico del paciente ID: ${idc}`);
+
         });
 
         function filtrarExpediente() {
             const fechaInicio = document.getElementById('fecha_inicio').value;
             const fechaFin = document.getElementById('fecha_fin').value;
-
+            registrarAuditoria(`Consultó el historial medico del paciente ID: ${idc} entre fecha_inicio=${fechaInicio} & fecha_fin=${fechaFin} `);
             window.location.href = `/myvet/app/controllers/historialMedicoController.php?id=${idc}&fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
         }
 
@@ -957,6 +990,7 @@ $idex = $_GET['id'] ?? null;
         }
 
         // Modal interactivo SweetAlert2 para subir archivos
+
         function subirDocumentoHistorial(pacienteId) {
             if (!pacienteId || pacienteId <= 0) {
                 Swal.fire('Error', 'Identificador de paciente no válido.', 'error');
@@ -964,7 +998,7 @@ $idex = $_GET['id'] ?? null;
             }
 
             Swal.fire({
-                title: 'Subir Archivo Adjunto ',
+                title: 'Subir Archivo Adjunto',
                 html: `
             <input type="file" id="swal_archivo" class="form-control mb-2 bg-dark text-white border-secondary" accept=".pdf,.png,.jpg,.jpeg,.webp">
             <small class="text-muted">Formatos permitidos: PDF, JPG, PNG, WEBP.</small>
@@ -973,6 +1007,7 @@ $idex = $_GET['id'] ?? null;
                 confirmButtonText: 'Subir',
                 cancelButtonText: 'Cancelar',
                 showLoaderOnConfirm: true,
+
                 preConfirm: async () => {
                     const fileInput = document.getElementById('swal_archivo');
                     const file = fileInput.files[0];
@@ -988,28 +1023,71 @@ $idex = $_GET['id'] ?? null;
                     formData.append('documento', file);
 
                     try {
-                        const response = await fetch('/myvet/app/controllers/historialMedicoController.php?action=subirDocumento', {
-                            method: 'POST',
-                            body: formData
-                        });
+                        // 1. Subir el documento
+                        const response = await fetch(
+                            '/myvet/app/controllers/historialMedicoController.php?action=subirDocumento',
+                            {
+                                method: 'POST',
+                                body: formData
+                            }
+                        );
 
                         if (!response.ok) {
-                            throw new Error(`Error en el servidor (${response.status} ${response.statusText})`);
+                            throw new Error(
+                                `Error en el servidor (${response.status} ${response.statusText})`
+                            );
                         }
 
                         const data = await response.json();
 
                         if (!data.success) {
-                            throw new Error(data.message || 'Error desconocido al subir el archivo.');
+                            throw new Error(
+                                data.message || 'Error desconocido al subir el archivo.'
+                            );
+                        }
+
+                        // 2. Auditar únicamente si la subida fue exitosa
+                        try {
+                            const auditoria = await fetch(
+                                '/myvet/app/controllers/accesoController.php?action=registrarMovimiento',
+                                {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                                    },
+                                    body: new URLSearchParams({
+                                        motivo: `Subió un documento al historial médico. Paciente ID: ${idc}. Consulta ID: ${pacienteId}. Archivo: ${file.name}`
+                                    })
+                                }
+                            );
+
+                            if (!auditoria.ok) {
+                                console.error('No se pudo enviar la auditoría.');
+                            } else {
+                                const resultadoAuditoria = await auditoria.json();
+
+                                if (!resultadoAuditoria.success) {
+                                    console.error(
+                                        'Error al registrar la auditoría:',
+                                        resultadoAuditoria.message
+                                    );
+                                }
+                            }
+                        } catch (errorAuditoria) {
+                            // Un fallo de auditoría no debe ocultar una subida exitosa.
+                            console.error('Error al enviar la auditoría:', errorAuditoria);
                         }
 
                         return data;
+
                     } catch (error) {
                         Swal.showValidationMessage(error.message);
                         return false;
                     }
                 },
+
                 allowOutsideClick: () => !Swal.isLoading()
+
             }).then((result) => {
                 if (result.isConfirmed && result.value && result.value.success) {
                     Swal.fire({
@@ -1023,34 +1101,91 @@ $idex = $_GET['id'] ?? null;
             });
         }
 
+
         function eliminarDocumento(idDoc) {
             Swal.fire({
                 title: '¿Eliminar documento?',
-                text: "Esta acción no se puede deshacer.",
+                text: 'Esta acción no se puede deshacer.',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
                 confirmButtonText: 'Sí, eliminar',
                 cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Corregido al controlador correcto: historialMedicoController.php
-                    fetch(`/myvet/app/controllers/historialMedicoController.php?action=eliminarDocumento&id=${idDoc}`, {
-                        method: 'DELETE'
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire('Eliminado', 'El documento ha sido borrado.', 'success').then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire('Error', data.message || 'No se pudo eliminar', 'error');
+            }).then(async (result) => {
+                if (!result.isConfirmed) return;
+
+                try {
+                    // 1. Eliminar documento mediante POST
+                    const response = await fetch(
+                        '/myvet/app/controllers/historialMedicoController.php?action=eliminarDocumento',
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                            },
+                            body: new URLSearchParams({
+                                id: idDoc
+                            })
+                        }
+                    );
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'No se pudo eliminar el documento.');
+                    }
+
+                    // 2. Registrar auditoría después de eliminar correctamente
+                    try {
+                        const auditoria = await fetch(
+                            '/myvet/app/controllers/accesoController.php?action=registrarMovimiento',
+                            {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                                },
+                                body: new URLSearchParams({
+                                    motivo: `Eliminó un documento del historial médico. Documento ID: ${idDoc}.`
+                                })
                             }
-                        });
+                        );
+
+                        if (!auditoria.ok) {
+                            console.error('No se pudo enviar la auditoría.');
+                        } else {
+                            const resultadoAuditoria = await auditoria.json();
+
+                            if (!resultadoAuditoria.success) {
+                                console.error(
+                                    'Error al registrar la auditoría:',
+                                    resultadoAuditoria.message
+                                );
+                            }
+                        }
+                    } catch (errorAuditoria) {
+                        console.error('Error al enviar la auditoría:', errorAuditoria);
+                    }
+
+                    // 3. Confirmar eliminación
+                    Swal.fire(
+                        'Eliminado',
+                        'El documento ha sido borrado.',
+                        'success'
+                    ).then(() => {
+                        location.reload();
+                    });
+
+                } catch (error) {
+                    Swal.fire(
+                        'Error',
+                        error.message || 'No se pudo eliminar el documento.',
+                        'error'
+                    );
                 }
             });
         }
+
+
         function ejecutarImpresionExpediente(data) {
             const ventana = window.open('', '_blank', 'height=750,width=900');
 

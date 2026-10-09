@@ -195,6 +195,41 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
             $_SESSION['trabajador_id'] = 0;
         }
 
+
+        // Obtener IP del cliente
+        $ipReal = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+
+        // Cloudflare
+        if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+            $ipReal = trim($_SERVER['HTTP_CF_CONNECTING_IP']);
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+            $ipReal = trim($ips[0]);
+        }
+
+        // Evitar exceder los límites de la columna
+        $ipReal = substr($ipReal, 0, 45);
+
+        $userAgent = substr(
+            $_SERVER['HTTP_USER_AGENT'] ?? '',
+            0,
+            500
+        );
+
+        try {
+            $loginModel->registrarEntrada(
+                (int) $row['id'],         // usuario_id
+                $row['username'],         // username_intentado
+                $ipReal,                  // ip
+                $userAgent,               // user_agent
+                true,                     // exito
+                'login_exitoso'           // motivo
+            );
+        } catch (Throwable $e) {
+            error_log('[audit_login] ' . $e->getMessage());
+        }
+
+
         // Escribir sesión y liberar el lock
         session_write_close();
 
