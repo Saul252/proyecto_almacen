@@ -2,18 +2,31 @@
 <html lang="es">
 
 <head>
-    <!-- ✅ Meta viewport corregido (antes estaba duplicado y mal formado) -->
+    <!-- ✅ Meta viewport corregido -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Almacenes | Sistema</title>
     <link rel="icon" type="image/png"
         href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
-
     <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
         type="image/x-icon">
 
+    <!-- =========================================================
+         1. Bootstrap CSS (primero)
+         ========================================================= -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- =========================================================
+         2. Select2 CSS + Tema Bootstrap 5 (después de Bootstrap)
+         ========================================================= -->
+    <link href="https://unpkg.com/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://unpkg.com/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+        rel="stylesheet" />
+
+    <!-- =========================================================
+         3. Iconos y estilos propios
+         ========================================================= -->
     <?php require_once __DIR__ . '/layout/icono.php' ?>
     <link href="/myvet/css/almacenes.css" rel="stylesheet">
     <?php
@@ -21,8 +34,6 @@
         cargarEstilos();
     }
     ?>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- ✅ Estilos para evitar desplazamiento del contenido -->
     <style>
@@ -38,10 +49,8 @@
             padding: 0;
             width: 100%;
             overflow-x: hidden;
-            /* Evita scroll horizontal */
         }
 
-        /* ✅ Overlay del sidebar (hermano del contenido) */
         .sidebar-overlay {
             position: fixed;
             inset: 0;
@@ -57,26 +66,10 @@
             pointer-events: auto;
         }
 
-        /* ✅ Contenido principal: NO usa margin dinámico */
         .main-content {
             width: 100%;
             padding: 1rem;
             transition: padding-left .3s ease;
-        }
-
-        /* ✅ Desktop: el sidebar ocupa espacio fijo, el contenido respeta ese espacio */
-        @media (min-width: 992px) {
-            .main-content {
-                padding-left: 265px;
-                /* 250px sidebar + 15px gap */
-            }
-        }
-
-        /* ✅ Móvil: el sidebar se superpone, el contenido no se mueve */
-        @media (max-width: 991.98px) {
-            .main-content {
-                padding-left: 1rem;
-            }
         }
     </style>
 </head>
@@ -108,12 +101,18 @@
             <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
                 <div class="ios-micro-card border-blue">
                     <span class="ios-micro-label">Total de innversion</span>
-                    <div class="ios-micro-value">$<?= number_format($inversion, 2, '.', ',') ?></div>
+                    <div class="ios-micro-value">$
+                        <?= number_format($inversion, 2, '.', ',') ?>
+                    </div>
                 </div>
 
                 <div class="ios-micro-card border-blue">
-                    <span class="ios-micro-label"><?= ($rData['tipo'] == 'admin') ? 'Global' : 'Stock' ?></span>
-                    <div class="ios-micro-value"><?= number_format($cant_prod) ?></div>
+                    <span class="ios-micro-label">
+                        <?= ($rData['tipo'] == 'admin') ? 'Global' : 'Stock' ?>
+                    </span>
+                    <div class="ios-micro-value">
+                        <?= number_format($cant_prod) ?>
+                    </div>
                     <div class="ios-micro-footer text-truncate" style="max-width: 80px;"
                         title="<?= $rData['nombre'] ?>">
                         <?= $rData['nombre'] ?>
@@ -122,14 +121,18 @@
 
                 <div class="ios-micro-card border-purple">
                     <span class="ios-micro-label">Catálogo</span>
-                    <div class="ios-micro-value"><?= number_format($total_cat) ?></div>
+                    <div class="ios-micro-value">
+                        <?= number_format($total_cat) ?>
+                    </div>
                     <div class="ios-micro-footer">Items</div>
                 </div>
 
                 <div class="ios-micro-card border-green">
                     <span class="ios-micro-label">Cobertura</span>
                     <div class="d-flex align-items-baseline">
-                        <span class="ios-micro-value"><?= $cobertura ?></span>
+                        <span class="ios-micro-value">
+                            <?= $cobertura ?>
+                        </span>
                         <span style="font-size: 0.6rem; font-weight: 700; color: #1c1c1e; margin-left: 1px;">%</span>
                     </div>
                     <div class="progress"
@@ -154,7 +157,9 @@
                     <select id="filtroCategoria" class="form-select">
                         <option value="">Categorías</option>
                         <?php foreach ($categorias as $cat): ?>
-                            <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['nombre']) ?></option>
+                            <option value="<?= $cat['id'] ?>">
+                                <?= htmlspecialchars($cat['nombre']) ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -184,7 +189,7 @@
                         </button>
                         <button
                             class="btn btn-sm btn-info text-white px-3 rounded-pill fw-semibold shadow-sm d-flex align-items-center gap-2 transition-all"
-                            data-bs-toggle="modal" onclick="abrirModalInventarioInicial()">
+                            onclick="abrirModalInventarioInicial()">
                             <i class="bi bi-sliders fs-6"></i> Iniciales
                         </button>
 
@@ -216,9 +221,15 @@
                     <tbody>
                         <?php foreach ($productos as $p): ?>
                             <tr data-categoria="<?= $p['categoria_id'] ?>" data-almacen="<?= $p['almacen_id'] ?>">
-                                <td class="fw-bold"><?= $p['sku'] ?></td>
-                                <td><?= htmlspecialchars($p['nombre']) ?></td>
-                                <td><?= htmlspecialchars($p['descripcion'] ?? 'sin descripcion') ?></td>
+                                <td class="fw-bold">
+                                    <?= $p['sku'] ?>
+                                </td>
+                                <td>
+                                    <?= htmlspecialchars($p['nombre']) ?>
+                                </td>
+                                <td>
+                                    <?= htmlspecialchars($p['descripcion'] ?? 'sin descripcion') ?>
+                                </td>
 
                                 <td><span style="
     --bs-badge-padding-x: 0.65em;
@@ -235,8 +246,9 @@
     text-align: center;
     white-space: nowrap;
     vertical-align: baseline;
-    border-radius: var(--bs-badge-border-radius);"
-                                        class="card-title-text"><?= htmlspecialchars($p['categoria_nombre'] ?? 'Sin Categoría') ?></span>
+    border-radius: var(--bs-badge-border-radius);" class="card-title-text">
+                                        <?= htmlspecialchars($p['categoria_nombre'] ?? 'Sin Categoría') ?>
+                                    </span>
                                 </td>
                                 <td>
                                     <?php
@@ -260,7 +272,9 @@
                                             ?>
                                     </span>
                                 </td>
-                                <td><?= htmlspecialchars($p['almacen_nombre'] ?? 'N/A') ?></td>
+                                <td>
+                                    <?= htmlspecialchars($p['almacen_nombre'] ?? 'N/A') ?>
+                                </td>
                                 <td class="text-center">
                                     <button class="btn btn-outline-warning btn-sm"
                                         onclick="editarProducto(<?= $p['id'] ?>, <?= $p['almacen_id'] ?>)">
@@ -275,16 +289,33 @@
         </div>
     </div>
 
-    <!-- Scripts Externos -->
-    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- =========================================================
+         LIBRERÍAS JS (UNA SOLA VEZ, EN ORDEN CORRECTO)
+         ========================================================= -->
+
+    <!-- 1. jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- 2. Bootstrap JS (necesario para los modales) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- 3. Select2 JS -->
+    <script src="https://unpkg.com/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- 4. i18n ES (después de Select2) -->
+    <script src="https://unpkg.com/select2@4.1.0-rc.0/dist/js/i18n/es.js"></script>
+
+    <!-- 5. SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!-- 6. DataTables -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- 7. Scripts propios -->
     <script src="/myvet/app/backend/js/filtros_almacen.js"></script>
 
+    <!-- 8. Modales (UNA SOLA VEZ) -->
     <?php require_once __DIR__ . '/almacenes/ModalAgregarCantidadesIniciales.php'; ?>
     <?php require_once __DIR__ . '/almacenes/ModalCategoria.php'; ?>
     <?php require_once __DIR__ . '/almacenes/ModalTraspasos.php'; ?>
@@ -399,6 +430,21 @@
                 alert("Ocurrió un error al procesar la exportación de productos.");
             }
         }
+    </script>
+
+    <script>
+        // Diagnóstico de librerías al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('📦 Verificación de librerías:');
+            console.log('  jQuery:', typeof window.jQuery !== 'undefined' ? '✅ ' + window.jQuery.fn.jquery : '❌ NO');
+            console.log('  Select2:', typeof window.jQuery !== 'undefined' && !!window.jQuery.fn.select2 ? '✅ SÍ' : '❌ NO');
+            console.log('  Bootstrap:', typeof window.bootstrap !== 'undefined' ? '✅ SÍ' : '❌ NO');
+        });
+    </script>
+    <!-- Refuerzo: registrar Select2 en el jQuery final -->
+    <script src="https://unpkg.com/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        console.log('✅ Refuerzo Select2:', typeof window.jQuery.fn.select2);
     </script>
 </body>
 

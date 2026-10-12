@@ -20,14 +20,10 @@
                         <i class="bi bi-search me-1 text-primary"></i> Añadir Producto
                     </label>
                     <div class="input-group input-group-sm rounded-3 overflow-hidden shadow-sm">
-                        <select id="buscadorProductosEditar" class="form-select border-0 bg-body-secondary text-body"
-                            onchange="cambio()">
+                        <select id="buscadorProductosEditar" class="form-select  " style="width: 100%;">
                             <option value="">Escribe SKU o nombre...</option>
                         </select>
-                        <button type="button" class="btn btn-primary d-flex align-items-center px-3 border-0"
-                            onclick="abrirModalProducto()" title="Agregar nuevo producto">
-                            <i class="bi bi-plus-lg"></i>
-                        </button>
+
                     </div>
                 </div>
 
@@ -49,9 +45,8 @@
                             <i class="bi bi-tags me-1"></i> Precios Globales <span
                                 class="text-secondary fw-normal small">(Aplica para almacenes seleccionados)</span>
                         </h6>
-                        <!-- Indicador visual elegante de la unidad -->
                         <span
-                            class="badge bg-primary bg-opacity-15 text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-bold">
+                            class="badge bg-primary bg-opacity-15 text-white border border-primary-subtle px-3 py-2 rounded-pill fw-bold">
                             Unidad: <span id="unidadIngreso">--</span>
                         </span>
                     </div>
@@ -79,12 +74,9 @@
 
                     <hr class="border-secondary opacity-25 my-4">
 
-                    <!-- 🔹 TABLA DE ALMACENES CON CABECERA FIJA Y SCROLL -->
-                    <!-- 🔹 TABLA DE ALMACENES CON CABECERA FIJA Y SCROLL -->
+                    <!-- 🔹 TABLA DE ALMACENES -->
                     <div class="table-responsive rounded-4 border border-secondary-subtle"
                         style="max-height: 250px; overflow-y: auto;">
-
-
                         <table class="table">
                             <thead>
                                 <tr>
@@ -94,11 +86,7 @@
                                     <th>Stock Mínimo</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabla-almacenes-body">
-                                <!-- Aquí se insertarán las filas dinámicamente con JavaScript -->
-                            </tbody>
-                        </table>
-                        </tbody>
+                            <tbody id="tabla-almacenes-body"></tbody>
                         </table>
                     </div>
 
@@ -116,8 +104,20 @@
         </div>
     </div>
 </div>
+
 <script>
-    // Función centralizada para cargar los almacenes del usuario de forma segura
+    /* =========================================================
+       UTILIDADES
+       ========================================================= */
+    function escapeHtml(text) {
+        if (!text) return '';
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+        return text.replace(/[&<>"']/g, function (m) { return map[m]; });
+    }
+
+    /* =========================================================
+       CARGA DE ALMACENES
+       ========================================================= */
     async function cargarAlmacenesModal() {
         const tbody = document.getElementById('tabla-almacenes-body');
 
@@ -125,7 +125,7 @@
             const response = await fetch('/myvet/app/controllers/accesoController.php?action=getAlmacenesUsuario');
             const almacenes = await response.json();
 
-            tbody.innerHTML = ''; // Limpiamos contenedor
+            tbody.innerHTML = '';
 
             if (!almacenes || almacenes.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-3">No hay almacenes disponibles</td></tr>`;
@@ -173,20 +173,11 @@
         }
     }
 
-    // Función auxiliar para escapar texto plano en JS
-    function escapeHtml(text) {
-        if (!text) return '';
-        const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-        return text.replace(/[&<>"']/g, function (m) { return map[m]; });
-    }
-
+    /* =========================================================
+       CARGA DE PRODUCTOS (precarga con AJAX al abrir)
+       ========================================================= */
     async function recargarProductosEditar() {
+        const $ = window.jQuery;
         const $select = $('#buscadorProductosEditar');
         const url = `/myvet/app/controllers/accesoController.php?action=obtenerProductosAlmacen`;
 
@@ -195,14 +186,24 @@
             const textoServidor = await resp.text();
             let res = JSON.parse(textoServidor);
 
-            if (!res.success) return;
+            if (!res.success) {
+                console.warn('⚠️ El backend no devolvió success=true');
+                return;
+            }
 
-            $select.empty(); $select.append(new Option("Escribe SKU o nombre...", "", true, true));
+            // Destruir Select2 antes de vaciar
+            if ($select.hasClass('select2-hidden-accessible')) {
+                $select.select2('destroy');
+            }
+
+            $select.empty();
+            $select.append(new Option("", "", true, true));
 
             if (Array.isArray(res.data)) {
                 res.data.forEach(pr => {
                     const option = new Option(`[${pr.sku}] ${pr.nombre}`, pr.producto_id, false, false);
 
+                    // Guardar TODOS los datos en data-attributes
                     $(option).attr({
                         'data-nombre': pr.nombre || '',
                         'data-medidas': JSON.stringify(pr.medidas_adicionales || []),
@@ -220,12 +221,113 @@
                 });
             }
 
-            $select.trigger('change.select2');
+            // Inicializar Select2 con búsqueda LOCAL (sin AJAX)
+            inicializarSelect2Local();
         } catch (errJson) {
             console.error("❌ Error al cargar productos del modal:", errJson);
         }
     }
 
+    /* =========================================================
+       SELECT2 CON BÚSQUEDA LOCAL (usa las opciones ya cargadas)
+       ========================================================= */
+    function inicializarSelect2Local() {
+        const $ = window.jQuery;
+
+        if (!$ || !$.fn.select2) {
+            console.error('❌ Select2 no disponible.');
+            return;
+        }
+
+        const $select = $('#buscadorProductosEditar');
+
+        // Destruir si ya estaba inicializado
+        if ($select.hasClass('select2-hidden-accessible')) {
+            $select.select2('destroy');
+        }
+
+        $select.select2({
+            theme: 'bootstrap-5',
+            language: 'es',
+            dropdownParent: $('#modalInventarioInicialAlmacenes'),
+            placeholder: 'Escribe SKU o nombre...',
+            allowClear: true,
+            width: '100%',
+            // 👇 Matcher personalizado: busca por SKU o nombre
+            matcher: function (params, data) {
+                if ($.trim(params.term) === '') return data;
+
+                const term = params.term.toLowerCase();
+                const texto = (data.text || '').toLowerCase();
+                const sku = ($(data.element).attr('data-sku') || '').toLowerCase();
+                const nombre = ($(data.element).attr('data-nombre') || '').toLowerCase();
+
+                if (texto.indexOf(term) > -1 || sku.indexOf(term) > -1 || nombre.indexOf(term) > -1) {
+                    return data;
+                }
+                return null;
+            },
+            templateResult: formatProductoLocal,
+            templateSelection: formatProductoSeleccionado
+        });
+
+        // Evento: producto seleccionado → actualizar precios
+        $select.on('select2:select', function (e) {
+            const data = e.params.data;
+            const $op = $(data.element);
+
+            const precioMinorista = $op.attr('data-premin') || 0;
+            const precioMayorista = $op.attr('data-premat') || 0;
+            const precioDistribuidor = $op.attr('data-predis') || 0;
+            const unidadReporte = $op.attr('data-ur') || '--';
+
+            document.getElementById('global_precio_minorista').value = precioMinorista;
+            document.getElementById('global_precio_mayorista').value = precioMayorista;
+            document.getElementById('global_precio_distribuidor').value = precioDistribuidor;
+
+            $('#unidadIngreso').text(unidadReporte);
+            $('.text-unidad-dinamica').text(unidadReporte);
+        });
+
+        // Evento: producto deseleccionado
+        $select.on('select2:unselect', function () {
+            document.getElementById('global_precio_minorista').value = 0;
+            document.getElementById('global_precio_mayorista').value = 0;
+            document.getElementById('global_precio_distribuidor').value = 0;
+            $('#unidadIngreso').text('--');
+            $('.text-unidad-dinamica').text('--');
+        });
+    }
+
+    // Formato del resultado en el dropdown
+    function formatProductoLocal(producto) {
+        if (producto.loading) return producto.text;
+        const $ = window.jQuery;
+        if (!$) return producto.text;
+
+        const $op = $(producto.element);
+        const sku = $op.attr('data-sku') || '';
+        const nombre = $op.attr('data-nombre') || '';
+
+        if (!sku && !nombre) return producto.text;
+
+        return $(`
+            <div class="d-flex flex-column py-1">
+                <div class="fw-semibold text-dark">
+                    <span class="badge bg-primary bg-opacity-10 text-primary me-2">${escapeHtml(sku)}</span>
+                    ${escapeHtml(nombre)}
+                </div>
+            </div>
+        `);
+    }
+
+    function formatProductoSeleccionado(producto) {
+        return producto.text || 'Escribe SKU o nombre...';
+    }
+
+    /* =========================================================
+       TOGGLE ALMACÉN
+       ========================================================= */
     function toggleAlmacen(almacenId) {
         let checkbox = document.querySelector(`.check-almacen[data-id="${almacenId}"]`);
         let stockInput = document.querySelector(`.input-stock-${almacenId}`);
@@ -246,23 +348,16 @@
         }
     }
 
-    function cambio() {
-        let $opcion = $('#buscadorProductosEditar').find(':selected');
-
-        let precioMinorista = $opcion.attr('data-premin') || 0;
-        let precioMayorista = $opcion.attr('data-premat') || 0;
-        let precioDistribuidor = $opcion.attr('data-predis') || 0;
-        let unidadReporte = $opcion.attr('data-ur') || '--';
-
-        document.getElementById('global_precio_minorista').value = precioMinorista;
-        document.getElementById('global_precio_mayorista').value = precioMayorista;
-        document.getElementById('global_precio_distribuidor').value = precioDistribuidor;
-
-        $('#unidadIngreso').text(unidadReporte);
-        $('.text-unidad-dinamica').text(unidadReporte);
-    }
-
+    /* =========================================================
+       ENVÍO DEL FORMULARIO
+       ========================================================= */
     function enviarFormularioProducto() {
+        const $ = window.jQuery;
+        if (!$) {
+            alert('Error: jQuery no disponible.');
+            return;
+        }
+
         let pMinorista = document.getElementById('global_precio_minorista').value;
         let pMayorista = document.getElementById('global_precio_mayorista').value;
         let pDistribuidor = document.getElementById('global_precio_distribuidor').value;
@@ -320,7 +415,7 @@
                         icon: 'success',
                         title: '¡Éxito!',
                         text: data.message,
-                        confirmButtonColor: '#0d6efd', // Color acorde a Bootstrap primaria
+                        confirmButtonColor: '#0d6efd',
                         confirmButtonText: 'Aceptar'
                     }).then((result) => {
                         if (result.isConfirmed) {
@@ -349,16 +444,34 @@
             });
     }
 
-    // Función principal para abrir el modal de forma síncrona y limpia
+    /* =========================================================
+       ABRIR MODAL
+       ========================================================= */
     async function abrirModalInventarioInicial() {
-        let modalElement = document.getElementById('modalInventarioInicialAlmacenes');
-        let modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+        // Verificación defensiva
+        if (typeof window.jQuery === 'undefined') {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'jQuery no está cargado.', confirmButtonColor: '#dc3545' });
+            return;
+        }
+        if (!window.jQuery.fn.select2) {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Select2 no está cargado.', confirmButtonColor: '#dc3545' });
+            return;
+        }
+        if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Bootstrap no está cargado.', confirmButtonColor: '#dc3545' });
+            return;
+        }
 
-        // 1. Carga los almacenes frescos al abrir el modal
+        let modalElement = document.getElementById('modalInventarioInicialAlmacenes');
+        let modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+        // 1. Cargar almacenes
         await cargarAlmacenesModal();
-        // 2. Carga los productos correspondientes
+
+        // 2. Cargar productos + inicializar Select2
         await recargarProductosEditar();
 
+        // 3. Mostrar modal
         modal.show();
     }
 </script>
