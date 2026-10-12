@@ -164,7 +164,338 @@ $gruposModulos = [
             --transition-bounce: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 
             /* Tema Claro */
-            --bg-app: #f1f5f9;
+            /* =========================================
+   TEMA CLARO: MAÑANA
+   Cielo azul, sol dorado y nubes luminosas
+========================================= */
+            --bg-light-morning:
+                /* Sol matutino brillante */
+                radial-gradient(circle 280px at 82% 14%,
+                    rgba(255, 245, 200, 0.98) 0%,
+                    rgba(255, 215, 130, 0.65) 28%,
+                    rgba(255, 190, 110, 0.22) 55%,
+                    transparent 75%),
+
+                /* Resplandor del amanecer extendido */
+                radial-gradient(ellipse 70% 40% at 80% 8%,
+                    rgba(255, 230, 190, 0.55) 0%,
+                    rgba(255, 210, 170, 0.2) 55%,
+                    transparent 80%),
+
+                /* Nubes blancas suaves */
+                radial-gradient(ellipse 52% 30% at 22% 20%,
+                    rgba(255, 255, 255, 0.88) 0%,
+                    rgba(255, 250, 240, 0.5) 55%,
+                    transparent 78%),
+                radial-gradient(ellipse 46% 26% at 62% 13%,
+                    rgba(255, 250, 235, 0.75) 0%,
+                    transparent 75%),
+
+                /* Colinas cálidas */
+                radial-gradient(ellipse 82% 50% at 12% 100%,
+                    rgba(180, 90, 60, 0.38) 0%,
+                    rgba(215, 135, 90, 0.2) 45%,
+                    transparent 78%),
+                radial-gradient(ellipse 80% 50% at 95% 100%,
+                    rgba(120, 80, 60, 0.32) 0%,
+                    rgba(175, 120, 85, 0.18) 48%,
+                    transparent 78%),
+
+                /* Hexágonos elegantes */
+                conic-gradient(from 30deg at 50% 50%,
+                    transparent 0deg 59deg,
+                    rgba(255, 255, 255, 0.35) 59deg 61deg,
+                    transparent 61deg 119deg,
+                    rgba(255, 255, 255, 0.35) 119deg 121deg,
+                    transparent 121deg 179deg,
+                    rgba(255, 255, 255, 0.35) 179deg 181deg,
+                    transparent 181deg 239deg,
+                    rgba(255, 255, 255, 0.35) 239deg 241deg,
+                    transparent 241deg 299deg,
+                    rgba(255, 255, 255, 0.35) 299deg 301deg,
+                    transparent 301deg 360deg),
+
+                /* Cielo base con degradado más rico */
+                linear-gradient(180deg,
+                    #7FB8DD 0%,
+                    #A8D4E8 30%,
+                    #DCE8E0 55%,
+                    #E8D3B8 78%,
+                    #C58B6B 100%);
+            --bg-light-noon:
+                /* ☀️ Sol brillante centrado arriba */
+                radial-gradient(circle 320px at 50% 8%,
+                    rgba(255, 250, 200, 0.98) 0%,
+                    rgba(255, 230, 140, 0.7) 25%,
+                    rgba(255, 210, 120, 0.3) 50%,
+                    rgba(255, 190, 100, 0.08) 70%,
+                    transparent 82%),
+
+                /* Resplandor difuso del sol (centrado) */
+                radial-gradient(ellipse 60% 40% at 50% 6%,
+                    rgba(255, 245, 210, 0.55) 0%,
+                    rgba(255, 235, 190, 0.2) 55%,
+                    transparent 80%),
+
+                /* ☁️ Nubes a los lados del sol */
+                radial-gradient(ellipse 42% 26% at 15% 18%,
+                    rgba(255, 255, 255, 0.95) 0%,
+                    rgba(255, 255, 255, 0.5) 55%,
+                    transparent 78%),
+                radial-gradient(ellipse 38% 22% at 85% 16%,
+                    rgba(255, 255, 255, 0.9) 0%,
+                    rgba(255, 255, 255, 0.45) 55%,
+                    transparent 78%),
+                radial-gradient(ellipse 40% 22% at 30% 32%,
+                    rgba(255, 255, 255, 0.8) 0%,
+                    transparent 75%),
+                radial-gradient(ellipse 42% 24% at 72% 35%,
+                    rgba(255, 255, 255, 0.75) 0%,
+                    transparent 75%),
+
+                /* 🌿 Colinas verdes brillantes */
+                radial-gradient(ellipse 85% 52% at 12% 100%,
+                    rgba(120, 200, 100, 0.75) 0%,
+                    rgba(90, 175, 80, 0.42) 45%,
+                    transparent 80%),
+                radial-gradient(ellipse 82% 50% at 95% 100%,
+                    rgba(140, 215, 110, 0.7) 0%,
+                    rgba(105, 185, 90, 0.38) 48%,
+                    transparent 78%),
+
+                /* 🔷 Hexágonos sutiles */
+                conic-gradient(from 30deg at 50% 50%,
+                    transparent 0deg 59deg,
+                    rgba(255, 255, 255, 0.4) 59deg 61deg,
+                    transparent 61deg 119deg,
+                    rgba(255, 255, 255, 0.4) 119deg 121deg,
+                    transparent 121deg 179deg,
+                    rgba(255, 255, 255, 0.4) 179deg 181deg,
+                    transparent 181deg 239deg,
+                    rgba(255, 255, 255, 0.4) 239deg 241deg,
+                    transparent 241deg 299deg,
+                    rgba(255, 255, 255, 0.4) 299deg 301deg,
+                    transparent 301deg 360deg),
+
+                /* 🌤️ Cielo azul brillante */
+                linear-gradient(180deg,
+                    #4FA8E0 0%,
+                    #7CC5ED 30%,
+                    #B8E0F5 55%,
+                    #DFF0E8 78%,
+                    #C8E0B8 100%);
+            --bg-light-night:
+                /* Última luz del sol */
+                radial-gradient(circle 300px at 78% 18%,
+                    rgba(255, 195, 130, 0.58) 0%,
+                    rgba(210, 120, 100, 0.28) 38%,
+                    rgba(170, 85, 95, 0.08) 65%,
+                    transparent 80%),
+
+                /* Estrellas brillantes */
+                radial-gradient(circle at 12% 16%, rgba(255, 255, 255, 0.98) 0 1.2px, transparent 2.5px),
+                radial-gradient(circle at 28% 31%, rgba(255, 248, 225, 0.95) 0 1px, transparent 2px),
+                radial-gradient(circle at 43% 12%, rgba(255, 255, 255, 0.92) 0 1.2px, transparent 2.5px),
+                radial-gradient(circle at 59% 25%, rgba(255, 248, 225, 0.98) 0 1.5px, transparent 2.8px),
+                radial-gradient(circle at 72% 38%, rgba(255, 255, 255, 0.88) 0 1px, transparent 2px),
+                radial-gradient(circle at 89% 20%, rgba(255, 248, 225, 0.95) 0 1.2px, transparent 2.5px),
+                radial-gradient(circle at 19% 48%, rgba(255, 255, 255, 0.85) 0 1px, transparent 2px),
+                radial-gradient(circle at 81% 55%, rgba(255, 255, 255, 0.9) 0 1px, transparent 2px),
+                radial-gradient(circle at 35% 62%, rgba(255, 240, 220, 0.85) 0 1px, transparent 2px),
+                radial-gradient(circle at 68% 75%, rgba(255, 255, 255, 0.8) 0 1px, transparent 2px),
+
+                /* Colinas rojizas y violáceas */
+                radial-gradient(ellipse 82% 50% at 10% 100%,
+                    rgba(150, 55, 55, 0.48) 0%,
+                    rgba(120, 45, 65, 0.25) 45%,
+                    transparent 72%),
+                radial-gradient(ellipse 80% 50% at 95% 100%,
+                    rgba(75, 45, 55, 0.5) 0%,
+                    rgba(90, 55, 70, 0.28) 48%,
+                    transparent 75%),
+
+                /* Hexágonos sutiles */
+                conic-gradient(from 30deg at 50% 50%,
+                    transparent 0deg 59deg,
+                    rgba(255, 220, 200, 0.18) 59deg 61deg,
+                    transparent 61deg 119deg,
+                    rgba(255, 220, 200, 0.18) 119deg 121deg,
+                    transparent 121deg 179deg,
+                    rgba(255, 220, 200, 0.18) 179deg 181deg,
+                    transparent 181deg 239deg,
+                    rgba(255, 220, 200, 0.18) 239deg 241deg,
+                    transparent 241deg 299deg,
+                    rgba(255, 220, 200, 0.18) 299deg 301deg,
+                    transparent 301deg 360deg),
+
+                /* Cielo del crepúsculo */
+                linear-gradient(180deg,
+                    #4A4E6E 0%,
+                    #7A6E85 30%,
+                    #B887A0 52%,
+                    #C68478 75%,
+                    #6E4A4D 100%);
+
+            --bg-dark-morning:
+                /* Sol frío, luz dorada tenue */
+                radial-gradient(circle 300px at 82% 15%,
+                    rgba(255, 210, 140, 0.42) 0%,
+                    rgba(230, 155, 95, 0.18) 45%,
+                    transparent 78%),
+
+                /* Resplandor extendido */
+                radial-gradient(ellipse 60% 32% at 80% 10%,
+                    rgba(210, 170, 130, 0.2) 0%,
+                    transparent 78%),
+
+                /* Nubes azuladas */
+                radial-gradient(ellipse 55% 32% at 22% 20%,
+                    rgba(130, 165, 195, 0.28) 0%,
+                    transparent 75%),
+                radial-gradient(ellipse 44% 25% at 62% 15%,
+                    rgba(110, 145, 180, 0.2) 0%,
+                    transparent 75%),
+
+                /* Colinas */
+                radial-gradient(ellipse 82% 50% at 10% 100%,
+                    rgba(120, 60, 60, 0.45) 0%,
+                    rgba(85, 45, 50, 0.22) 45%,
+                    transparent 78%),
+                radial-gradient(ellipse 80% 50% at 95% 100%,
+                    rgba(50, 35, 45, 0.5) 0%,
+                    transparent 75%),
+
+                /* Hexágonos */
+                conic-gradient(from 30deg at 50% 50%,
+                    transparent 0deg 59deg,
+                    rgba(202, 222, 238, 0.18) 59deg 61deg,
+                    transparent 61deg 119deg,
+                    rgba(202, 222, 238, 0.18) 119deg 121deg,
+                    transparent 121deg 179deg,
+                    rgba(202, 222, 238, 0.18) 179deg 181deg,
+                    transparent 181deg 239deg,
+                    rgba(202, 222, 238, 0.18) 239deg 241deg,
+                    transparent 241deg 299deg,
+                    rgba(202, 222, 238, 0.18) 299deg 301deg,
+                    transparent 301deg 360deg),
+
+                /* Cielo nocturno-amanecer */
+                linear-gradient(180deg,
+                    #1E3348 0%,
+                    #2C4459 35%,
+                    #4A4550 65%,
+                    #2A2632 100%);
+
+            --bg-dark-noon:
+                /* Sol cobre */
+                radial-gradient(circle 340px at 82% 14%,
+                    rgba(235, 145, 80, 0.36) 0%,
+                    rgba(175, 80, 60, 0.16) 45%,
+                    transparent 78%),
+
+                /* Resplandor cálido */
+                radial-gradient(ellipse 60% 32% at 80% 10%,
+                    rgba(200, 120, 80, 0.18) 0%,
+                    transparent 78%),
+
+                /* Nubes oscuras */
+                radial-gradient(ellipse 52% 30% at 22% 20%,
+                    rgba(110, 70, 80, 0.32) 0%,
+                    transparent 75%),
+                radial-gradient(ellipse 46% 26% at 62% 15%,
+                    rgba(95, 60, 70, 0.24) 0%,
+                    transparent 75%),
+
+                /* Colinas granate */
+                radial-gradient(ellipse 82% 50% at 12% 100%,
+                    rgba(140, 45, 45, 0.48) 0%,
+                    rgba(110, 35, 40, 0.25) 45%,
+                    transparent 78%),
+                radial-gradient(ellipse 80% 50% at 95% 100%,
+                    rgba(55, 40, 40, 0.55) 0%,
+                    transparent 75%),
+
+                /* Hexágonos */
+                conic-gradient(from 30deg at 50% 50%,
+                    transparent 0deg 59deg,
+                    rgba(255, 224, 198, 0.16) 59deg 61deg,
+                    transparent 61deg 119deg,
+                    rgba(255, 224, 198, 0.16) 119deg 121deg,
+                    transparent 121deg 179deg,
+                    rgba(255, 224, 198, 0.16) 179deg 181deg,
+                    transparent 181deg 239deg,
+                    rgba(255, 224, 198, 0.16) 239deg 241deg,
+                    transparent 241deg 299deg,
+                    rgba(255, 224, 198, 0.16) 299deg 301deg,
+                    transparent 301deg 360deg),
+
+                /* Cielo oscuro cálido */
+                linear-gradient(180deg,
+                    #2A3546 0%,
+                    #48404B 35%,
+                    #654540 65%,
+                    #261F26 100%);
+
+            --bg-dark-night:
+                /* Bruma violeta profunda */
+                radial-gradient(ellipse 65% 48% at 78% 18%,
+                    rgba(120, 90, 160, 0.28) 0%,
+                    rgba(90, 70, 130, 0.12) 50%,
+                    transparent 78%),
+
+                /* Segunda bruma azulada */
+                radial-gradient(ellipse 55% 40% at 22% 25%,
+                    rgba(70, 90, 140, 0.22) 0%,
+                    transparent 75%),
+
+                /* Estrellas brillantes */
+                radial-gradient(circle at 8% 12%, rgba(255, 255, 255, 1) 0 1.3px, transparent 2.5px),
+                radial-gradient(circle at 17% 27%, rgba(205, 224, 255, 0.95) 0 1px, transparent 2px),
+                radial-gradient(circle at 29% 9%, rgba(255, 255, 255, 0.92) 0 1.2px, transparent 2.5px),
+                radial-gradient(circle at 37% 37%, rgba(255, 255, 255, 0.98) 0 1.5px, transparent 2.8px),
+                radial-gradient(circle at 48% 18%, rgba(205, 224, 255, 0.92) 0 1px, transparent 2px),
+                radial-gradient(circle at 57% 8%, rgba(255, 255, 255, 0.95) 0 1.2px, transparent 2.5px),
+                radial-gradient(circle at 68% 30%, rgba(255, 255, 255, 1) 0 1.3px, transparent 2.5px),
+                radial-gradient(circle at 78% 12%, rgba(205, 224, 255, 0.95) 0 1px, transparent 2px),
+                radial-gradient(circle at 91% 29%, rgba(255, 255, 255, 0.92) 0 1.2px, transparent 2.5px),
+                radial-gradient(circle at 13% 48%, rgba(255, 255, 255, 0.85) 0 1px, transparent 2px),
+                radial-gradient(circle at 84% 48%, rgba(205, 224, 255, 0.9) 0 1px, transparent 2px),
+                radial-gradient(circle at 61% 45%, rgba(255, 255, 255, 0.88) 0 1px, transparent 2px),
+                radial-gradient(circle at 25% 68%, rgba(255, 255, 255, 0.85) 0 1px, transparent 2px),
+                radial-gradient(circle at 72% 62%, rgba(205, 224, 255, 0.9) 0 1px, transparent 2px),
+
+                /* Colinas rojo vino */
+                radial-gradient(ellipse 82% 50% at 10% 100%,
+                    rgba(130, 42, 55, 0.45) 0%,
+                    rgba(95, 30, 45, 0.22) 45%,
+                    transparent 75%),
+                radial-gradient(ellipse 80% 50% at 95% 100%,
+                    rgba(55, 38, 55, 0.6) 0%,
+                    rgba(70, 45, 65, 0.3) 48%,
+                    transparent 75%),
+
+                /* Hexágonos oscuros */
+                conic-gradient(from 30deg at 50% 50%,
+                    transparent 0deg 59deg,
+                    rgba(200, 180, 220, 0.12) 59deg 61deg,
+                    transparent 61deg 119deg,
+                    rgba(200, 180, 220, 0.12) 119deg 121deg,
+                    transparent 121deg 179deg,
+                    rgba(200, 180, 220, 0.12) 179deg 181deg,
+                    transparent 181deg 239deg,
+                    rgba(200, 180, 220, 0.12) 239deg 241deg,
+                    transparent 241deg 299deg,
+                    rgba(200, 180, 220, 0.12) 299deg 301deg,
+                    transparent 301deg 360deg),
+
+                /* Cielo nocturno con más profundidad */
+                linear-gradient(180deg,
+                    #0D1220 0%,
+                    #1A1F35 30%,
+                    #29223A 58%,
+                    #3A2A3F 82%,
+                    #141824 100%);
+            --bg-app: (--bg-light-morning:);
             --card-bg: #ffffff;
             --card-glass: rgba(255, 255, 255, 0.85);
             --card-border: rgba(226, 232, 240, 0.8);
@@ -253,7 +584,7 @@ $gruposModulos = [
 
         /* BANNER DE BIENVENIDA Y RELOJ */
         .hero-welcome {
-            background: var(--clock-bg);
+            background: #12121294;
             border: 1px solid var(--card-border);
             border-radius: var(--radius-main);
             padding: 24px 28px;
@@ -270,7 +601,7 @@ $gruposModulos = [
             right: -10%;
             width: 300px;
             height: 300px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(0, 0, 0, 0) 70%);
+            background: #12121294;
             border-radius: 50%;
             pointer-events: none;
         }
@@ -505,7 +836,7 @@ $gruposModulos = [
 
         /* BANNER DE BIENVENIDA CENTRADO Y GLASSMORPHISM */
         .hero-welcome {
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            background: #12121294;
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 24px;
             padding: 28px 32px;
@@ -530,7 +861,7 @@ $gruposModulos = [
         }
 
         [data-bs-theme="dark"] .hero-welcome {
-            background: linear-gradient(135deg, #090d16 0%, #111827 50%, #090d16 100%);
+            background: #12121294;
             border-color: rgba(255, 255, 255, 0.08);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
         }
@@ -857,6 +1188,53 @@ $gruposModulos = [
 
         actualizarReloj();
         setInterval(actualizarReloj, 1000);
+    </script>
+    <script>
+        seleccionarFondoInicio();
+        function seleccionarFondoInicio() {
+            const html = document.documentElement;
+            const body = document.body;
+
+            if (!body) return;
+
+            const tema = html.getAttribute('data-bs-theme') || 'light';
+            const hora = new Date().getHours();
+
+            let periodo;
+
+            if (hora >= 6 && hora < 12) {
+                periodo = 'morning';
+            } else if (hora >= 12 && hora < 14) {
+                periodo = 'noon';
+            } else {
+                periodo = 'morning';
+            }
+
+            const nombreVariable = `--bg-${tema}-${periodo}`;
+            const fondo = getComputedStyle(html)
+                .getPropertyValue(nombreVariable)
+                .trim();
+
+            if (!fondo) {
+                console.error('No existe la variable CSS:', nombreVariable);
+                return;
+            }
+
+            html.style.setProperty('--bg-gradient', fondo);
+
+            body.style.setProperty('background', fondo, 'important');
+            body.style.setProperty('background-size', '600% 600%');
+        }
+
+        // Ejecutar automáticamente al iniciar
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', seleccionarFondoInicio, {
+                once: true
+            });
+        } else {
+            seleccionarFondoInicio();
+        }
+
     </script>
 </body>
 
