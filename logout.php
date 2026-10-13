@@ -33,7 +33,11 @@ session_destroy();
             --c-accent: #0a84ff;
             --c-accent-soft: #5ac8fa;
             --c-accent-deep: #003d99;
-            --c-glow: rgba(10, 132, 255, 0.55);
+            --c-glow: rgba(10, 132, 255, 0.35);
+            --c-bg: #ffffff;
+            --c-bg-2: #f4f8ff;
+            --c-text: #0a2540;
+            --c-text-muted: #6b8299;
         }
 
         html,
@@ -44,8 +48,8 @@ session_destroy();
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
-            background: #05060a;
-            color: #fff;
+            background: var(--c-bg);
+            color: var(--c-text);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             display: flex;
@@ -57,18 +61,18 @@ session_destroy();
         }
 
         /* ============================================================
-           FONDO — auroras azules suaves
+           FONDO — blanco con auroras azules suaves
            ============================================================ */
         .bg {
             position: fixed;
             inset: 0;
             z-index: 0;
             background:
-                radial-gradient(ellipse at 25% 30%, rgba(10, 132, 255, 0.15) 0%, transparent 55%),
-                radial-gradient(ellipse at 75% 25%, rgba(90, 200, 250, 0.10) 0%, transparent 55%),
-                radial-gradient(ellipse at 30% 75%, rgba(0, 61, 153, 0.18) 0%, transparent 55%),
+                radial-gradient(ellipse at 25% 30%, rgba(10, 132, 255, 0.10) 0%, transparent 55%),
+                radial-gradient(ellipse at 75% 25%, rgba(90, 200, 250, 0.14) 0%, transparent 55%),
+                radial-gradient(ellipse at 30% 75%, rgba(0, 61, 153, 0.08) 0%, transparent 55%),
                 radial-gradient(ellipse at 75% 80%, rgba(10, 132, 255, 0.10) 0%, transparent 55%),
-                radial-gradient(ellipse at 50% 50%, #0a0d18 0%, #05060a 100%);
+                radial-gradient(ellipse at 50% 50%, #ffffff 0%, #eef5ff 100%);
             animation: bgBreath 8s ease-in-out infinite;
         }
 
@@ -80,7 +84,7 @@ session_destroy();
             }
 
             50% {
-                filter: brightness(1.15);
+                filter: brightness(1.03);
             }
         }
 
@@ -131,9 +135,9 @@ session_destroy();
             background: radial-gradient(circle at 35% 30%, #ffffff 0%, #5ac8fa 40%, #0a84ff 80%, #003d99 100%);
             box-shadow:
                 0 0 20px rgba(90, 200, 250, 0.9),
-                0 0 40px rgba(10, 132, 255, 0.7),
-                0 0 80px rgba(10, 132, 255, 0.4),
-                inset 0 0 8px rgba(255, 255, 255, 0.6);
+                0 0 40px rgba(10, 132, 255, 0.55),
+                0 0 80px rgba(10, 132, 255, 0.25),
+                inset 0 0 8px rgba(255, 255, 255, 0.8);
             animation: corePulse 1.6s ease-in-out infinite;
             z-index: 5;
         }
@@ -145,18 +149,18 @@ session_destroy();
                 transform: scale(1);
                 box-shadow:
                     0 0 20px rgba(90, 200, 250, 0.9),
-                    0 0 40px rgba(10, 132, 255, 0.7),
-                    0 0 80px rgba(10, 132, 255, 0.4),
-                    inset 0 0 8px rgba(255, 255, 255, 0.6);
+                    0 0 40px rgba(10, 132, 255, 0.55),
+                    0 0 80px rgba(10, 132, 255, 0.25),
+                    inset 0 0 8px rgba(255, 255, 255, 0.8);
             }
 
             50% {
                 transform: scale(1.15);
                 box-shadow:
                     0 0 28px rgba(90, 200, 250, 1),
-                    0 0 60px rgba(10, 132, 255, 0.9),
-                    0 0 110px rgba(10, 132, 255, 0.55),
-                    inset 0 0 12px rgba(255, 255, 255, 0.8);
+                    0 0 60px rgba(10, 132, 255, 0.7),
+                    0 0 110px rgba(10, 132, 255, 0.35),
+                    inset 0 0 12px rgba(255, 255, 255, 0.95);
             }
         }
 
@@ -164,10 +168,12 @@ session_destroy();
         .orbit {
             position: absolute;
             border-radius: 50%;
-            border: 1px solid transparent;
-            border-top-color: rgba(90, 200, 250, 0.7);
-            border-right-color: rgba(10, 132, 255, 0.35);
+            border: 1.5px solid transparent;
+            border-top-color: rgba(10, 132, 255, 0.85);
+            border-right-color: rgba(90, 200, 250, 0.45);
+            border-bottom-color: rgba(10, 132, 255, 0.25);
             pointer-events: none;
+            filter: drop-shadow(0 0 6px rgba(10, 132, 255, 0.25));
         }
 
         .orbit--1 {
@@ -179,16 +185,16 @@ session_destroy();
         .orbit--2 {
             width: 110px;
             height: 110px;
-            border-top-color: rgba(10, 132, 255, 0.6);
-            border-right-color: rgba(90, 200, 250, 0.25);
+            border-top-color: rgba(10, 132, 255, 0.7);
+            border-right-color: rgba(90, 200, 250, 0.35);
             animation: orbitSpin 3.6s linear infinite reverse;
         }
 
         .orbit--3 {
             width: 160px;
             height: 160px;
-            border-top-color: rgba(90, 200, 250, 0.35);
-            border-right-color: rgba(10, 132, 255, 0.15);
+            border-top-color: rgba(90, 200, 250, 0.55);
+            border-right-color: rgba(10, 132, 255, 0.25);
             animation: orbitSpin 5.2s linear infinite;
         }
 
@@ -202,7 +208,7 @@ session_destroy();
             }
         }
 
-        /* --- Ondas expansivas (los "cuadros" reemplazados) --- */
+        /* --- Ondas expansivas --- */
         .wave {
             position: absolute;
             border-radius: 50%;
@@ -234,12 +240,12 @@ session_destroy();
                 height: 26px;
                 opacity: 0.9;
                 border-width: 2px;
-                border-color: rgba(90, 200, 250, 0.9);
+                border-color: rgba(10, 132, 255, 0.9);
             }
 
             70% {
                 opacity: 0.35;
-                border-color: rgba(10, 132, 255, 0.5);
+                border-color: rgba(90, 200, 250, 0.5);
             }
 
             100% {
@@ -266,8 +272,8 @@ session_destroy();
             width: 3px;
             height: 3px;
             border-radius: 50%;
-            background: rgba(90, 200, 250, 0.9);
-            box-shadow: 0 0 6px rgba(90, 200, 250, 0.8);
+            background: rgba(10, 132, 255, 0.9);
+            box-shadow: 0 0 6px rgba(10, 132, 255, 0.8);
             opacity: 0;
             animation: particleRise 3.2s ease-out infinite;
         }
@@ -289,7 +295,6 @@ session_destroy();
             }
         }
 
-        /* Generamos posiciones dispersas con nth-child */
         .particle:nth-child(1) {
             --px: -90px;
             --py: 130px;
@@ -386,15 +391,14 @@ session_destroy();
             animation-delay: 4.5s;
         }
 
-        /* Colores alternos suaves para dar vida */
         .particle:nth-child(3n) {
-            background: rgba(10, 132, 255, 0.9);
+            background: rgba(0, 61, 153, 0.9);
             box-shadow: 0 0 8px rgba(10, 132, 255, 0.8);
         }
 
         .particle:nth-child(3n+2) {
-            background: rgba(255, 255, 255, 0.85);
-            box-shadow: 0 0 6px rgba(255, 255, 255, 0.7);
+            background: rgba(90, 200, 250, 0.95);
+            box-shadow: 0 0 6px rgba(90, 200, 250, 0.8);
         }
 
         /* ============================================================
@@ -408,14 +412,15 @@ session_destroy();
         .status-title {
             font-size: 1.5rem;
             font-weight: 600;
-            color: #fff;
+            color: var(--c-text);
             letter-spacing: -0.025em;
             margin-bottom: 8px;
             background: linear-gradient(90deg,
-                    #ffffff 0%,
-                    #5ac8fa 35%,
-                    #0a84ff 70%,
-                    #ffffff 100%);
+                    #0a2540 0%,
+                    #0a84ff 35%,
+                    #5ac8fa 60%,
+                    #003d99 85%,
+                    #0a2540 100%);
             background-size: 200% 100%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -435,8 +440,8 @@ session_destroy();
 
         .status-subtitle {
             font-size: 0.88rem;
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.55);
+            font-weight: 500;
+            color: var(--c-text-muted);
             letter-spacing: -0.01em;
         }
 
@@ -484,7 +489,7 @@ session_destroy();
         .progress {
             width: 220px;
             height: 3px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(10, 132, 255, 0.12);
             border-radius: 3px;
             overflow: hidden;
             animation: fadeIn 1s ease-out 0.6s backwards;
@@ -496,14 +501,14 @@ session_destroy();
             background: linear-gradient(90deg,
                     #5ac8fa 0%,
                     #0a84ff 50%,
-                    #0066cc 100%);
+                    #003d99 100%);
             background-size: 200% 100%;
             border-radius: 3px;
             animation:
                 progressFill 6s linear forwards,
                 barShine 2s linear infinite;
             animation-delay: 0.4s, 0.4s;
-            box-shadow: 0 0 12px rgba(10, 132, 255, 0.6);
+            box-shadow: 0 0 12px rgba(10, 132, 255, 0.5);
         }
 
         @keyframes progressFill {
@@ -538,8 +543,8 @@ session_destroy();
             align-items: center;
             gap: 8px;
             font-size: 0.72rem;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.4);
+            font-weight: 600;
+            color: rgba(10, 132, 255, 0.6);
             letter-spacing: 0.5px;
             text-transform: uppercase;
             animation: fadeIn 1s ease-out 0.8s backwards;
@@ -549,7 +554,7 @@ session_destroy();
             width: 4px;
             height: 4px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
+            background: rgba(10, 132, 255, 0.6);
         }
 
         /* ============================================================
@@ -594,21 +599,21 @@ session_destroy();
             text-align: center;
 
             background: linear-gradient(100deg,
-                    #6b6b6b 0%,
-                    #b8b8b8 18%,
+                    #6b8299 0%,
+                    #a8c0d8 18%,
                     #ffffff 30%,
-                    #e8e8e8 40%,
-                    #8a8a8a 55%,
-                    #ffffff 68%,
-                    #c8c8c8 82%,
-                    #6b6b6b 100%);
+                    #0a84ff 42%,
+                    #5ac8fa 52%,
+                    #003d99 68%,
+                    #a8c0d8 82%,
+                    #6b8299 100%);
             background-size: 250% 100%;
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
 
             filter:
-                drop-shadow(0 1px 0 rgba(255, 255, 255, 0.15)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7)) drop-shadow(0 6px 24px rgba(10, 132, 255, 0.15));
+                drop-shadow(0 1px 0 rgba(255, 255, 255, 1)) drop-shadow(0 2px 6px rgba(10, 132, 255, 0.2)) drop-shadow(0 6px 24px rgba(10, 132, 255, 0.15));
 
             animation: metalShine 3.2s linear infinite;
             animation-delay: 5.4s;
@@ -632,18 +637,18 @@ session_destroy();
             margin: 14px auto 0;
             background: linear-gradient(90deg,
                     transparent 0%,
-                    rgba(255, 255, 255, 0.4) 50%,
+                    rgba(10, 132, 255, 0.5) 50%,
                     transparent 100%);
-            opacity: 0.6;
+            opacity: 0.8;
         }
 
         .farewell-msg {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
             font-size: clamp(0.8rem, 1.6vw, 1rem);
-            font-weight: 400;
+            font-weight: 500;
             letter-spacing: 0.42em;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.55);
+            color: rgba(10, 37, 64, 0.6);
             text-align: center;
 
             opacity: 0;
@@ -666,13 +671,13 @@ session_destroy();
         }
 
         /* ============================================================
-           FUNDIDO FINAL
+           FUNDIDO FINAL (ahora blanco)
            ============================================================ */
         .curtain {
             position: fixed;
             inset: 0;
             z-index: 100;
-            background: #000;
+            background: #ffffff;
             opacity: 0;
             pointer-events: none;
             animation: curtainFade 1s ease-in forwards;
@@ -742,21 +747,17 @@ session_destroy();
 
         <!-- NÚCLEO + ONDAS + PARTÍCULAS -->
         <div class="pulse-wrap">
-            <!-- Ondas expansivas -->
             <span class="wave"></span>
             <span class="wave"></span>
             <span class="wave"></span>
             <span class="wave"></span>
 
-            <!-- Anillos orbitales -->
             <span class="orbit orbit--1"></span>
             <span class="orbit orbit--2"></span>
             <span class="orbit orbit--3"></span>
 
-            <!-- Núcleo -->
             <span class="core"></span>
 
-            <!-- Partículas ascendentes -->
             <div class="particles">
                 <span class="particle"></span>
                 <span class="particle"></span>

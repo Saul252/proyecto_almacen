@@ -313,7 +313,7 @@
                                     <span class="badge-popular">Top</span>
                                     <div class="fw-bold text-white mb-1">Todo Full</div>
                                     <div class="text-info small fw-bold mb-1">Plan #1</div>
-                                    <p class="text-secondary mb-0" style="font-size: 0.72rem;">Acceso total ilimitado a
+                                    <p class=" mb-0" style="font-size: 0.72rem;">Acceso total ilimitado a
                                         todos los módulos.</p>
                                 </div>
                             </div>
@@ -323,7 +323,7 @@
                                 <div class="plan-card-option" onclick="seleccionarPlan(2, this)">
                                     <div class="fw-bold text-white mb-1">Completo</div>
                                     <div class="text-info small fw-bold mb-1">Plan #2</div>
-                                    <p class="text-secondary mb-0" style="font-size: 0.72rem;">Ideal para negocios
+                                    <p class=" mb-0" style="font-size: 0.72rem;">Ideal para negocios
                                         medianos en crecimiento.</p>
                                 </div>
                             </div>
@@ -333,7 +333,7 @@
                                 <div class="plan-card-option" onclick="seleccionarPlan(3, this)">
                                     <div class="fw-bold text-white mb-1">Empezar</div>
                                     <div class="text-info small fw-bold mb-1">Plan #3</div>
-                                    <p class="text-secondary mb-0" style="font-size: 0.72rem;">Herramientas clave para
+                                    <p class=" mb-0" style="font-size: 0.72rem;">Herramientas clave para
                                         arrancar operaciones.</p>
                                 </div>
                             </div>
@@ -343,7 +343,7 @@
                                 <div class="plan-card-option" onclick="seleccionarPlan(4, this)">
                                     <div class="fw-bold text-white mb-1">Básico</div>
                                     <div class="text-info small fw-bold mb-1">Plan #4</div>
-                                    <p class="text-secondary mb-0" style="font-size: 0.72rem;">Funcionalidades
+                                    <p class=" mb-0" style="font-size: 0.72rem;">Funcionalidades
                                         esenciales de inventario.</p>
                                 </div>
                             </div>

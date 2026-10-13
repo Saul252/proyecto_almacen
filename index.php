@@ -72,7 +72,7 @@ if (empty($images)) {
         height: 1px;
         background: linear-gradient(90deg,
                 transparent,
-                rgba(10, 10, 20, 0.12),
+                rgba(21, 21, 21, 0.33),
                 transparent);
     }
 
@@ -364,7 +364,7 @@ if (empty($images)) {
                         showConfirmButton: false,
                         timer: 1500,
                         timerProgressBar: true,
-                        background: '#1e1235',
+                        background: '#1818185e',
                         color: '#fff'
                     }).then(() => {
                         window.location.href = res.redirect;
@@ -375,7 +375,7 @@ if (empty($images)) {
                         title: 'Atención',
                         text: res.message,
                         confirmButtonColor: '#7c3aed',
-                        background: '#1e1235',
+                        background: '#0c0c0c8a',
                         color: '#fff'
                     });
                     btn.disabled = false;
@@ -387,7 +387,7 @@ if (empty($images)) {
                     title: 'Error de conexión',
                     text: 'No se pudo conectar con el servidor. Inténtalo más tarde.',
                     confirmButtonColor: '#7c3aed',
-                    background: '#1e1235',
+                    background: '#670808',
                     color: '#fff'
                 });
                 btn.disabled = false;

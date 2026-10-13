@@ -209,9 +209,6 @@ $modulos = [
             margin-top: 0.25rem;
         }
 
-        .navbar-nav .dropdown-item {
-            color: #000000 !important;
-        }
 
         .navbar-nav .dropdown-item:hover,
         .navbar-nav .dropdown-item:focus {
