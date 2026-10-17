@@ -565,18 +565,17 @@
         // CARGAR VENDEDORES
         // =====================================================
         async function cargarVendedores3(vendedor_id = null) {
-            const almacenId = $('#almacen_id_editar').val();
+            const select = document.getElementById('select-vendedor1');
+            if (!select) return;
+
             const $select = $('#select-vendedor1');
-
-            if (!$select.length) return;
-
-            // ID del usuario desde la sesión de PHP
+            const almacenId = $('#almacen_id_editar').val();
             const idUsuarioSesion = "<?= $_SESSION['usuario_id'] ?? '' ?>";
 
-            // Limpia las opciones directamente con jQuery para mantener sincronizado Select2
-            $select.empty();
-
             try {
+                // 1. LIMPIAR antes de cargar
+                $select.empty().val(null).trigger('change.select2');
+
                 const url = `/myvet/app/controllers/accesoController.php?action=obtenerUsuarios&almacen_id=${almacenId}`;
                 const respuesta = await fetch(url);
 
@@ -585,35 +584,31 @@
                 const resultado = await respuesta.json();
 
                 if (resultado.success && Array.isArray(resultado.data)) {
-                    // Opción por defecto (vacía para permitir la selección)
-                    $select.append(new Option('-- Seleccionar Vendedor --', ''));
-
                     resultado.data.forEach(usuario => {
-                        const opcion = new Option(usuario.nombre, usuario.id, false, false);
-                        $select.append(opcion);
+                        const opcion = document.createElement('option');
+                        opcion.value = usuario.id;
+                        opcion.textContent = usuario.nombre;
+                        select.appendChild(opcion);
                     });
 
-                    // Prioridad: 
-                    // 1. vendedor_id (si se pasa al llamar a la función)
-                    // 2. idUsuarioSesion (usuario logueado en la sesión de PHP)
+                    // 2. Avisar a Select2 que las opciones cambiaron
+                    $select.trigger('change.select2');
+
                     const valorASeleccionar = vendedor_id || idUsuarioSesion;
 
                     if (valorASeleccionar) {
-                        $select.val(valorASeleccionar);
+                        $select.val(String(valorASeleccionar)).trigger('change.select2');
                     }
-
-                    // Notifica a Select2 del cambio de manera segura
-                    $select.trigger('change.select2');
-
                 } else {
-                    $select.append(new Option('No se pudieron cargar los usuarios', ''));
+                    $select.empty().append('<option value="">No se pudieron cargar los usuarios</option>')
+                        .trigger('change.select2');
                 }
             } catch (error) {
-                $select.append(new Option('Error al cargar la lista', ''));
+                $select.empty().append('<option value="">Error al cargar la lista</option>')
+                    .trigger('change.select2');
                 console.error('Error al ejecutar cargarVendedores3:', error);
             }
-        }
-        async function cargarClientes() {
+        } async function cargarClientes() {
             console.log("cargo clientes");
 
             // Obtenemos el ID del almacén actual
@@ -937,7 +932,7 @@
             }
         });
         document.addEventListener('DOMContentLoaded', () => {
-            cargarVendedores3();
+
             cargarClientes();
         });
 

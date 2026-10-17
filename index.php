@@ -33,7 +33,7 @@ if (empty($images)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MYVET SISTEM | Acceso</title>
+    <title>JSEA SISTEM | Acceso</title>
     <link rel="icon" type="image/png" href="/myvet/public/assets/logo.png">
     <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
         type="image/x-icon">
@@ -169,7 +169,7 @@ if (empty($images)) {
 
     <!-- Marca superior izquierda -->
     <div class="corner-brand">
-        <i class="bi bi-shield-check"></i> MYVET
+        <i class="bi bi-shield-check"></i> JSEA
     </div>
 
     <!-- Versión superior derecha -->
@@ -190,7 +190,7 @@ if (empty($images)) {
                 <i class="bi bi-shield-lock-fill"></i>
             </div>
 
-            <h1 class="logo-title">MYVET SISTEM</h1>
+            <h1 class="logo-title">JSEA SISTEM</h1>
             <p class="logo-subtitle">Gestión Inteligente</p>
 
             <form id="formLogin">
@@ -233,7 +233,7 @@ if (empty($images)) {
             </a>
 
             <div class="card-footer-text">
-                © <?php echo date('Y'); ?> <span class="accent">MYVET SISTEM</span><br>
+                © <?php echo date('Y'); ?> <span class="accent">JSEA SISTEM</span><br>
                 Desarrollado por JSEA — Todos los derechos reservados
             </div>
 

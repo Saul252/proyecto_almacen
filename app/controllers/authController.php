@@ -31,10 +31,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
         // 5 intentos fallidos → bloqueo 10 minutos
         // ============================================
         $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-        $ipKey = hash('sha256', $ip); // no exponer la IP en el nombre del archivo
+        $ipKey = hash('sha256', $ip);
         $rateFile = sys_get_temp_dir() . '/login_' . $ipKey . '.json';
         $maxIntentos = 5;
-        $ventana = 600; // 10 minutos
+        $ventana = 600;
 
         $ahora = time();
         $registro = ['intentos' => [], 'bloqueado_hasta' => 0];
@@ -44,7 +44,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
                 $registro = array_merge($registro, $tmp);
         }
 
-        // ¿Está bloqueada la IP?
         if ($registro['bloqueado_hasta'] > $ahora) {
             $restante = $registro['bloqueado_hasta'] - $ahora;
             http_response_code(429);
@@ -55,7 +54,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
             exit;
         }
 
-        // Limpiar intentos viejos (fuera de la ventana)
         $registro['intentos'] = array_values(array_filter(
             $registro['intentos'],
             fn($t) => ($ahora - $t) < $ventana
@@ -66,7 +64,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
         // ============================================
         $limpiar = function (string $v, int $max): string {
             $v = trim($v);
-            $v = preg_replace('/[\x00-\x1F\x7F]/u', '', $v); // bytes de control
+            $v = preg_replace('/[\x00-\x1F\x7F]/u', '', $v);
             if (mb_strlen($v) > $max) {
                 throw new Exception("Datos inválidos.");
             }
@@ -74,7 +72,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
         };
 
         $usuario = $limpiar($_POST['usuario'] ?? '', 60);
-        $password = $_POST['password'] ?? ''; // ← NO aplicar trim/regex a la contraseña
+        $password = $_POST['password'] ?? '';
         if (strlen($password) > 200) {
             throw new Exception("Datos inválidos.");
         }
@@ -83,9 +81,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
             throw new Exception("Por favor, completa todos los campos.");
         }
 
-        // ============================================
-        // FUNCIÓN PARA REGISTRAR FALLO + GUARDAR
-        // ============================================
         $registrarFallo = function () use (&$registro, $rateFile, $ahora, $maxIntentos, $ventana) {
             $registro['intentos'][] = $ahora;
             if (count($registro['intentos']) >= $maxIntentos) {
@@ -95,7 +90,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
         };
 
         $limpiarFallos = function () use ($rateFile) {
-            @unlink($rateFile); // login exitoso → resetear contador
+            @unlink($rateFile);
         };
 
         // ============================================
@@ -103,23 +98,17 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
         // ============================================
         $row = $loginModel->obtenerPorUsername($usuario);
 
-        // ⚠️ Mensaje genérico: NO revelar si el usuario existe o no
         $credencialesInvalidas = function () use ($registrarFallo) {
             $registrarFallo();
             throw new Exception("Usuario o contraseña incorrectos.");
         };
 
         if (!$row) {
-            // Simula un hash para igualar tiempos (evita timing attack)
             password_verify($password, '$2y$10$usesomesillystringforsalt0123456789012345678901');
             $credencialesInvalidas();
         }
 
-        // ============================================
-        // ESTADO ACTIVO
-        // ============================================
         if ((int) ($row['activo'] ?? 0) === 0) {
-            // No registrar como fallo (no es intento de hackeo), pero sí mensaje claro
             http_response_code(403);
             echo json_encode([
                 'status' => 'warning',
@@ -128,20 +117,15 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
             exit;
         }
 
-        // ============================================
-        // VERIFICAR CONTRASEÑA
-        // ============================================
         if (!password_verify($password, $row['password'] ?? '')) {
             $credencialesInvalidas();
         }
 
-        // Rehash automático si el coste cambió
         if (password_needs_rehash($row['password'], PASSWORD_DEFAULT)) {
             $nuevoHash = password_hash($password, PASSWORD_DEFAULT);
-            $loginModel->actualizarPassword((int) $row['id'], $nuevoHash); // opcional
+            $loginModel->actualizarPassword((int) $row['id'], $nuevoHash);
         }
 
-        // Login OK → limpiar contador de esa IP
         $limpiarFallos();
 
         // ============================================
@@ -165,9 +149,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
         $_SESSION['pago'] = $estadoPago;
         $_SESSION['login'] = true;
 
-        // ============================================
-        // HORA DE CIERRE (validada)
-        // ============================================
         $hora_cierre_config = "11:58";
         if ($almacenId > 0) {
             $tmpHora = $loginModel->obtenerHoraCierreAlmacen($almacenId);
@@ -177,9 +158,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
         }
         $_SESSION['hora_cierre'] = $hora_cierre_config;
 
-        // ============================================
-        // VINCULACIÓN TRABAJADOR
-        // ============================================
         if (str_starts_with($row['username'], 'Trabajador')) {
             $nombreLimpio = trim(substr($row['username'], strlen('Trabajador')));
             $resT = $loginModel->buscarTrabajadorPorNombre($nombreLimpio);
@@ -195,47 +173,32 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
             $_SESSION['trabajador_id'] = 0;
         }
 
-
-        // Obtener IP del cliente
         $ipReal = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-
-        // Cloudflare
         if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
             $ipReal = trim($_SERVER['HTTP_CF_CONNECTING_IP']);
         } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
             $ipReal = trim($ips[0]);
         }
-
-        // Evitar exceder los límites de la columna
         $ipReal = substr($ipReal, 0, 45);
 
-        $userAgent = substr(
-            $_SERVER['HTTP_USER_AGENT'] ?? '',
-            0,
-            500
-        );
+        $userAgent = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500);
 
         try {
             $loginModel->registrarEntrada(
-                (int) $row['id'],         // usuario_id
-                $row['username'],         // username_intentado
-                $ipReal,                  // ip
-                $userAgent,               // user_agent
-                true,                     // exito
-                'login_exitoso'           // motivo
+                (int) $row['id'],
+                $row['username'],
+                $ipReal,
+                $userAgent,
+                true,
+                'login_exitoso'
             );
         } catch (Throwable $e) {
             error_log('[audit_login] ' . $e->getMessage());
         }
 
-
-        // Escribir sesión y liberar el lock
         session_write_close();
 
-        // ============================================
-        // REDIRECCIÓN SEGÚN ESTADO DE PAGO
-        // ============================================
         if ($estadoPago === 0) {
             echo json_encode([
                 'status' => 'info',
@@ -258,6 +221,119 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
             http_response_code(400);
         }
         error_log('[login] ' . $e->getMessage());
+        echo json_encode([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ]);
+    }
+
+    exit;
+}
+// ================================================================
+// --- ACCIÓN: RECUPERAR CONTRASEÑA (AJAX POST) ---
+// ================================================================
+// ================================================================
+// --- ACCIÓN: RECUPERAR CONTRASEÑA (AJAX POST) ---  [MODO TEST]
+// ================================================================
+// ================================================================
+// --- ACCIÓN: RECUPERAR CONTRASEÑA (AJAX POST) ---  [MODO TEST]
+// ================================================================
+// ================================================================
+// --- ACCIÓN: RECUPERAR CONTRASEÑA (AJAX POST) ---  [MODO TEST]
+// ================================================================
+// ================================================================
+// --- ACCIÓN: RECUPERAR CONTRASEÑA (AJAX POST) ---
+// ================================================================
+// ================================================================
+// --- ACCIÓN: RECUPERAR CONTRASEÑA (AJAX POST) ---
+// ================================================================
+if (($_GET['action'] ?? '') === 'recuperarPassword') {
+
+    if (ob_get_level())
+        ob_clean();
+    header('Content-Type: application/json; charset=utf-8');
+
+    try {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            throw new Exception("Método no permitido.");
+        }
+
+        // ============================================
+        // SANITIZACIÓN
+        // ============================================
+        $limpiar = function (string $v, int $max): string {
+            $v = trim($v);
+            $v = preg_replace('/[\x00-\x1F\x7F]/u', '', $v);
+            if (mb_strlen($v) > $max) {
+                throw new Exception("Datos inválidos.");
+            }
+            return $v;
+        };
+
+        // ❌ INCORRECTO
+        $telefono = ('+525511512854');
+        $username = ('casa');
+        $correo = ('saulenriquealbatapia253@yahoo.com');
+
+        // ✅ CORRECTO
+        $telefono = $limpiar($_POST['telefono'] ?? '', 30);
+        $username = $limpiar($_POST['username'] ?? '', 60);
+        $correo = $limpiar($_POST['correo'] ?? '', 150);
+        // ============================================
+        // VALIDACIONES
+        // ============================================
+
+        if ($telefono === '' || $username === '' || $correo === '') {
+            throw new Exception("Todos los campos son obligatorios.");
+        }
+
+        if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+            throw new Exception("El correo electrónico no es válido.");
+        }
+
+        if (!preg_match('/^[+\d\s()\-]{8,30}$/', $telefono)) {
+            throw new Exception("El teléfono no tiene un formato válido.");
+        }
+
+        // ✅ Normalizar teléfono: solo dígitos
+        $telefono = preg_replace('/\D/', '', $telefono);
+
+        if (strlen($telefono) < 8) {
+            throw new Exception("El teléfono debe tener al menos 8 dígitos.");
+        }
+
+        // ============================================
+        // LLAMAR AL MODELO
+        // ============================================
+        $resultado = $loginModel->recuperarPassword($telefono, $username, $correo);
+
+        // ============================================
+        // RESULTADO
+        // ============================================
+        if (!$resultado['success']) {
+            throw new Exception(
+                $resultado['message'] ?? 'Los datos no coinciden con ningún usuario registrado.'
+            );
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Contraseña restablecida correctamente.',
+            'password_nueva' => $resultado['password_nueva'],
+            'usuario' => [
+                'id' => $resultado['usuario']['id'],
+                'nombre' => $resultado['usuario']['nombre'],
+                'username' => $resultado['usuario']['username'],
+                'correo' => $resultado['usuario']['correo'],
+                'telefono' => $resultado['usuario']['telefono']
+            ]
+        ]);
+
+    } catch (Throwable $e) {
+        if (http_response_code() === 200) {
+            http_response_code(400);
+        }
+        error_log('[recuperarPassword] ' . $e->getMessage());
         echo json_encode([
             'status' => 'error',
             'message' => $e->getMessage()

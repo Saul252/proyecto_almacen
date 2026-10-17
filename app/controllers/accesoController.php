@@ -54,7 +54,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'obtenerUsuarios') {
     try {
         $rol = $session_rol_id;
         $id = $session_usuario_id;
-        $almacen = intval($_GET['almacen_id'] ?? $session_almacen_id);
+
+        $almacen = $session_almacen_id == 0 ? $session_almacen_id : intval($_GET['almacen_id'] ?? $session_almacen_id);
+
         $usuarios = '';
 
         if ($rol >= 3) {
@@ -105,24 +107,35 @@ if (isset($_GET['action']) && $_GET['action'] === 'getAlmacenesJSON') {
 }
 
 if (isset($_GET['action']) && $_GET['action'] === 'obtenerClientes') {
-    if (ob_get_level())
-        ob_clean();
-    header('Content-Type: application/json');
+
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    header('Content-Type: application/json; charset=utf-8');
 
     try {
-        $rol = $session_rol_id;
-        $id = intval($_GET['almacen_id'] ?? $session_almacen_id);
+        if ($session_almacen_id > 0) {
+            // Usuario con almacén asignado: SIEMPRE el suyo
+            $id = (int) $session_almacen_id;
+        } else {
+            // Admin global: elige por GET, o 0 = todos
+            $id = (int) ($_GET['almacen_id'] ?? 0);
+        }
 
         $clientes_res = $clientesModel->listarTodos($id);
         $clientes = ($clientes_res) ? $clientes_res->fetch_all(MYSQLI_ASSOC) : [];
 
-        if ($clientes) {
-            echo json_encode(['success' => true, 'data' => $clientes]);
-        } else {
-            throw new Exception('Usuarios no encontrados.');
-        }
+        echo json_encode([
+            'success' => true,
+            'total' => count($clientes),
+            'data' => $clientes
+        ], JSON_UNESCAPED_UNICODE);
+
     } catch (Throwable $e) {
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], JSON_UNESCAPED_UNICODE);
     }
     exit;
 }
@@ -209,7 +222,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'getAlmacenesUsuario') {
 if (isset($_GET['action']) && $_GET['action'] === 'obtenerProductos') {
     header('Content-Type: application/json');
 
-    $productos = $productosModel->obtenerTodosProductos(0);
+    $productos = $productosModel->obtenerTodosProductos($session_almacen_id);
     $medidasAdicionales = $productosModel->obtenerMedidas();
 
     $medidasPorProducto = [];

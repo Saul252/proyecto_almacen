@@ -17,64 +17,91 @@
 
     <style>
         :root {
-            --primary-vivid: #8b5cf6;
-            --accent-cyan: #06b6d4;
-            --accent-pink: #ec4899;
-            --accent-emerald: #10b981;
-            --dark-bg: #0b0f19;
-            --glass-card: rgba(255, 255, 255, 0.04);
-            --glass-border: rgba(255, 255, 255, 0.12);
+            /* Acentos vibrantes pero elegantes */
+            --primary-vivid: #7c3aed;
+            --accent-cyan: #0891b2;
+            --accent-pink: #db2777;
+            --accent-emerald: #059669;
+
+            /* Fondo profesional con tonos slate claros */
+            --bg-1: #f1f5f9;
+            --bg-2: #e2e8f0;
+            --bg-3: #cbd5e1;
+
+            /* Glass adaptado a fondo claro */
+            --glass-card: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(15, 23, 42, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.6);
+
+            /* Colores de texto profesionales */
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
         }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--dark-bg);
-            color: #f8fafc;
+            background-color: var(--bg-1);
+            color: var(--text-primary);
             overflow-x: hidden;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* FONDO DINÁMICO CROMÁTICO */
+        /* FONDO DINÁMICO CLARO Y PROFESIONAL */
         .dynamic-bg {
             position: fixed;
             inset: 0;
             z-index: -1;
             overflow: hidden;
-            background: radial-gradient(circle at 50% 50%, #111827, #0b0f19);
+            background: radial-gradient(circle at 50% 40%, #f8fafc 0%, #e2e8f0 45%, #cbd5e1 100%);
         }
 
         .orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(110px);
-            opacity: 0.45;
-            animation: floatOrb 18s infinite alternate ease-in-out;
+            filter: blur(140px);
+            opacity: 0.35;
+            animation: floatOrb 24s infinite alternate ease-in-out;
         }
 
         .orb-1 {
-            width: 500px;
-            height: 500px;
-            background: #7c3aed;
-            top: -10%;
-            left: -5%;
+            width: 520px;
+            height: 520px;
+            background: #a78bfa;
+            top: -12%;
+            left: -6%;
+            opacity: 0.4;
         }
 
         .orb-2 {
-            width: 550px;
-            height: 550px;
-            background: #06b6d4;
-            bottom: -15%;
-            right: -5%;
-            animation-duration: 24s;
+            width: 580px;
+            height: 580px;
+            background: #67e8f9;
+            bottom: -18%;
+            right: -8%;
+            animation-duration: 28s;
+            opacity: 0.35;
         }
 
         .orb-3 {
-            width: 350px;
-            height: 350px;
-            background: #10b981;
-            top: 40%;
-            left: 40%;
-            animation-duration: 20s;
+            width: 380px;
+            height: 380px;
+            background: #6ee7b7;
+            top: 45%;
+            left: 42%;
+            animation-duration: 22s;
+            opacity: 0.28;
+        }
+
+        .orb-4 {
+            width: 320px;
+            height: 320px;
+            background: #f9a8d4;
+            top: 15%;
+            right: 25%;
+            animation-duration: 32s;
+            opacity: 0.25;
         }
 
         @keyframes floatOrb {
@@ -83,121 +110,152 @@
             }
 
             100% {
-                transform: translate(60px, 50px) scale(1.15);
+                transform: translate(70px, 55px) scale(1.12);
             }
         }
 
-        /* TARJETAS GLASSMORPHISM */
+        /* TARJETAS GLASSMORPHISM PROFESIONAL */
         .glass-box {
             background: var(--glass-card);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            border-radius: 26px;
+            box-shadow:
+                0 25px 60px rgba(15, 23, 42, 0.12),
+                0 8px 20px rgba(15, 23, 42, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.7);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-box:hover {
+            border-color: rgba(15, 23, 42, 0.12);
+            box-shadow:
+                0 30px 70px rgba(15, 23, 42, 0.15),
+                0 10px 25px rgba(15, 23, 42, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.85);
         }
 
         .hero-title {
             font-size: 2.2rem;
             font-weight: 800;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #ffffff 30%, #38bdf8 100%);
+            background: linear-gradient(135deg, #0f172a 10%, #7c3aed 60%, #0891b2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        /* ESTILOS DE CONTROLES DE FORMULARIO NEÓN */
+        /* ESTILOS DE CONTROLES DE FORMULARIO PROFESIONAL */
         .form-label-custom {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             font-weight: 700;
-            letter-spacing: 0.5px;
-            color: #94a3b8;
+            letter-spacing: 0.6px;
+            color: var(--text-secondary);
             margin-bottom: 6px;
+            text-transform: uppercase;
         }
 
         .form-control-dark {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid var(--glass-border);
-            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            color: var(--text-primary);
             border-radius: 12px;
             padding: 0.75rem 1rem;
             transition: all 0.25s ease;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
         }
 
         .form-control-dark:focus {
-            background: rgba(15, 23, 42, 0.85);
+            background: #ffffff;
             border-color: var(--accent-cyan);
-            color: #ffffff;
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.25);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 4px rgba(8, 145, 178, 0.12);
             outline: none;
         }
 
         .form-control-dark::placeholder {
-            color: #475569;
+            color: var(--text-muted);
+        }
+
+        /* Input group iconos */
+        .input-group-text-glass {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            border-right: none;
+            color: var(--accent-cyan);
+            border-radius: 12px 0 0 12px;
         }
 
         /* SELECCIÓN DE PLANES INTERACTIVA */
         .plan-card-option {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(15, 23, 42, 0.08);
             border-radius: 16px;
             padding: 1rem;
             cursor: pointer;
             transition: all 0.25s ease;
             position: relative;
             height: 100%;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
         }
 
         .plan-card-option:hover {
-            border-color: rgba(56, 189, 248, 0.4);
-            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(8, 145, 178, 0.4);
+            background: rgba(255, 255, 255, 0.85);
             transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
         }
 
         .plan-card-option.active {
-            background: rgba(6, 182, 212, 0.12);
+            background: rgba(8, 145, 178, 0.08);
             border-color: var(--accent-cyan);
-            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+            box-shadow:
+                0 0 0 3px rgba(8, 145, 178, 0.12),
+                0 8px 20px rgba(8, 145, 178, 0.15);
         }
 
         .plan-card-option .badge-popular {
             position: absolute;
             top: -10px;
             right: 12px;
-            background: linear-gradient(135deg, #8b5cf6, #ec4899);
-            font-size: 0.65rem;
+            background: linear-gradient(135deg, #7c3aed, #db2777);
+            font-size: 0.62rem;
             font-weight: 800;
             padding: 4px 10px;
             border-radius: 20px;
             text-transform: uppercase;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
         }
 
+        /* BOTONES PROFESIONALES */
         .btn-custom {
-            background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+            background: linear-gradient(135deg, #0891b2, #7c3aed);
             color: white;
             font-weight: 700;
             border-radius: 14px;
             padding: 0.9rem 2.2rem;
             border: none;
-            box-shadow: 0 10px 25px rgba(6, 182, 212, 0.3);
+            box-shadow: 0 10px 25px rgba(8, 145, 178, 0.25);
             transition: all 0.3s;
+            letter-spacing: 0.3px;
         }
 
         .btn-custom:hover {
             transform: translateY(-2px);
             color: white;
-            box-shadow: 0 15px 35px rgba(139, 92, 246, 0.5);
+            box-shadow: 0 15px 38px rgba(124, 58, 237, 0.35);
         }
 
         .btn-whatsapp {
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: linear-gradient(135deg, #059669, #047857);
             color: white;
             font-weight: 700;
             border-radius: 14px;
             padding: 0.9rem 2rem;
             border: none;
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 10px 25px rgba(5, 150, 105, 0.28);
             transition: all 0.3s;
             text-decoration: none;
             display: inline-flex;
@@ -208,7 +266,33 @@
         .btn-whatsapp:hover {
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.5);
+            box-shadow: 0 15px 35px rgba(5, 150, 105, 0.45);
+        }
+
+        /* TEXTO SECUNDARIO AJUSTADO */
+        .text-secondary {
+            color: var(--text-secondary) !important;
+        }
+
+        /* Ajuste del contenedor de éxito */
+        .success-box {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 18px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+        }
+
+        /* Ajustes tipográficos para fondo claro */
+        .text-white {
+            color: var(--text-primary) !important;
+        }
+
+        .text-info {
+            color: var(--accent-cyan) !important;
+        }
+
+        .text-warning {
+            color: #d97706 !important;
         }
     </style>
 </head>
@@ -220,6 +304,7 @@
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
+        <div class="orb orb-4"></div>
     </div>
 
     <div class="container py-5 d-flex justify-content-center align-items-center" style="min-height: 100vh;">
@@ -259,8 +344,7 @@
                             <div class="col-md-6">
                                 <label class="form-label-custom">CORREO ELECTRÓNICO *</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"
-                                        style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--glass-border); border-right: none; color: #06b6d4; border-radius: 12px 0 0 12px;">
+                                    <span class="input-group-text input-group-text-glass">
                                         <i class="bi bi-envelope-fill"></i>
                                     </span>
                                     <input type="email" name="correo" class="form-control form-control-dark"
@@ -271,8 +355,7 @@
                             <div class="col-md-6">
                                 <label class="form-label-custom">TELÉFONO DE CONTACTO *</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"
-                                        style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--glass-border); border-right: none; color: #06b6d4; border-radius: 12px 0 0 12px;">
+                                    <span class="input-group-text input-group-text-glass">
                                         <i class="bi bi-telephone-fill"></i>
                                     </span>
                                     <input type="tel" name="telefono" class="form-control form-control-dark"
@@ -313,7 +396,7 @@
                                     <span class="badge-popular">Top</span>
                                     <div class="fw-bold text-white mb-1">Todo Full</div>
                                     <div class="text-info small fw-bold mb-1">Plan #1</div>
-                                    <p class=" mb-0" style="font-size: 0.72rem;">Acceso total ilimitado a
+                                    <p class="text-secondary mb-0" style="font-size: 0.72rem;">Acceso total ilimitado a
                                         todos los módulos.</p>
                                 </div>
                             </div>
@@ -323,7 +406,7 @@
                                 <div class="plan-card-option" onclick="seleccionarPlan(2, this)">
                                     <div class="fw-bold text-white mb-1">Completo</div>
                                     <div class="text-info small fw-bold mb-1">Plan #2</div>
-                                    <p class=" mb-0" style="font-size: 0.72rem;">Ideal para negocios
+                                    <p class="text-secondary mb-0" style="font-size: 0.72rem;">Ideal para negocios
                                         medianos en crecimiento.</p>
                                 </div>
                             </div>
@@ -333,7 +416,7 @@
                                 <div class="plan-card-option" onclick="seleccionarPlan(3, this)">
                                     <div class="fw-bold text-white mb-1">Empezar</div>
                                     <div class="text-info small fw-bold mb-1">Plan #3</div>
-                                    <p class=" mb-0" style="font-size: 0.72rem;">Herramientas clave para
+                                    <p class="text-secondary mb-0" style="font-size: 0.72rem;">Herramientas clave para
                                         arrancar operaciones.</p>
                                 </div>
                             </div>
@@ -343,7 +426,7 @@
                                 <div class="plan-card-option" onclick="seleccionarPlan(4, this)">
                                     <div class="fw-bold text-white mb-1">Básico</div>
                                     <div class="text-info small fw-bold mb-1">Plan #4</div>
-                                    <p class=" mb-0" style="font-size: 0.72rem;">Funcionalidades
+                                    <p class="text-secondary mb-0" style="font-size: 0.72rem;">Funcionalidades
                                         esenciales de inventario.</p>
                                 </div>
                             </div>
@@ -364,14 +447,13 @@
                 </div>
 
                 <h2 class="hero-title mb-3">¡Registro Recibido! 🎉</h2>
-                <p class="text-slate-300 fs-6 mb-4">
+                <p class="text-secondary fs-6 mb-4">
                     Hola <strong id="txtResponsable" class="text-white"></strong>, se ha registrado con éxito el negocio
                     <strong id="txtNegocio" class="text-info"></strong> tu id de cuenta es <strong id="txt_id_cuenta"
                         class="text-info"></strong>.
                 </p>
 
-                <div class="p-4 rounded-4 mb-4 text-start"
-                    style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border);">
+                <div class="success-box p-4 mb-4 text-start">
                     <div class="d-flex align-items-center gap-2 text-warning mb-2 fw-bold">
                         <i class="bi bi-exclamation-triangle"></i>
                         <span>Siguiente paso: Activación de Licencia</span>
@@ -655,8 +737,8 @@ Acciones pendientes:
                         title: 'Error de conexión',
                         text: error.message ||
                             'No se pudo comunicar con el servidor.',
-                        background: '#0b0f19',
-                        color: '#fff',
+                        background: '#151a2e',
+                        color: '#e8edf7',
                         confirmButtonColor: '#8b5cf6'
                     });
 

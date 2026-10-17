@@ -13838,7 +13838,8 @@ CREATE TABLE `usuarios` (
   `almacen_id` int(11) DEFAULT NULL,
   `activo` tinyint(1) DEFAULT 1,
   `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
-  `cedula` varchar(250) NOT NULL DEFAULT '0'
+  `cedula` varchar(250) NOT NULL DEFAULT '0',
+   `telefono` varchar(250) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
