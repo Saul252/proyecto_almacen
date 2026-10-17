@@ -18,7 +18,7 @@ $almacenModel = new AlmacenModel($conexion);
 $pacientesModel = new PacientesModel($conexion);
 
 $paginaActual = 'clientesPacientes';
-
+protegerPagina('misPacientesDental');
 // ============================================================================
 // ACCIÓN: GUARDAR CONSULTA ODONTOLÓGICA (AJAX)
 // ============================================================================

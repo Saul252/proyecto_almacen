@@ -450,7 +450,7 @@
                         };
                         const currentEstado = estadosConfig[estado.toLowerCase()] || estadosConfig['pendiente'];
                         const irConsulta = c.estado == 'completada' ? ` <!-- Botón de Expediente / Consulta (Destacado y más elegante) -->
-                <a href="/myvet/consultaDental?id=${c.id}&razon=${c.detalles}" 
+                <a href="/myvet/consultaDental?id=${c.paciente_id}&razon=${c.detalles}" 
                    class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1.5 shadow-sm rounded-pill px-3 py-1.5 transition-all" 
                    title="Abrir Expediente Dental">
                     <i class="bi bi-tooth fs-6"></i>

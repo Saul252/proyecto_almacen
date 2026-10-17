@@ -405,52 +405,57 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script>
-        // =========================================================
-        // ARCHIVOS
-        // =========================================================
+        /* =========================================================
+           ESTADO GLOBAL
+           ========================================================= */
         let archivosSeleccionados = [];
+        let listaClientes = [];
 
-        document.addEventListener('DOMContentLoaded', async function () {
+        /* =========================================================
+           INICIALIZACIÓN
+           ========================================================= */
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Input de evidencias
             const inputEvidencias = document.getElementById('evidencias');
             if (inputEvidencias) {
-                inputEvidencias.addEventListener('change', function (e) {
-                    const nuevosArchivos = Array.from(e.target.files);
-                    nuevosArchivos.forEach(archivo => {
-                        const existe = archivosSeleccionados.some(a =>
-                            a.name === archivo.name &&
-                            a.size === archivo.size);
-                        if (!existe) {
-                            archivosSeleccionados.push(archivo);
-                        }
+                inputEvidencias.addEventListener('change', (e) => {
+                    Array.from(e.target.files).forEach((archivo) => {
+                        const existe = archivosSeleccionados.some(
+                            (a) => a.name === archivo.name && a.size === archivo.size
+                        );
+                        if (!existe) archivosSeleccionados.push(archivo);
                     });
                     inputEvidencias.value = '';
                     renderizarPrevisualizaciones();
                 });
             }
 
-            // =====================================================
-            // CARGA INICIAL DEL CLIENTE
-            // =====================================================
-            const parametros = new URLSearchParams(window.location.search);
-            const clienteIdUrl = parametros.get('id') ?? 0;
-            const razon = parametros.get('razon') ?? '';
-            $('#motivo_consulta').val(razon);
-            await cargarClientes(clienteIdUrl);
+            // Parámetros de URL (id de cliente + razón de consulta) — NO se borran
+            const params = new URLSearchParams(window.location.search);
+            const clienteIdUrl = parseInt(params.get('id') ?? '0', 10) || 0;
+            const razon = params.get('razon') ?? '';
 
-            if (window.location.search) {
-                window.history.replaceState({}, document.title,
-                    window.location.pathname);
+            if (razon) {
+                const motivo = document.getElementById('motivo_consulta');
+                if (motivo) motivo.value = razon;
             }
+
+            await cargarClientes(clienteIdUrl || null);
         });
 
-        // =========================================================
-        // PREVISUALIZACIONES
-        // =========================================================
+        /* =========================================================
+           PREVISUALIZACIÓN DE EVIDENCIAS
+           ========================================================= */
         function renderizarPrevisualizaciones() {
             const contenedor = document.getElementById('lista_evidencias');
             if (!contenedor) return;
+
+            // Revocar URLs anteriores antes de vaciar (evita memory leak)
+            if (contenedor._urlsPrevias) {
+                contenedor._urlsPrevias.forEach((u) => URL.revokeObjectURL(u));
+            }
+            contenedor._urlsPrevias = [];
             contenedor.innerHTML = '';
 
             archivosSeleccionados.forEach((archivo, index) => {
@@ -463,47 +468,47 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
                 if (esImagen) {
                     const urlImagen = URL.createObjectURL(archivo);
+                    contenedor._urlsPrevias.push(urlImagen);
                     thumbnailHtml = `
-                        <img src="${urlImagen}"
-                            class="rounded-3 mb-2"
-                            style="width:100%;height:90px;object-fit:cover;">
-                    `;
+                <img src="${urlImagen}"
+                    class="rounded-3 mb-2"
+                    style="width:100%;height:90px;object-fit:cover;">
+            `;
                 } else if (esPdf) {
                     thumbnailHtml = `
-                        <div class="rounded-3 mb-2 d-flex align-items-center justify-content-center bg-light text-danger"
-                            style="height:90px;">
-                            <i class="bi bi-file-earmark-pdf-fill fs-1"></i>
-                        </div>
-                    `;
+                <div class="rounded-3 mb-2 d-flex align-items-center justify-content-center bg-light text-danger"
+                    style="height:90px;">
+                    <i class="bi bi-file-earmark-pdf-fill fs-1"></i>
+                </div>
+            `;
                 } else {
                     thumbnailHtml = `
-                        <div class="rounded-3 mb-2 d-flex align-items-center justify-content-center bg-light text-secondary"
-                            style="height:90px;">
-                            <i class="bi bi-file-earmark-text-fill fs-1"></i>
-                        </div>
-                    `;
+                <div class="rounded-3 mb-2 d-flex align-items-center justify-content-center bg-light text-secondary"
+                    style="height:90px;">
+                    <i class="bi bi-file-earmark-text-fill fs-1"></i>
+                </div>
+            `;
                 }
 
                 col.innerHTML = `
-                    <div class="card h-100 shadow-sm border-0 p-2 position-relative"
-                        style="background:#ffffff;border-radius:12px;z-index:3;">
-                        <button type="button"
-                            class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 rounded-circle p-0 d-flex align-items-center justify-content-center"
-                            style="width:22px;height:22px;z-index:10;"
-                            onclick="eliminarArchivo(${index})">
-                            <i class="bi bi-x"></i>
-                        </button>
-                        ${thumbnailHtml}
-                        <div class="text-truncate small fw-semibold text-dark px-1"
-                            title="${archivo.name}">
-                            ${archivo.name}
-                        </div>
-                        <div class="text-muted px-1"
-                            style="font-size:.7rem;">
-                            ${(archivo.size / 1024).toFixed(1)} KB
-                        </div>
-                    </div>
-                `;
+            <div class="card h-100 shadow-sm border-0 p-2 position-relative"
+                style="background:#ffffff;border-radius:12px;z-index:3;">
+                <button type="button"
+                    class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 rounded-circle p-0 d-flex align-items-center justify-content-center"
+                    style="width:22px;height:22px;z-index:10;"
+                    onclick="eliminarArchivo(${index})">
+                    <i class="bi bi-x"></i>
+                </button>
+                ${thumbnailHtml}
+                <div class="text-truncate small fw-semibold text-dark px-1"
+                    title="${escapeHtml(archivo.name)}">
+                    ${escapeHtml(archivo.name)}
+                </div>
+                <div class="text-muted px-1" style="font-size:.7rem;">
+                    ${(archivo.size / 1024).toFixed(1)} KB
+                </div>
+            </div>
+        `;
 
                 contenedor.appendChild(col);
             });
@@ -514,78 +519,84 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
             renderizarPrevisualizaciones();
         }
 
-        // =========================================================
-        // CLIENTES
-        // =========================================================
-        let listaClientes = [];
-
-        async function cargarClientes(clienteIdSeleccionar = null) {
-            const almacenId = $('#almacen_id_editar').val();
-            const select = document.getElementById('cliente_id');
-            if (!select) return;
-            select.innerHTML = '<option value="">-- Seleccione un cliente --</option>';
-            try {
-                const url = `/myvet/app/controllers/consultaMedicaController.php?action=obtenerPorId&id=${clienteIdSeleccionar}`;
-                // Nota: Usamos listarTodos o el endpoint adecuado según el controlador de clientes. 
-                // Dado que el controlador provisto usa ClientesModel, puedes listar clientes filtrando por almacén o usando un endpoint equivalente de clientes.
-                const respuesta = await fetch(`/myvet/app/controllers/consultaMedicaController.php?action=obtenerPorId&id=${clienteIdSeleccionar || 0}`);
-                // Si el listado se hace desde otro endpoint de clientes, ajusta la URL según corresponda:
-            } catch (error) {
-                // ...
-            }
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
         }
 
-        // Ajuste en base al controlador provisto (ClientesModel maneja clientes y listados):
+        /* =========================================================
+           CLIENTES
+           ========================================================= */
         async function cargarClientes(clienteIdSeleccionar = null) {
-            const almacenId = $('#almacen_id_editar').val();
             const select = document.getElementById('cliente_id');
             if (!select) return;
-            select.innerHTML = '<option value="">-- Seleccione un cliente --</option>';
-            try {
-                // Apuntamos al endpoint que devuelva los clientes del almacén correspondiente. 
-                // En el controlador provided no hay un action específico para listar clientes en JSON, 
-                // por lo que puedes agregar una ruta en el controlador o usar un endpoint existente de clientes.
-                const url = `/myvet/app/controllers/clientesController.php?action=listar&almacen_id=${almacenId}`;
-                // O si lo manejas desde accesoController como estaba originalmente:
-                const urlAcceso = `/myvet/app/controllers/accesoController.php?action=obtenerClientes&almacen_id=${almacenId}`;
 
-                const respuesta = await fetch(urlAcceso);
-                if (!respuesta.ok) throw new Error('Error en la respuesta del servidor');
+            select.innerHTML = '<option value="">-- Seleccione un cliente --</option>';
+
+            const almacenId =
+                document.getElementById('almacen_id_editar')?.value ||
+                document.getElementById('almacen_id')?.value ||
+                '';
+
+            // Normalizar el id buscado UNA sola vez, como string limpio
+            const idBuscado =
+                clienteIdSeleccionar !== null && clienteIdSeleccionar !== undefined && clienteIdSeleccionar !== ''
+                    ? String(clienteIdSeleccionar).trim()
+                    : '';
+
+            try {
+                const url =
+                    '/myvet/app/controllers/accesoController.php?action=obtenerClientes' +
+                    '&almacen_id=' + encodeURIComponent(almacenId);
+
+                const respuesta = await fetch(url);
+                if (!respuesta.ok) throw new Error('HTTP ' + respuesta.status);
+
                 const resultado = await respuesta.json();
-                if (resultado.success && Array.isArray(resultado.data)) {
-                    listaClientes = resultado.data;
-                    listaClientes.forEach(cliente => {
-                        const opcion = document.createElement('option');
-                        opcion.value = Number(cliente.id);
-                        opcion.textContent = cliente.nombre_comercial;
-                        select.appendChild(opcion);
-                    });
-                    if (clienteIdSeleccionar !== null && clienteIdSeleccionar !== '') {
-                        const idBuscado = parseInt(clienteIdSeleccionar, 10);
-                        if (!isNaN(idBuscado)) {
-                            const coincidentes = listaClientes.filter(c => Number(c.id) === idBuscado);
-                            if (coincidentes.length > 0) {
-                                select.value = idBuscado;
-                            }
-                        }
-                    }
-                } else {
-                    select.innerHTML = '<option value="">No se pudieron cargar los usuarios</option>';
+                if (!resultado.success || !Array.isArray(resultado.data)) {
+                    throw new Error(resultado.message || 'Respuesta inválida al cargar clientes.');
                 }
+
+                listaClientes = resultado.data;
+                const fragment = document.createDocumentFragment();
+
+                listaClientes.forEach((cliente) => {
+                    const opcion = document.createElement('option');
+                    // value como string limpio, sin Number() para no romper ids alfanuméricos
+                    opcion.value = String(cliente.id ?? '').trim();
+                    opcion.textContent =
+                        cliente.nombre_comercial || cliente.nombre || '(sin nombre)';
+                    fragment.appendChild(opcion);
+                });
+
+                select.appendChild(fragment);
+
+                // Preselección usando el id de la URL
+                if (idBuscado !== '') {
+                    const existe = listaClientes.some(
+                        (c) => String(c.id).trim() === idBuscado
+                    );
+
+                    if (existe) {
+                        select.value = idBuscado;
+                        // Notificar a quien escuche 'change' (para cargar datos del cliente, etc.)
+                        select.dispatchEvent(new Event('change', { bubbles: true }));
+                    } else {
+                        console.warn(
+                            '[cargarClientes] El id de la URL no coincide con ningún cliente cargado:',
+                            idBuscado
+                        );
+                    }
+                }
+
             } catch (error) {
-                select.innerHTML = '<option value="">Error al cargar la lista</option>';
                 console.error('Error al ejecutar cargarClientes:', error);
+                select.innerHTML = '<option value="">Error al cargar la lista de clientes</option>';
             }
-        }
-
-        function cargarDatosCliente(id) {
-            const cliente = listaClientes.find(c => String(c.id) === String(id));
-            if (!cliente) return;
-        }
-
-        // =========================================================
-        // GUARDAR CONSULTA Y EVIDENCIAS
-        // =========================================================
+        }  /* =========================================================
+           GUARDAR CONSULTA + EVIDENCIAS
+           ========================================================= */
         async function enviarDatos() {
             try {
                 const clienteId = document.getElementById('cliente_id').value;
@@ -599,8 +610,8 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                     return;
                 }
 
+                // 1) Guardar la consulta
                 const datos = new FormData();
-
                 datos.append('paciente_id', clienteId);
                 datos.append('motivo_consulta', document.getElementById('motivo_consulta').value);
                 datos.append('antecedentes_medicos', document.getElementById('antecedentes_medicos').value);
@@ -616,51 +627,82 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                 datos.append('costo', document.getElementById('costo').value);
 
                 Swal.fire({
-                    title: 'Guardando consulta medica...',
+                    title: 'Guardando consulta médica...',
                     text: 'Por favor espere un momento.',
                     allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
+                    didOpen: () => Swal.showLoading()
                 });
 
-                const response = await fetch('/myvet/app/controllers/consultaMedicaController.php?action=guardarConsulta', {
-                    method: 'POST',
-                    body: datos
-                });
+                const response = await fetch(
+                    '/myvet/app/controllers/consultaMedicaController.php?action=guardarConsulta',
+                    { method: 'POST', body: datos }
+                );
 
-                const resultado = await response.json();
+                const texto = await response.text();
+                let resultado;
+                try {
+                    resultado = JSON.parse(texto);
+                } catch (e) {
+                    console.error('[guardarConsulta] Respuesta no-JSON:\n', texto);
+                    throw new Error('Respuesta inválida del servidor al guardar la consulta.');
+                }
 
-                if (!resultado.success) {
+                if (!response.ok || !resultado.success) {
                     throw new Error(resultado.message || 'Error al guardar la consulta.');
                 }
 
                 const consultaId = resultado.id;
 
-                // Subir evidencias si existen
-                if (archivosSeleccionados.length > 0) {
-                    for (let archivo of archivosSeleccionados) {
-                        const formDataEvidencia = new FormData();
-                        formDataEvidencia.append('pacienteId', clienteId);
-                        formDataEvidencia.append('consulta_id', consultaId);
-                        formDataEvidencia.append('documento', archivo);
+                // 2) Subir evidencias (recolectando errores sin abortar el resto)
+                const erroresEvidencias = [];
 
-                        await fetch('/myvet/app/controllers/historialmedicaController.php?action=subirDocumento', {
-                            method: 'POST',
-                            body: formDataEvidencia
-                        });
+                for (const archivo of archivosSeleccionados) {
+                    try {
+                        const fd = new FormData();
+                        fd.append('pacienteId', clienteId);
+                        fd.append('consulta_id', consultaId);
+                        fd.append('documento', archivo);
+
+                        const r = await fetch(
+                            '/myvet/app/controllers/historialmedicaController.php?action=subirDocumento',
+                            { method: 'POST', body: fd }
+                        );
+
+                        const t = await r.text();
+                        let j;
+                        try { j = JSON.parse(t); } catch (_) { j = null; }
+
+                        if (!r.ok || !j || j.success === false) {
+                            erroresEvidencias.push({
+                                archivo: archivo.name,
+                                motivo: (j && j.message) || ('HTTP ' + r.status)
+                            });
+                        }
+                    } catch (err) {
+                        erroresEvidencias.push({ archivo: archivo.name, motivo: err.message });
                     }
                 }
 
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Éxito!',
-                    text: 'Consulta médica guardada correctamente.',
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                    window.location.href = '/myvet/app/controllers/consultaMedicaController.php';
-                });
+                // 3) Feedback final
+                if (erroresEvidencias.length === 0) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: 'Consulta médica guardada correctamente.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    await Swal.fire({
+                        icon: 'warning',
+                        title: 'Consulta guardada, pero hubo problemas con evidencias',
+                        html: erroresEvidencias
+                            .map((e) => `<div class="small">• <b>${escapeHtml(e.archivo)}</b>: ${escapeHtml(e.motivo)}</div>`)
+                            .join(''),
+                    });
+                }
+
+                window.location.href = '/myvet/app/controllers/consultaMedicaController.php';
 
             } catch (error) {
                 Swal.fire({

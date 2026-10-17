@@ -436,7 +436,7 @@
                         tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">No hay citas programadas para esta fecha.</td></tr>`;
                         return;
                     }
-
+                    console.log(citasFiltradas);
                     citasFiltradas.forEach(c => {
                         const horaFormatted = (c.fecha && c.fecha.length > 10) ? c.fecha.substring(11, 16) : '--:--';
                         const estado = c.estado || 'pendiente';
@@ -449,9 +449,9 @@
                         };
                         const currentEstado = estadosConfig[estado.toLowerCase()] || estadosConfig['pendiente'];
                         const irConsulta = c.estado == 'completada' ? ` <!-- Botón de Expediente / Consulta (Destacado y más elegante) -->
-                <a href="/myvet/consultaDental?id=${c.id}&razon=${c.detalles}" 
+                <a href="/myvet/consultaMedica?id=${c.paciente_id}&razon=${c.detalles}" 
                    class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1.5 shadow-sm rounded-pill px-3 py-1.5 transition-all" 
-                   title="Abrir Expediente Dental">
+                   title="Abrir Expediente Medico">
                     <i class="bi bi-tooth fs-6"></i>
                     <span class="fw-semibold">Ir a consulta</span>
                 </a>`: '';
@@ -857,6 +857,7 @@
                 .then(res => res.json())
                 .then(res => {
                     if (res.success) {
+                        filtrarYMostrarCitas(fechaActual);
                         Swal.fire({
                             icon: 'success',
                             title: 'Estado actualizado',
@@ -866,7 +867,7 @@
                             showConfirmButton: false,
                             timer: 2000
                         }).then(() => {
-                            location.reload();
+
                         });
                     } else {
                         Swal.fire({
@@ -1027,7 +1028,7 @@
         function abrirConsultaDental(id) {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = '/myvet/consultaDental';
+            form.action = '/myvet/consultaMedica';
 
             const inputId = document.createElement('input');
             inputId.type = 'hidden';

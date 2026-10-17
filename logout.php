@@ -61,7 +61,7 @@ session_destroy();
         }
 
         /* ============================================================
-           FONDO — blanco con auroras azules suaves
+           FONDO
            ============================================================ */
         .bg {
             position: fixed;
@@ -99,7 +99,7 @@ session_destroy();
             align-items: center;
             justify-content: center;
             gap: 46px;
-            animation: sceneIn 1s cubic-bezier(0.22, 1, 0.36, 1);
+            animation: sceneIn 0.6s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         @keyframes sceneIn {
@@ -115,7 +115,7 @@ session_destroy();
         }
 
         /* ============================================================
-           NÚCLEO DE ONDAS + PARTÍCULAS
+           NÚCLEO + ONDAS + PARTÍCULAS
            ============================================================ */
         .pulse-wrap {
             position: relative;
@@ -126,7 +126,6 @@ session_destroy();
             justify-content: center;
         }
 
-        /* --- Núcleo central (esfera luminosa) --- */
         .core {
             position: absolute;
             width: 26px;
@@ -164,7 +163,6 @@ session_destroy();
             }
         }
 
-        /* --- Anillos orbitales girando --- */
         .orbit {
             position: absolute;
             border-radius: 50%;
@@ -208,7 +206,6 @@ session_destroy();
             }
         }
 
-        /* --- Ondas expansivas --- */
         .wave {
             position: absolute;
             border-radius: 50%;
@@ -257,7 +254,6 @@ session_destroy();
             }
         }
 
-        /* --- Partículas ascendentes --- */
         .particles {
             position: absolute;
             inset: 0;
@@ -290,8 +286,7 @@ session_destroy();
 
             100% {
                 opacity: 0;
-                transform:
-                    translate(var(--px, 0), calc(-1 * var(--py, 100px))) scale(0.2);
+                transform: translate(var(--px, 0), calc(-1 * var(--py, 100px))) scale(0.2);
             }
         }
 
@@ -406,7 +401,7 @@ session_destroy();
            ============================================================ */
         .status {
             text-align: center;
-            animation: fadeIn 1s ease-out 0.4s backwards;
+            animation: fadeIn 0.6s ease-out 0.2s backwards;
         }
 
         .status-title {
@@ -492,7 +487,7 @@ session_destroy();
             background: rgba(10, 132, 255, 0.12);
             border-radius: 3px;
             overflow: hidden;
-            animation: fadeIn 1s ease-out 0.6s backwards;
+            animation: fadeIn 0.6s ease-out 0.3s backwards;
         }
 
         .progress-bar {
@@ -505,9 +500,9 @@ session_destroy();
             background-size: 200% 100%;
             border-radius: 3px;
             animation:
-                progressFill 6s linear forwards,
+                progressFill 2s linear forwards,
                 barShine 2s linear infinite;
-            animation-delay: 0.4s, 0.4s;
+            animation-delay: 0.2s, 0.2s;
             box-shadow: 0 0 12px rgba(10, 132, 255, 0.5);
         }
 
@@ -547,7 +542,7 @@ session_destroy();
             color: rgba(10, 132, 255, 0.6);
             letter-spacing: 0.5px;
             text-transform: uppercase;
-            animation: fadeIn 1s ease-out 0.8s backwards;
+            animation: fadeIn 0.6s ease-out 0.4s backwards;
         }
 
         .brand-dot {
@@ -558,7 +553,7 @@ session_destroy();
         }
 
         /* ============================================================
-           TEXTO METÁLICO FINAL — JSEA / Nos vemos pronto
+           TEXTO FINAL — JSEA / Nos vemos pronto
            ============================================================ */
         .farewell {
             position: fixed;
@@ -571,8 +566,8 @@ session_destroy();
             gap: 14px;
             pointer-events: none;
             opacity: 0;
-            animation: farewellIn 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-            animation-delay: 4.2s;
+            animation: farewellIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: 1.8s;
         }
 
         @keyframes farewellIn {
@@ -597,7 +592,6 @@ session_destroy();
             text-transform: uppercase;
             line-height: 1;
             text-align: center;
-
             background: linear-gradient(100deg,
                     #6b8299 0%,
                     #a8c0d8 18%,
@@ -611,12 +605,10 @@ session_destroy();
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-
             filter:
                 drop-shadow(0 1px 0 rgba(255, 255, 255, 1)) drop-shadow(0 2px 6px rgba(10, 132, 255, 0.2)) drop-shadow(0 6px 24px rgba(10, 132, 255, 0.15));
-
             animation: metalShine 3.2s linear infinite;
-            animation-delay: 5.4s;
+            animation-delay: 2.6s;
         }
 
         @keyframes metalShine {
@@ -650,10 +642,9 @@ session_destroy();
             text-transform: uppercase;
             color: rgba(10, 37, 64, 0.6);
             text-align: center;
-
             opacity: 0;
-            animation: msgIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-            animation-delay: 4.9s;
+            animation: msgIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: 2.3s;
         }
 
         @keyframes msgIn {
@@ -671,7 +662,7 @@ session_destroy();
         }
 
         /* ============================================================
-           FUNDIDO FINAL (ahora blanco)
+           FUNDIDO FINAL
            ============================================================ */
         .curtain {
             position: fixed;
@@ -680,8 +671,8 @@ session_destroy();
             background: #ffffff;
             opacity: 0;
             pointer-events: none;
-            animation: curtainFade 1s ease-in forwards;
-            animation-delay: 6.4s;
+            animation: curtainFade 0.6s ease-in forwards;
+            animation-delay: 2.9s;
         }
 
         @keyframes curtainFade {
@@ -745,7 +736,6 @@ session_destroy();
 
     <div class="scene">
 
-        <!-- NÚCLEO + ONDAS + PARTÍCULAS -->
         <div class="pulse-wrap">
             <span class="wave"></span>
             <span class="wave"></span>
@@ -778,7 +768,6 @@ session_destroy();
             </div>
         </div>
 
-        <!-- TEXTO -->
         <div class="status">
             <div class="status-title">Cerrando sesión</div>
             <div class="status-subtitle">
@@ -787,20 +776,17 @@ session_destroy();
             </div>
         </div>
 
-        <!-- BARRA -->
         <div class="progress">
             <div class="progress-bar"></div>
         </div>
 
     </div>
 
-    <!-- TEXTO METÁLICO FINAL -->
     <div class="farewell">
         <div class="farewell-brand">JSEA</div>
         <div class="farewell-msg">Nos vemos pronto</div>
     </div>
 
-    <!-- Marca (pie) -->
     <div class="brand">
         <span>myvet</span>
         <span class="brand-dot"></span>
@@ -812,7 +798,7 @@ session_destroy();
     <script>
         setTimeout(() => {
             window.location.href = 'index.php';
-        }, 7400);
+        }, 3500);
     </script>
 
 </body>

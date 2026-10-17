@@ -139,21 +139,37 @@ if (isset($_GET['action']) && $_GET['action'] === 'guardar') {
 
     exit;
 }
-
 // --- ACCIÓN: CAMBIAR ESTADO DE LA CITA (AJAX) ---
 if (isset($_GET['action']) && $_GET['action'] === 'cambiarEstado') {
-    if (ob_get_level())
-        ob_clean();
-    header('Content-Type: application/json');
+
+    // 1) Limpiar TODOS los niveles de output buffering (no solo el superior)
+    //    Esto evita que warnings/notices/BOM/includes dejen basura antes del JSON.
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+
+    // 2) No mostrar errores al cliente, pero sí loguearlos
+    ini_set('display_errors', '0');
+    ini_set('log_errors', '1');
+    error_reporting(E_ALL);
+
+    // 3) Headers JSON
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store, no-cache, must-revalidate');
+
+    // 4) Buffer limpio para detectar cualquier salida accidental
+    ob_start();
+
+    $respuesta = ['success' => false, 'message' => 'Error desconocido'];
 
     try {
         $id = intval($_POST['id'] ?? 0);
-        $estado = trim($_POST['estado'] ?? '');
+        $estado = trim((string) ($_POST['estado'] ?? ''));
 
         // Estados permitidos
         $estadosPermitidos = ['pendiente', 'completada', 'cancelada'];
-        if ($id <= 0 || !in_array($estado, $estadosPermitidos)) {
-            throw new Exception("Parámetros no válidos para actualizar el estado.");
+        if ($id <= 0 || !in_array($estado, $estadosPermitidos, true)) {
+            throw new Exception('Parámetros no válidos para actualizar el estado.');
         }
 
         // ============================================
@@ -169,33 +185,58 @@ if (isset($_GET['action']) && $_GET['action'] === 'cambiarEstado') {
         $ipReal = substr($ipReal, 0, 45);
         $userAgent = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500);
 
+        // ============================================
+        // Cambio de estado en el modelo
+        // ============================================
         $resultado = $citasModel->cambiarEstado($id, $estado, $almacen_usuario);
 
-        if ($resultado) {
-            // ============================================
-            // REGISTRAR ENTRADA EN AUDITORÍA
-            // ============================================
-            try {
-                $citasModel->registrarEntrada(
-                    $usuarioId > 0 ? $usuarioId : null,
-                    $username,
-                    $ipReal,
-                    $userAgent,
-                    true,
-                    'actualizacion de cita' . $id . ' estado' . $estado,
-                    'medica'
-                );
-            } catch (Throwable $e) {
-                error_log('[audit_login] ' . $e->getMessage());
-            }
-
-            echo json_encode(['success' => true, 'message' => 'Estado de la cita actualizado a: ' . ucfirst($estado)]);
-        } else {
-            throw new Exception("No se pudo actualizar el estado o no tiene permisos.");
+        if (!$resultado) {
+            throw new Exception('No se pudo actualizar el estado o no tiene permisos.');
         }
+
+        // ============================================
+        // REGISTRAR ENTRADA EN AUDITORÍA
+        // ============================================
+        try {
+            $citasModel->registrarEntrada(
+                $usuarioId > 0 ? $usuarioId : null,
+                $username,
+                $ipReal,
+                $userAgent,
+                true,
+                'actualizacion de cita ' . $id . ' estado ' . $estado,
+                'medica'
+            );
+        } catch (Throwable $e) {
+            error_log('[audit_citas] ' . $e->getMessage());
+            // No relanzamos: el cambio de estado ya se hizo y no queremos fallar por auditoría.
+        }
+
+        $respuesta = [
+            'success' => true,
+            'message' => 'Estado de la cita actualizado a: ' . ucfirst($estado),
+            'data' => [
+                'id' => $id,
+                'estado' => $estado,
+            ],
+        ];
+
     } catch (Throwable $e) {
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        $respuesta = [
+            'success' => false,
+            'message' => $e->getMessage(),
+        ];
+        error_log('[cambiarEstado] ' . $e->getMessage());
     }
+
+    // 5) Detectar salida accidental (warnings, echos, BOM) que se coló dentro del buffer
+    $salidaAccidental = ob_get_clean();
+    if ($salidaAccidental !== '' && $salidaAccidental !== false) {
+        error_log('[cambiarEstado salida inesperada] ' . substr($salidaAccidental, 0, 1000));
+    }
+
+    // 6) Emitir el JSON limpio y salir
+    echo json_encode($respuesta, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
 // --- ACCIÓN: OBTENER DATOS POR ID (Editar - AJAX) ---
