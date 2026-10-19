@@ -190,7 +190,7 @@
         e.preventDefault();
         try {
             obtenerOGenerarRFC();
-            const resp = await fetch('/myvet/app/controllers/clientesPacientesDental.php?action=guardar', {
+            const resp = await fetch('/myvet/app/controllers/clientesPacientesMedicina.php?action=guardar', {
                 method: 'POST',
                 body: new FormData(this)
             });

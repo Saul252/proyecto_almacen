@@ -433,7 +433,13 @@ $modulos = [
 </nav>
 
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-<?php require_once __DIR__ . '/notificaciones.php'; ?>
+
+<?php
+// Solo cargar notificaciones cuando el almacén en sesión sea 0
+if (intval($_SESSION['almacen_id'] ?? 0) === 0) {
+    require_once __DIR__ . '/notificaciones.php';
+}
+?>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {

@@ -98,15 +98,16 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
             <!-- ========================================================= -->
             <!-- 1. INFORMACIÓN DEL PACIENTE -->
             <!-- ========================================================= -->
-            <div class="card shadow-sm rounded-4 mb-4">
+            <div class="card shadow-sm rounded-4 mb-4 border-0">
                 <div class="card-body p-4">
+                    <!-- Encabezado de la tarjeta -->
                     <div class="d-flex align-items-center mb-4">
                         <div class="rounded-3 d-flex align-items-center justify-content-center me-3"
-                            style="width:42px; height:42px; background:linear-gradient(135deg,#eaf2ff,#f3f7ff); color:#356ae6;">
-                            <i class="bi bi-person-badge-fill"></i>
+                            style="width: 42px; height: 42px; background: linear-gradient(135deg, #eaf2ff, #f3f7ff); color: #356ae6;">
+                            <i class="bi bi-person-badge-fill fs-5"></i>
                         </div>
                         <div>
-                            <h6 class="mb-1 fw-bold">
+                            <h6 class="mb-1 fw-bold text-dark">
                                 Información del Paciente / Cliente
                             </h6>
                             <small class="text-secondary">
@@ -115,18 +116,55 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                         </div>
                     </div>
 
-                    <div class="row g-3">
+                    <!-- Fila de campos -->
+                    <div class="row g-4">
+
+                        <!-- Selector de Cliente (Ocupa 6 columnas) -->
                         <div class="col-md-6">
-                            <label for="cliente_id" class="form-label small fw-semibold text-secondary">
+                            <label for="cliente_id" class="form-label small fw-semibold text-secondary mb-1">
                                 Paciente (Cliente)
                             </label>
-                            <select class="form-select ios-input rounded-3 shadow-none" id="cliente_id"
-                                name="cliente_id" required onchange="cargarDatosCliente(this.value)">
-                                <option value="">
-                                    Seleccionar paciente...
-                                </option>
-                            </select>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-secondary border-end-0 rounded-start-3">
+                                    <i class="bi bi-person"></i>
+                                </span>
+                                <select class="form-select ios-input rounded-end-3 shadow-none border-start-0 ps-0"
+                                    id="cliente_id" name="cliente_id" required
+                                    onchange="cargarDatosCliente(this.value)">
+                                    <option value="">Seleccionar paciente...</option>
+                                </select>
+                            </div>
                         </div>
+
+                        <!-- Sexo (Ocupa 3 columnas) -->
+                        <div class="col-md-3 col-6">
+                            <label for="sexoC" class="form-label small fw-semibold text-secondary mb-1">
+                                Sexo
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text  text-secondary border-end-0 rounded-start-3">
+                                    <i class="bi bi-gender-ambiguous"></i>
+                                </span>
+                                <input type="text"
+                                    class="form-control ios-input  rounded-end-3 shadow-none border-start-0 ps-0"
+                                    id="sexoC" name="sexoC" readonly placeholder="--">
+                            </div>
+                        </div>
+
+                        <!-- Edad (Ocupa 3 columnas) -->
+                        <div class="col-md-3 col-6">
+                            <label for="edad" class="form-label small fw-semibold text-secondary mb-1">
+                                Edad
+                            </label>
+                            <div class="input-group">
+                                <input type="number" class="form-control ios-input rounded-start-3 shadow-none"
+                                    id="edad" name="edad" step="0.01" min="0" placeholder="0.00">
+                                <span class="input-group-text bg-light text-secondary rounded-end-3 border-start-0">
+                                    Años
+                                </span>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -228,6 +266,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                                 </span>
                             </div>
                         </div>
+
 
                         <!-- COSTO -->
                         <div class="col-md-4 col-6">
@@ -356,7 +395,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                                 Evidencias (Fotos / Radiografías)
                             </label>
                             <div class="rounded-4 p-4 text-center position-relative mb-3"
-                                style="background:#f8fafc; border:1px dashed #d8dee8; transition:all .2s ease;">
+                                style=" transition:all .2s ease;">
                                 <input type="file" class="position-absolute top-0 start-0 w-100 h-100 opacity-0"
                                     id="evidencias" name="evidencias[]" accept=".jpg,.jpeg,.png,.pdf" multiple
                                     style="cursor:pointer; z-index:2;">
@@ -594,7 +633,70 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                 console.error('Error al ejecutar cargarClientes:', error);
                 select.innerHTML = '<option value="">Error al cargar la lista de clientes</option>';
             }
-        }  /* =========================================================
+        }
+        async function cargarDatosCliente(clienteId) {
+            console.log(clienteId);
+
+            try {
+                const url = `/myvet/app/controllers/consultaMedicaController.php?action=obtenerPorId&id=${clienteId}`;
+
+                const respuesta = await fetch(url);
+
+                // Verificar que la petición HTTP fue exitosa (status 200-299)
+                if (!respuesta.ok) {
+                    throw new Error(`Error HTTP: ${respuesta.status}`);
+                }
+
+                // Convertir la respuesta a JSON
+                const data = await respuesta.json();
+
+                console.log(data); // Datos reales
+
+                // Verificamos que la respuesta tenga la estructura esperada
+                if (data.success && data.data && data.data.fecha_nacimiento) {
+
+                    const fechaNacimientoString = data.data.fecha_nacimiento;
+                    $('#sexoC').val(data.data.sexo);
+
+                    // Calculamos la edad
+                    const edad = calcularEdad(fechaNacimientoString);
+
+                    // Asignamos la edad al input
+                    const inputEdad = document.getElementById('edad');
+
+                    if (inputEdad) {
+                        // Si la edad es negativa (fecha futura), mostramos 0
+                        inputEdad.value = edad >= 0 ? edad : 0;
+                    } else {
+                        console.warn('No se encontró el input con id="edad"');
+                    }
+
+                } else {
+                    console.warn('La respuesta no contiene una fecha de nacimiento válida');
+                }
+
+            } catch (error) {
+                console.error('Error al ejecutar cargarDatosCliente:', error);
+                // select.innerHTML = '<option value="">Error al cargar la lista de clientes</option>';
+            }
+        }
+
+        // Función auxiliar para calcular la edad exacta
+        function calcularEdad(fechaNacimiento) {
+            // Convertimos el string a un objeto Date
+            const nacimiento = new Date(fechaNacimiento);
+            const hoy = new Date();
+
+            let edad = hoy.getFullYear() - nacimiento.getFullYear();
+            const mes = hoy.getMonth() - nacimiento.getMonth();
+
+            // Si el mes actual es menor al de nacimiento, o es el mismo mes pero aún no llega el día, restamos 1 año
+            if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+                edad--;
+            }
+
+            return edad;
+        } /* =========================================================
            GUARDAR CONSULTA + EVIDENCIAS
            ========================================================= */
         async function enviarDatos() {
