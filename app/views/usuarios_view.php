@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Usuarios | Sistema</title>
+
     <link rel="icon" type="image/png"
         href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
     <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
@@ -12,15 +13,14 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
-        rel="stylesheet" />
+        rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <?php require_once __DIR__ . '/layout/icono.php' ?>
-    <?php if (function_exists('cargarEstilos')) {
-        cargarEstilos();
-    } ?>
+    <?php if (function_exists('cargarEstilos'))
+        cargarEstilos(); ?>
 
     <style>
         :root {
@@ -37,7 +37,7 @@
         .card-table {
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            background: white;
+            background: var(--bs-body-bg);
         }
 
         .badge-role {
@@ -66,13 +66,30 @@
             border: 1px solid #fde68a;
         }
 
+        [data-bs-theme="dark"] .role-1 {
+            background: rgba(99, 102, 241, .2);
+            color: #a5b4fc;
+            border-color: rgba(99, 102, 241, .3);
+        }
+
+        [data-bs-theme="dark"] .role-2 {
+            background: rgba(34, 197, 94, .2);
+            color: #86efac;
+            border-color: rgba(34, 197, 94, .3);
+        }
+
+        [data-bs-theme="dark"] .role-3 {
+            background: rgba(245, 158, 11, .2);
+            color: #fcd34d;
+            border-color: rgba(245, 158, 11, .3);
+        }
+
         .avatar-circle {
             font-weight: bold;
             text-transform: uppercase;
             flex-shrink: 0;
         }
 
-        /* Ajustes Select2 */
         .select2-container--bootstrap-5 .select2-selection {
             min-height: 42px;
             border-radius: 0.5rem;
@@ -132,9 +149,7 @@
                         <?php endif; ?>
                         <?php foreach ($almacenes as $a): ?>
                             <option value="<?= $a['id'] ?>">
-                                [
-                                <?= $a['id'] ?> ]
-                                <?= htmlspecialchars($a['nombre']) ?>
+                                [<?= $a['id'] ?>] <?= htmlspecialchars($a['nombre']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -177,7 +192,9 @@
         </div>
     </main>
 
-    <!-- Modal Usuario -->
+    <!-- ============================================================= -->
+    <!-- MODAL USUARIO                                                 -->
+    <!-- ============================================================= -->
     <div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <form id="formUsuario" class="modal-content shadow-lg">
@@ -185,26 +202,31 @@
                     <h5 class="modal-title fw-bold" id="modalTitle">Nuevo Usuario</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body p-4">
                     <input type="hidden" name="id" id="userId">
                     <input type="hidden" name="accion" value="guardar">
 
                     <div class="row g-3">
+
                         <div class="col-12">
                             <label class="form-label small fw-bold">Nombre Completo</label>
                             <input type="text" name="nombre" id="userName" class="form-control text-uppercase"
                                 placeholder="Ej. Juan Pérez" required>
                         </div>
+
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Correo Electrónico</label>
                             <input type="email" name="username" id="userLogin" class="form-control"
                                 placeholder="juan.perez@correo.com" required>
                         </div>
+
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Telefono</label>
+                            <label class="form-label small fw-bold">Teléfono</label>
                             <input type="text" name="telefono" id="userTelefono" class="form-control"
                                 placeholder="+52 123 456 7890" required>
                         </div>
+
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Contraseña</label>
                             <input type="password" name="password" id="userPass" class="form-control"
@@ -216,6 +238,7 @@
 
                         <?php $soloLectura = ($_SESSION['almacen_id'] ?? 0) != 0; ?>
 
+                        <!-- Rol -->
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Rol de Acceso</label>
 
@@ -231,7 +254,8 @@
                                 ?>
                                 <input type="text" class="form-control"
                                     value="<?= htmlspecialchars($rolActualNombre ?: '—') ?>" readonly disabled>
-                                <input type="hidden" name="rol_id" value="<?= $usuarioEdit['rol_id'] ?? '' ?>">
+                                <input type="hidden" name="rol_id" id="userRolHidden"
+                                    value="<?= $usuarioEdit['rol_id'] ?? '' ?>">
                             <?php else: ?>
                                 <select name="rol_id" id="userRol" class="form-select" required>
                                     <option value="">Seleccione...</option>
@@ -244,14 +268,24 @@
                             <?php endif; ?>
                         </div>
 
-                        <select name="almacen_id" id="userAlmacen" class="form-select">
-                            <?= $_SESSION['almacen_id'] === 0 ? '<option value="">Acceso Global</option>' : '' ?>
-                            <?php foreach ($almacenesArray as $a): ?>
-                                <option value="<?= $a['id'] ?>"><?= htmlspecialchars($a['nombre']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                        <!-- Almacén (CORREGIDO: antes estaba suelto, sin label ni col) -->
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Almacén</label>
+                            <select name="almacen_id" id="userAlmacen" class="form-select">
+                                <?= ($_SESSION['almacen_id'] ?? null) === 0
+                                    ? '<option value="">Acceso Global</option>'
+                                    : '' ?>
+                                <?php foreach ($almacenesArray as $a): ?>
+                                    <option value="<?= $a['id'] ?>">
+                                        <?= htmlspecialchars($a['nombre']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
                     </div>
                 </div>
+
                 <div class="modal-footer p-3">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-primary px-4 shadow-sm">Guardar Usuario</button>
@@ -266,11 +300,18 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
-        // ============================================
-        // UTILIDADES
-        // ============================================
+        /* ============================================================
+           VARIABLES GLOBALES
+           ============================================================ */
+        const ROLES_VALIDOS = ['Administrador', 'Gestor', 'Vendedor', 'Trabajador'];
+        let USUARIOS_CACHE = [];
+        let modalEl;
+
+        /* ============================================================
+           UTILIDADES
+           ============================================================ */
         function escapeHtml(str) {
-            if (!str) return '';
+            if (str === null || str === undefined) return '';
             return String(str)
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
@@ -279,9 +320,9 @@
                 .replace(/'/g, '&#039;');
         }
 
-        // ============================================
-        // CARGAR USUARIOS
-        // ============================================
+        /* ============================================================
+           CARGAR USUARIOS
+           ============================================================ */
         async function cargarUsuarios() {
             const $tbody = $('#listaUsuarios');
             const almacenId = $('#almacen_id').val() || '';
@@ -289,194 +330,246 @@
             $tbody.html('<tr><td colspan="6" class="text-center py-4 text-muted">Cargando usuarios...</td></tr>');
 
             try {
-                const url = `/myvet/app/controllers/usuariosController.php?action=obtenerUsuarios&almacen_id=${(almacenId)}`;
+                const url = `/myvet/app/controllers/usuariosController.php?action=obtenerUsuarios&almacen_id=${encodeURIComponent(almacenId)}`;
                 const respuesta = await fetch(url);
 
-                if (!respuesta.ok) throw new Error('Error en la respuesta del servidor');
+                if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`);
 
                 const resultado = await respuesta.json();
-                console.log('Usuarios:', resultado);
 
-                if (resultado.success && Array.isArray(resultado.data) && resultado.data.length > 0) {
-                    $tbody.html(resultado.data.map(u => {
-                        const usuarioJson = JSON.stringify(u).replace(/"/g, '&quot;');
-                        const inicial = (u.nombre || '?').charAt(0).toUpperCase();
-
-                        return `
-                            <tr class="user-row">
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-circle me-3 bg-primary text-white d-flex align-items-center justify-content-center rounded-circle" style="width:38px;height:38px;">
-                                            ${inicial}
-                                        </div>
-                                        <span class="fw-bold">${escapeHtml(u.nombre)}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge text-body-secondary border">${escapeHtml(u.username)}</span>
-                                </td>
-                                <td>
-                                    <span class="badge-role role-${u.rol_id}">
-                                        ${escapeHtml(u.rol_nombre)}
-                                    </span>
-                                </td>
-                                <td>
-                                    <small class="text-body-secondary">
-                                        <i class="bi bi-geo-alt me-1"></i>${escapeHtml(u.almacen_nombre)}
-                                    </small>
-                                </td>
-                                <td class="text-center">
-                                    <div class="form-check form-switch d-inline-block">
-                                        <input class="form-check-input" type="checkbox" role="switch"
-                                            ${u.activo == 1 ? 'checked' : ''}
-                                            onchange="eliminarUsuario(${u.id})">
-                                    </div>
-                                </td>
-                                <td class="text-end">
-                                    <button class="btn btn-sm btn-light border" onclick="editarUsuario(${usuarioJson})">
-                                        <i class="bi bi-pencil-square text-primary"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    }).join(''));
-                } else {
-                    $tbody.html('<tr><td colspan="6" class="text-center py-4 text-muted">No hay usuarios registrados</td></tr>');
+                if (!resultado.success || !Array.isArray(resultado.data)) {
+                    throw new Error(resultado.message || 'Respuesta inválida');
                 }
+
+                USUARIOS_CACHE = resultado.data;
+
+                if (resultado.data.length === 0) {
+                    $tbody.html('<tr><td colspan="6" class="text-center py-4 text-muted">No hay usuarios registrados</td></tr>');
+                    return;
+                }
+
+                $tbody.html(resultado.data.map(u => {
+                    const inicial = (u.nombre || '?').charAt(0).toUpperCase();
+                    const id = Number(u.id);
+
+                    return `
+                        <tr class="user-row" data-rol="${escapeHtml(u.rol_nombre).toLowerCase()}">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-3 bg-primary text-white d-flex align-items-center justify-content-center rounded-circle"
+                                        style="width:38px;height:38px;">
+                                        ${inicial}
+                                    </div>
+                                    <span class="fw-bold">${escapeHtml(u.nombre)}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge text-body-secondary border">${escapeHtml(u.username)}</span>
+                            </td>
+                            <td>
+                                <span class="badge-role role-${u.rol_id}">
+                                    ${escapeHtml(u.rol_nombre)}
+                                </span>
+                            </td>
+                            <td>
+                                <small class="text-body-secondary">
+                                    <i class="bi bi-geo-alt me-1"></i>${escapeHtml(u.almacen_nombre)}
+                                </small>
+                            </td>
+                            <td class="text-center">
+                                <div class="form-check form-switch d-inline-block">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                        ${u.activo == 1 ? 'checked' : ''}
+                                        onchange="toggleUsuario(${id}, this)">
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-light border"
+                                    onclick="editarUsuarioPorId(${id})">
+                                    <i class="bi bi-pencil-square text-primary"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join(''));
+
+                aplicarFiltroRol();
+
             } catch (error) {
-                console.error('Error al ejecutar cargarUsuarios:', error);
+                console.error('[cargarUsuarios]', error);
                 $tbody.html('<tr><td colspan="6" class="text-center py-4 text-danger">Error al cargar los usuarios</td></tr>');
             }
         }
 
-        // ============================================
-        // MODAL
-        // ============================================
-        const modalEl = new bootstrap.Modal('#modalUsuario');
+        /* ============================================================
+           FILTRO LOCAL POR ROL
+           ============================================================ */
+        function aplicarFiltroRol() {
+            const rol = ($('#rol').val() || '').toLowerCase();
+            $('#listaUsuarios tr.user-row').each(function () {
+                const coincide = rol === '' || $(this).data('rol') === rol;
+                $(this).toggle(coincide);
+            });
+        }
 
+        /* ============================================================
+           MODAL
+           ============================================================ */
         function nuevoUsuario() {
-            $('#formUsuario')[0].reset();
+            const form = document.getElementById('formUsuario');
+            if (form) form.reset();
+
             $('#userId').val(0);
             $('#modalTitle').text('Registrar Nuevo Colaborador');
-            $('#userPass').prop('required', true);
+            $('#userPass').prop('required', true).val('');
             $('#passNote').hide();
-            // Resetear selects con Select2
-            $('#userRol').val('').trigger('change');
-            $('#userAlmacen').val('').trigger('change');
+
+            // Select2: resetear si existen
+            if ($('#userRol').length) {
+                $('#userRol').val('').trigger('change');
+            }
+            if ($('#userRolHidden').length) {
+                $('#userRolHidden').val('');
+            }
+            if ($('#userAlmacen').length) {
+                $('#userAlmacen').val('').trigger('change');
+            }
+
             modalEl.show();
         }
 
+        function editarUsuarioPorId(id) {
+            const u = USUARIOS_CACHE.find(x => Number(x.id) === Number(id));
+            if (!u) return;
+            editarUsuario(u);
+        }
+
         function editarUsuario(u) {
-            console.log(u);
             $('#userId').val(u.id);
             $('#userName').val(u.nombre);
             $('#userLogin').val(u.username);
             $('#userTelefono').val(u.telefono);
-            $('#userRol').val(u.rol_id).trigger('change');
-            $('#userAlmacen').val(u.almacen_id).trigger('change');
             $('#userPass').prop('required', false).val('');
             $('#modalTitle').text('Actualizar Usuario');
             $('#passNote').show();
+
+            // Rol: puede ser <select> o <input hidden> según rol del usuario
+            if ($('#userRol').length) {
+                $('#userRol').val(u.rol_id).trigger('change');
+            } else if ($('#userRolHidden').length) {
+                $('#userRolHidden').val(u.rol_id);
+            }
+
+            // Almacén
+            if ($('#userAlmacen').length) {
+                $('#userAlmacen').val(u.almacen_id).trigger('change');
+            }
+
             modalEl.show();
         }
 
-        // ============================================
-        // FORMULARIO
-        // ============================================
-        $('#formUsuario').on('submit', function (e) {
+        /* ============================================================
+           SUBMIT
+           ============================================================ */
+        $('#formUsuario').on('submit', async function (e) {
             e.preventDefault();
-            const formData = new FormData(this);
 
-            fetch('/myvet/app/controllers/usuariosController.php', {
-                method: 'POST',
-                body: formData
-            })
-                .then(res => res.json())
-                .then(res => {
-                    if (res.status === 'success') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: res.message,
-                            showConfirmButton: false,
-                            timer: 1500
-                        }).then(() => location.reload());
-                    } else {
-                        Swal.fire('Error', res.message, 'error');
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    Swal.fire('Error', 'Error de conexión con el servidor', 'error');
+            const formData = new FormData(this);
+            const $btn = $(this).find('button[type="submit"]');
+            const htmlOriginal = $btn.html();
+
+            $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Guardando...');
+
+            try {
+                const resp = await fetch('/myvet/app/controllers/usuariosController.php', {
+                    method: 'POST',
+                    body: formData
                 });
+                const res = await resp.json();
+
+                if (res.status === 'success') {
+                    modalEl.hide();
+                    await Swal.fire({
+                        icon: 'success',
+                        title: res.message,
+                        timer: 1400,
+                        showConfirmButton: false
+                    });
+                    await cargarUsuarios();
+                } else {
+                    Swal.fire('Error', res.message || 'No se pudo guardar', 'error');
+                }
+            } catch (err) {
+                console.error('[formUsuario]', err);
+                Swal.fire('Error', 'Error de conexión con el servidor', 'error');
+            } finally {
+                $btn.prop('disabled', false).html(htmlOriginal);
+            }
         });
 
-        // ============================================
-        // ACTIVAR / DESACTIVAR
-        // ============================================
-        function eliminarUsuario(id) {
-            const formData = new FormData();
-            formData.append('accion', 'eliminar');
-            formData.append('id', id);
+        /* ============================================================
+           TOGGLE ACTIVAR / DESACTIVAR
+           ============================================================ */
+        async function toggleUsuario(id, checkbox) {
+            const estabaActivo = !checkbox.checked; // si ahora está unchecked, antes estaba activo
+            const accion = estabaActivo ? 'eliminar' : 'activar';
 
-            fetch('/myvet/app/controllers/usuariosController.php', {
-                method: 'POST',
-                body: formData
-            })
-                .then(res => res.json())
-                .then(res => {
-                    if (res.status !== 'success') {
-                        Swal.fire('Error', res.message, 'error').then(() => location.reload());
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    Swal.fire('Error', 'Error de conexión', 'error');
+            try {
+                const formData = new FormData();
+                formData.append('accion', accion);
+                formData.append('id', id);
+
+                const resp = await fetch('/myvet/app/controllers/usuariosController.php', {
+                    method: 'POST',
+                    body: formData
                 });
+                const res = await resp.json();
+
+                if (res.status !== 'success') {
+                    checkbox.checked = !checkbox.checked; // revertir
+                    Swal.fire('Error', res.message || 'No se pudo actualizar', 'error');
+                }
+            } catch (err) {
+                console.error('[toggleUsuario]', err);
+                checkbox.checked = !checkbox.checked;
+                Swal.fire('Error', 'Error de conexión', 'error');
+            }
         }
 
-        // ============================================
-        // INICIALIZACIÓN
-        // ============================================
+        // Compatibilidad: el nombre original era eliminarUsuario
+        function eliminarUsuario(id) {
+            const input = $(`tr:has(button[onclick*="toggleUsuario(${id}"]) .form-check-input`)[0];
+            if (input) toggleUsuario(id, input);
+        }
+
+        /* ============================================================
+           INICIALIZACIÓN
+           ============================================================ */
         $(document).ready(function () {
 
-            // --- Select2: Filtro por Almacén (arriba) ---
+            modalEl = new bootstrap.Modal('#modalUsuario');
+
+            /* --- Select2: Filtro Almacén --- */
             $('#almacen_id').select2({
                 theme: 'bootstrap-5',
                 placeholder: '<?= $tipo == 1 ? "Todos" : "Selecciona un almacén" ?>',
                 allowClear: true,
                 width: '100%',
                 language: {
-                    noResults: () => "No se encontraron resultados",
-                    searching: () => "Buscando..."
+                    noResults: () => 'No se encontraron resultados',
+                    searching: () => 'Buscando...'
                 }
-            });
+            }).on('change', cargarUsuarios);
 
-            // Al cambiar almacén -> recargar usuarios desde el servidor
-
-
-            $('#almacen_id').on('change', function () {
-                cargarUsuarios();
-            });
-
-            // --- Select2: Filtro por Rol (arriba) ---
+            /* --- Select2: Filtro Rol --- */
             $('#rol').select2({
                 theme: 'bootstrap-5',
                 placeholder: 'Todos',
                 allowClear: true,
                 width: '100%'
-            });
+            }).on('change', aplicarFiltroRol);
 
-            // Filtro local por rol
-            $('#rol').on('change', function () {
-                const rolSeleccionado = ($(this).val() || '').toLowerCase();
-                $('#listaUsuarios tr').filter(function () {
-                    const coincide = rolSeleccionado === ''
-                        || $(this).text().toLowerCase().indexOf(rolSeleccionado) > -1;
-                    $(this).toggle(coincide);
-                });
-            });
-
-            // --- Select2: Selects del modal ---
+            /* --- Select2: Selects del modal --- */
             if ($('#userRol').length) {
                 $('#userRol').select2({
                     theme: 'bootstrap-5',
@@ -486,29 +579,27 @@
                 });
             }
 
-            $('#userAlmacen').select2({
-                theme: 'bootstrap-5',
-                dropdownParent: $('#modalUsuario'),
-                width: '100%',
-                placeholder: '',
-                allowClear: true
-            });
-
-            // --- Buscador instantáneo ---
-            $('#busquedaReal').on('keyup', function () {
-                const value = $(this).val().toLowerCase();
-                $('#listaUsuarios tr').filter(function () {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            if ($('#userAlmacen').length) {
+                $('#userAlmacen').select2({
+                    theme: 'bootstrap-5',
+                    dropdownParent: $('#modalUsuario'),
+                    width: '100%',
+                    placeholder: '',
+                    allowClear: true
                 });
-            });
-            const tipo = <?= json_encode($validacion) ?>;
-            if (tipo != true) {
-                cargarUsuarios();
-
             }
 
+            /* --- Buscador instantáneo --- */
+            $('#busquedaReal').on('keyup', function () {
+                const value = ($(this).val() || '').toLowerCase();
+                $('#listaUsuarios tr.user-row').each(function () {
+                    const coincide = $(this).text().toLowerCase().indexOf(value) > -1;
+                    $(this).toggle(coincide);
+                });
+            });
 
-
+            /* --- Carga inicial SIEMPRE --- */
+            cargarUsuarios();
         });
     </script>
 </body>

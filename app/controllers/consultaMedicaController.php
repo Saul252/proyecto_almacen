@@ -12,8 +12,8 @@ $almacenModel = new AlmacenModel($conexion);
 $clientesModel = new ClientesModel($conexion);
 $mascotasModel = new MascotasModel($conexion);
 $consultaMedicaModel = new ConsultaMedicaModel($conexion);
-$paginaActual = 'clientesPacientes';
-protegerPagina('misPacientesMedicina');
+$paginaActual = 'consultaMedica';
+protegerPagina('consultaMedica');
 // =========================================================
 // ACCIÓN: GUARDAR / ACTUALIZAR CLIENTE
 // =========================================================

@@ -98,6 +98,15 @@ $modulos = [
                 'active' => ($archivoActual == 'citasController.php')
             ],
             [
+                'id' => 'consultaDental',
+                'url' => '/myvet/consultaDental',
+                'class' => 'text-warning',
+                'icon' => 'bi-emoji-smile-fill',
+                'label' => 'Consulta Dental',
+                'active' => ($archivoActual == 'consultaDental')
+            ],
+
+            [
                 'id' => 'misPacientesMedicina',
                 'url' => '/myvet/misPacientesMedicina',
                 'class' => 'text-info',
@@ -112,6 +121,14 @@ $modulos = [
                 'icon' => 'bi-calendar-plus-fill',
                 'label' => 'Citas Médicas',
                 'active' => ($archivoActual == 'citasMedicasController.php')
+            ],
+            [
+                'id' => 'consultaMedica',
+                'url' => '/myvet/consultaMedica',
+                'class' => 'text-info',
+                'icon' => 'bi-clipboard2-pulse-fill',
+                'label' => 'Consulta Medica',
+                'active' => ($archivoActual == 'consultaMedica')
             ]
         ]
     ],

@@ -1,4 +1,33 @@
 <!-- Modal de Evidencias de Entrega -->
+<style>
+    /* ─── Z-INDEX: por encima del detalle y de agregar factura ─── */
+    #modalEvidenciasEntrega {
+        z-index: 10110 !important;
+    }
+
+
+
+    /* El contenedor raíz de SweetAlert2 */
+    .swal2-container {
+        z-index: 99999 !important;
+    }
+
+    /* El backdrop de SweetAlert */
+    .swal2-container.swal2-backdrop-show {
+        z-index: 99999 !important;
+    }
+
+    /* El popup en sí */
+    .swal2-popup {
+        z-index: 100000 !important;
+        position: relative;
+    }
+
+    /* El toast (notificaciones sin backdrop) */
+    .swal2-toast-shown .swal2-container {
+        z-index: 99999 !important;
+    }
+</style>
 <div class="modal fade" id="modalEvidenciasEntrega" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">

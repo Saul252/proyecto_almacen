@@ -1,0 +1,249 @@
+.btn-animado-entrega {
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: .3px;
+    transition: all .25s ease;
+
+    background: linear-gradient(270deg,
+            #7c3aed,
+            #ec4899,
+            #f97316,
+            #3b82f6,
+            #7c3aed);
+
+    background-size: 600% 600%;
+    animation: moverGradiente 8s ease infinite;
+
+    box-shadow:
+        0 4px 18px rgba(124, 58, 237, .35),
+        0 2px 8px rgba(236, 72, 153, .25);
+}
+
+.btn-animado-entrega:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow:
+        0 8px 24px rgba(124, 58, 237, .45),
+        0 4px 14px rgba(236, 72, 153, .35);
+}
+
+.btn-animado-entrega:disabled {
+    opacity: .7;
+    cursor: not-allowed;
+}
+
+.btn-animado-entrega::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 80%;
+    height: 100%;
+
+    background: linear-gradient(120deg,
+            transparent,
+            rgba(255, 255, 255, .35),
+            transparent);
+
+    animation: brillo 2.8s linear infinite;
+}
+
+@keyframes moverGradiente {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes brillo {
+    0% {
+        left: -120%;
+    }
+
+    100% {
+        left: 140%;
+    }
+}
+
+:root {
+    --sidebar-width: 250px;
+    --primary-dark: #2c3e50;
+    --accent-color: #000000;
+    --bg-body: #067df4;
+}
+
+body {
+
+    overflow-x: hidden;
+    padding-top: 20px;
+    text-transform: uppercase !important;
+}
+
+.main-content {
+
+    padding: 2rem;
+    min-height: 100vh;
+    transition: all 0.3s;
+}
+
+.scroll-table {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead th {
+    background-color: var(--accent-color);
+    color: white;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    padding: 12px;
+
+}
+
+.btn-action {
+    background-color: var(--accent-color);
+    color: white;
+
+}
+
+.btn-action:hover {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+.filter-card {
+
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+}
+
+.modal-header {
+    background-color: var(--accent-color) !important;
+    color: white;
+
+}
+
+.input-entrega {
+    border: 2px solid #28a745 !important;
+    max-width: 90px;
+    text-align: center;
+    font-weight: bold;
+}
+
+@media (max-width: 992px) {
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+}
+
+/* Esto asegura que SweetAlert siempre esté por encima del modal de Bootstrap */
+/* El contenedor raíz de SweetAlert2 */
+.swal2-container {
+    z-index: 99999 !important;
+}
+
+/* El backdrop de SweetAlert */
+.swal2-container.swal2-backdrop-show {
+    z-index: 99999 !important;
+}
+
+/* El popup en sí */
+.swal2-popup {
+    z-index: 100000 !important;
+    position: relative;
+}
+
+/* El toast (notificaciones sin backdrop) */
+.swal2-toast-shown .swal2-container {
+    z-index: 99999 !important;
+}
+
+#pageLoader {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(245, 245, 247, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: opacity .35s ease, visibility .35s ease;
+}
+
+#pageLoader.oculto {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.page-loader-logo {
+    width: 68px;
+    height: 68px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #376bd8, #2855b8);
+    color: #fff;
+    font-size: 1.8rem;
+    box-shadow: 0 12px 30px rgba(55, 107, 216, .35);
+    animation: pulseLogo 1.6s ease-in-out infinite;
+}
+
+.page-loader-spinner {
+    margin-top: 22px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 3px solid rgba(55, 107, 216, .15);
+    border-top-color: #376bd8;
+    animation: girar .85s linear infinite;
+}
+
+.page-loader-text {
+    margin-top: 16px;
+    font-weight: 600;
+    font-size: .9rem;
+    color: #3a3a3c;
+}
+
+@keyframes girar {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulseLogo {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.06);
+    }
+}
+
+/* Dark mode */
+[data-bs-theme="dark"] #pageLoader {
+    background: rgba(28, 28, 30, .85);
+}
+
+[data-bs-theme="dark"] .page-loader-text {
+    color: #f5f5f7;
+}

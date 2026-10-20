@@ -43,6 +43,123 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
             border-bottom: 1px solid #d1d1d6;
         }
 
+        /* ===== LOADER OVERLAY ===== */
+        #loaderOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: rgba(245, 245, 247, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: opacity 0.45s ease, visibility 0.45s ease;
+        }
+
+        #loaderOverlay.oculto {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loader-logo {
+            width: 72px;
+            height: 72px;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #376bd8, #2855b8);
+            color: #fff;
+            font-size: 1.9rem;
+            box-shadow: 0 12px 30px rgba(55, 107, 216, 0.35);
+            animation: pulseLogo 1.6s ease-in-out infinite;
+        }
+
+        .loader-spinner {
+            margin-top: 22px;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: 3px solid rgba(55, 107, 216, 0.15);
+            border-top-color: #376bd8;
+            animation: girar 0.85s linear infinite;
+        }
+
+        .loader-texto {
+            margin-top: 18px;
+            font-weight: 600;
+            color: #3a3a3c;
+            letter-spacing: 0.02em;
+            font-size: 0.95rem;
+            animation: fadeText 1.6s ease-in-out infinite;
+        }
+
+        .loader-subtexto {
+            margin-top: 4px;
+            font-size: 0.78rem;
+            color: #8e8e93;
+        }
+
+        @keyframes girar {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulseLogo {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 12px 30px rgba(55, 107, 216, 0.35);
+            }
+
+            50% {
+                transform: scale(1.06);
+                box-shadow: 0 16px 40px rgba(55, 107, 216, 0.5);
+            }
+        }
+
+        @keyframes fadeText {
+
+            0%,
+            100% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* ===== SKELETON (mientras carga el contenido interno) ===== */
+        .skeleton {
+            background: linear-gradient(90deg, #ececf0 25%, #f6f6f8 50%, #ececf0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .formulario-cargando .card,
+        .formulario-cargando .main-content>* {
+            opacity: 0.5;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 margin-left: 0;
@@ -60,6 +177,15 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
     }
     ?>
     <main class="main-content">
+        <!-- ===== OVERLAY DE CARGA ===== -->
+        <div id="loaderOverlay">
+            <div class="loader-logo">
+                <i class="bi bi-heart-pulse-fill"></i>
+            </div>
+            <div class="loader-spinner"></div>
+            <div class="loader-texto" id="loaderTexto">Cargando información del paciente…</div>
+            <div class="loader-subtexto" id="loaderSubtexto">Preparando el formulario</div>
+        </div>
         <!-- ENCABEZADO -->
         <div class="d-flex align-items-center justify-content-between mb-4">
             <div>
@@ -100,68 +226,72 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
             <!-- ========================================================= -->
             <div class="card shadow-sm rounded-4 mb-4 border-0">
                 <div class="card-body p-4">
-                    <!-- Encabezado de la tarjeta -->
+
+                    <!-- Encabezado -->
                     <div class="d-flex align-items-center mb-4">
-                        <div class="rounded-3 d-flex align-items-center justify-content-center me-3"
-                            style="width: 42px; height: 42px; background: linear-gradient(135deg, #eaf2ff, #f3f7ff); color: #356ae6;">
+                        <div class="rounded-3 d-flex align-items-center justify-content-center me-3 bg-primary-subtle text-primary-emphasis"
+                            style="width: 42px; height: 42px;">
                             <i class="bi bi-person-badge-fill fs-5"></i>
                         </div>
                         <div>
-                            <h6 class="mb-1 fw-bold text-dark">
-                                Información del Paciente / Cliente
-                            </h6>
-                            <small class="text-secondary">
-                                Selección y datos generales del cliente
-                            </small>
+                            <h6 class="mb-1 fw-bold text-body">Información del Paciente</h6>
+                            <small class="text-body-secondary">Selección y datos generales del paciente</small>
                         </div>
                     </div>
 
                     <!-- Fila de campos -->
-                    <div class="row g-4">
+                    <div class="row g-3">
 
-                        <!-- Selector de Cliente (Ocupa 6 columnas) -->
+                        <!-- Paciente -->
                         <div class="col-md-6">
-                            <label for="cliente_id" class="form-label small fw-semibold text-secondary mb-1">
-                                Paciente (Cliente)
+                            <label for="cliente_id" class="form-label small fw-semibold text-body-secondary mb-1">
+                                Paciente
                             </label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white text-secondary border-end-0 rounded-start-3">
-                                    <i class="bi bi-person"></i>
-                                </span>
-                                <select class="form-select ios-input rounded-end-3 shadow-none border-start-0 ps-0"
-                                    id="cliente_id" name="cliente_id" required
-                                    onchange="cargarDatosCliente(this.value)">
-                                    <option value="">Seleccionar paciente...</option>
-                                </select>
+
+                            <div class="d-flex gap-2 align-items-stretch">
+
+                                <!-- Select con icono -->
+                                <div class="input-group flex-grow-1">
+                                    <span class="input-group-text bg-body text-body-secondary border-end-0">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+                                    <select class="form-select border-start-0 shadow-none" id="cliente_id"
+                                        name="cliente_id" required onchange="cargarDatosCliente(this.value)">
+                                        <option value="">Seleccionar paciente…</option>
+                                    </select>
+                                </div>
+
+                                <!-- Botón nuevo paciente -->
+                                <button type="button"
+                                    class="btn btn-primary bg-gradient d-inline-flex align-items-center gap-2 fw-semibold shadow-sm border-0"
+                                    onclick="nuevoCliente()" title="Registrar nuevo paciente">
+                                    <i class="bi bi-person-plus-fill"></i>
+                                    <span class="d-none d-sm-inline">Nuevo</span>
+                                </button>
+
                             </div>
                         </div>
 
-                        <!-- Sexo (Ocupa 3 columnas) -->
+                        <!-- Sexo -->
                         <div class="col-md-3 col-6">
-                            <label for="sexoC" class="form-label small fw-semibold text-secondary mb-1">
-                                Sexo
-                            </label>
+                            <label for="sexoC"
+                                class="form-label small fw-semibold text-body-secondary mb-1">Sexo</label>
                             <div class="input-group">
-                                <span class="input-group-text  text-secondary border-end-0 rounded-start-3">
+                                <span class="input-group-text bg-body text-body-secondary border-end-0">
                                     <i class="bi bi-gender-ambiguous"></i>
                                 </span>
-                                <input type="text"
-                                    class="form-control ios-input  rounded-end-3 shadow-none border-start-0 ps-0"
-                                    id="sexoC" name="sexoC" readonly placeholder="--">
+                                <input type="text" class="form-control border-start-0 ps-0 shadow-none" id="sexoC"
+                                    name="sexoC" readonly placeholder="—">
                             </div>
                         </div>
 
-                        <!-- Edad (Ocupa 3 columnas) -->
+                        <!-- Edad -->
                         <div class="col-md-3 col-6">
-                            <label for="edad" class="form-label small fw-semibold text-secondary mb-1">
-                                Edad
-                            </label>
+                            <label for="edad" class="form-label small fw-semibold text-body-secondary mb-1">Edad</label>
                             <div class="input-group">
-                                <input type="number" class="form-control ios-input rounded-start-3 shadow-none"
-                                    id="edad" name="edad" step="0.01" min="0" placeholder="0.00">
-                                <span class="input-group-text bg-light text-secondary rounded-end-3 border-start-0">
-                                    Años
-                                </span>
+                                <input type="number" class="form-control shadow-none" id="edad" name="edad" step="0.01"
+                                    min="0" placeholder="0.00">
+                                <span class="input-group-text bg-body text-body-secondary">años</span>
                             </div>
                         </div>
 
@@ -444,6 +574,8 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <?php require_once __DIR__ . '/clientes/clientesMedic.php'; ?>
+
     <script>
         /* =========================================================
            ESTADO GLOBAL
@@ -452,10 +584,28 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
         let listaClientes = [];
 
         /* =========================================================
+           CONTROL DEL LOADER
+           ========================================================= */
+        function mostrarLoader(texto = 'Cargando información…', subtexto = 'Por favor espera') {
+            const overlay = document.getElementById('loaderOverlay');
+            if (!overlay) return;
+            const t = document.getElementById('loaderTexto');
+            const s = document.getElementById('loaderSubtexto');
+            if (t) t.textContent = texto;
+            if (s) s.textContent = subtexto;
+            overlay.classList.remove('oculto');
+        }
+
+        function ocultarLoader() {
+            const overlay = document.getElementById('loaderOverlay');
+            if (overlay) overlay.classList.add('oculto');
+        }
+
+        /* =========================================================
            INICIALIZACIÓN
            ========================================================= */
         document.addEventListener('DOMContentLoaded', async () => {
-            // Input de evidencias
+            /* --- Input de evidencias --- */
             const inputEvidencias = document.getElementById('evidencias');
             if (inputEvidencias) {
                 inputEvidencias.addEventListener('change', (e) => {
@@ -470,7 +620,11 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                 });
             }
 
-            // Parámetros de URL (id de cliente + razón de consulta) — NO se borran
+            /* --- Bloquear visualmente el formulario mientras carga --- */
+            document.body.classList.add('formulario-cargando');
+            mostrarLoader('Cargando información…', 'Obteniendo datos del sistema');
+
+            /* --- Parámetros de URL --- */
             const params = new URLSearchParams(window.location.search);
             const clienteIdUrl = parseInt(params.get('id') ?? '0', 10) || 0;
             const razon = params.get('razon') ?? '';
@@ -480,7 +634,33 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                 if (motivo) motivo.value = razon;
             }
 
-            await cargarClientes(clienteIdUrl || null);
+            /* --- Carga de clientes y datos del paciente --- */
+            try {
+                mostrarLoader('Cargando lista de pacientes…', 'Consultando almacén');
+
+                const idPreseleccionado = clienteIdUrl || null;
+
+                if (idPreseleccionado) {
+                    mostrarLoader('Cargando datos del paciente…', 'Calculando edad y sexo');
+                }
+
+                await cargarClientes(idPreseleccionado);
+
+                // Pequeña pausa para que la animación se aprecie (opcional)
+                await new Promise((r) => setTimeout(r, 350));
+
+            } catch (error) {
+                console.error('[init] Error en la carga inicial:', error);
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No se pudo cargar toda la información',
+                    text: error.message || 'Verifica tu conexión e intenta recargar.',
+                    confirmButtonText: 'Entendido'
+                });
+            } finally {
+                ocultarLoader();
+                document.body.classList.remove('formulario-cargando');
+            }
         });
 
         /* =========================================================
@@ -571,7 +751,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
             const select = document.getElementById('cliente_id');
             if (!select) return;
 
-            select.innerHTML = '<option value="">-- Seleccione un cliente --</option>';
+            select.innerHTML = '<option value="">-- Seleccione un paciente --</option>';
 
             const almacenId =
                 document.getElementById('almacen_id_editar')?.value ||
@@ -602,7 +782,6 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
                 listaClientes.forEach((cliente) => {
                     const opcion = document.createElement('option');
-                    // value como string limpio, sin Number() para no romper ids alfanuméricos
                     opcion.value = String(cliente.id ?? '').trim();
                     opcion.textContent =
                         cliente.nombre_comercial || cliente.nombre || '(sin nombre)';
@@ -619,8 +798,14 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
                     if (existe) {
                         select.value = idBuscado;
-                        // Notificar a quien escuche 'change' (para cargar datos del cliente, etc.)
-                        select.dispatchEvent(new Event('change', { bubbles: true }));
+
+                        // ⬇️ AQUÍ ESPERAMOS a que terminen de cargar los datos del cliente
+                        //    antes de devolver el control (así el loader se cierra al final).
+                        try {
+                            await cargarDatosCliente(idBuscado);
+                        } catch (err) {
+                            console.warn('[cargarClientes] Error al precargar datos del cliente:', err);
+                        }
                     } else {
                         console.warn(
                             '[cargarClientes] El id de la URL no coincide con ningún cliente cargado:',
@@ -632,71 +817,63 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
             } catch (error) {
                 console.error('Error al ejecutar cargarClientes:', error);
                 select.innerHTML = '<option value="">Error al cargar la lista de clientes</option>';
+                throw error; // relanzamos para que el init lo capture
             }
         }
-        async function cargarDatosCliente(clienteId) {
-            console.log(clienteId);
 
+        /* =========================================================
+           DATOS DEL CLIENTE (sexo + edad)
+           ========================================================= */
+        async function cargarDatosCliente(clienteId) {
             try {
                 const url = `/myvet/app/controllers/consultaMedicaController.php?action=obtenerPorId&id=${clienteId}`;
 
                 const respuesta = await fetch(url);
 
-                // Verificar que la petición HTTP fue exitosa (status 200-299)
                 if (!respuesta.ok) {
                     throw new Error(`Error HTTP: ${respuesta.status}`);
                 }
 
-                // Convertir la respuesta a JSON
                 const data = await respuesta.json();
 
-                console.log(data); // Datos reales
-
-                // Verificamos que la respuesta tenga la estructura esperada
                 if (data.success && data.data && data.data.fecha_nacimiento) {
-
                     const fechaNacimientoString = data.data.fecha_nacimiento;
-                    $('#sexoC').val(data.data.sexo);
+                    $('#sexoC').val(data.data.sexo ?? '');
 
-                    // Calculamos la edad
                     const edad = calcularEdad(fechaNacimientoString);
-
-                    // Asignamos la edad al input
                     const inputEdad = document.getElementById('edad');
 
                     if (inputEdad) {
-                        // Si la edad es negativa (fecha futura), mostramos 0
                         inputEdad.value = edad >= 0 ? edad : 0;
                     } else {
                         console.warn('No se encontró el input con id="edad"');
                     }
-
                 } else {
                     console.warn('La respuesta no contiene una fecha de nacimiento válida');
                 }
 
             } catch (error) {
                 console.error('Error al ejecutar cargarDatosCliente:', error);
-                // select.innerHTML = '<option value="">Error al cargar la lista de clientes</option>';
+                throw error; // relanzamos para que cargarClientes lo maneje
             }
         }
 
         // Función auxiliar para calcular la edad exacta
         function calcularEdad(fechaNacimiento) {
-            // Convertimos el string a un objeto Date
             const nacimiento = new Date(fechaNacimiento);
             const hoy = new Date();
 
             let edad = hoy.getFullYear() - nacimiento.getFullYear();
             const mes = hoy.getMonth() - nacimiento.getMonth();
 
-            // Si el mes actual es menor al de nacimiento, o es el mismo mes pero aún no llega el día, restamos 1 año
             if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
                 edad--;
             }
 
             return edad;
-        } /* =========================================================
+        }
+
+        /* =========================================================
            GUARDAR CONSULTA + EVIDENCIAS
            ========================================================= */
         async function enviarDatos() {

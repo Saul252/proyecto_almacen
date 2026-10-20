@@ -1,20 +1,27 @@
+<style>
+    #modalImprimirRuta {
+        z-index: 10110 !important;
+    }
+</style>
 <div class="modal fade" id="modalImprimirRuta" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
 
-            <div class="modal-header bg-body-tertiary align-items-center py-3">
-               <h6 class="modal-title fw-bold">
+            <div class="modal-header  align-items-center py-3">
+                <h6 class="modal-title fw-bold">
                     <i class="bi bi-receipt text-primary"></i>
                     Ruta de Reparto: <span id="folioRutaPrint" class="text-primary"></span>
                 </h6>
 
                 <div class="d-flex gap-2 ms-auto me-2">
-                    <button class="btn btn-primary btn-sm px-3 d-flex align-items-center gap-1" onclick="imprimirModalRuta()">
+                    <button class="btn btn-primary btn-sm px-3 d-flex align-items-center gap-1"
+                        onclick="imprimirModalRuta()">
                         <span>🖨</span> Imprimir
                     </button>
                 </div>
 
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
             </div>
 
             <div class="modal-body p-0" id="contenidoRutaPrint">
@@ -26,66 +33,66 @@
 </div>
 
 <script>
-async function imprimirRuta(entrega_ida, folioViaje) {
+    async function imprimirRuta(entrega_ida, folioViaje) {
 
-    document.getElementById('folioRutaPrint').textContent = entrega_ida;
+        document.getElementById('folioRutaPrint').textContent = entrega_ida;
 
-    const respuesta = await fetch(
-        `/myvet/app/controllers/repartosController.php?action=get_ruta_entrega_por_despacho&entrega_id=${entrega_ida}&id=${encodeURIComponent(folioViaje)}`
-    );
+        const respuesta = await fetch(
+            `/myvet/app/controllers/repartosController.php?action=get_ruta_entrega_por_despacho&entrega_id=${entrega_ida}&id=${encodeURIComponent(folioViaje)}`
+        );
 
-    const data = await respuesta.json();
+        const data = await respuesta.json();
 
-    console.log(data);
+        console.log(data);
 
-    if (!data.success) return;
+        if (!data.success) return;
 
-    const cont = document.getElementById('contenidoRutaPrint');
-    const datos = data.data;
+        const cont = document.getElementById('contenidoRutaPrint');
+        const datos = data.data;
 
-    // =========================================
-    // DETECTAR PREFIJO 'EN_PAT' DENTRO DEL FOLIO
-    // =========================================
-    const stringEntrega = String(entrega_ida || '').toUpperCase();
-    const stringFolio = String(datos[0]?.folio_viaje || '').toUpperCase();
-    
-    // Evalúa si alguno de los folios contiene el prefijo EN_PAT (ej: EN_PAT26082, EN_PAT1, etc.)
-    const esEntregaPatio = stringEntrega.includes('EN_PAT') || stringFolio.includes('EN_PAT');
+        // =========================================
+        // DETECTAR PREFIJO 'EN_PAT' DENTRO DEL FOLIO
+        // =========================================
+        const stringEntrega = String(entrega_ida || '').toUpperCase();
+        const stringFolio = String(datos[0]?.folio_viaje || '').toUpperCase();
 
-    // =========================================
-    // AGRUPAR PRODUCTOS
-    // =========================================
-    const productosAgrupados = {};
+        // Evalúa si alguno de los folios contiene el prefijo EN_PAT (ej: EN_PAT26082, EN_PAT1, etc.)
+        const esEntregaPatio = stringEntrega.includes('EN_PAT') || stringFolio.includes('EN_PAT');
 
-    datos.forEach(item => {
-        const key = item.nombreProducto;
-        if (!productosAgrupados[key]) {
-            productosAgrupados[key] = {
-                nombreProducto: item.nombreProducto,
-                totalCantidad: 0,
-                unidadMedida: item.unidadMedida,
-                unidadReporte: item.unidadReporte,
-                factor: item.factor
-            };
-        }
-        productosAgrupados[key].totalCantidad += parseFloat(item.totalCantidad || 0);
-    });
+        // =========================================
+        // AGRUPAR PRODUCTOS
+        // =========================================
+        const productosAgrupados = {};
 
-    // =========================================
-    // GENERAR FILAS
-    // =========================================
-    let filas = '';
+        datos.forEach(item => {
+            const key = item.nombreProducto;
+            if (!productosAgrupados[key]) {
+                productosAgrupados[key] = {
+                    nombreProducto: item.nombreProducto,
+                    totalCantidad: 0,
+                    unidadMedida: item.unidadMedida,
+                    unidadReporte: item.unidadReporte,
+                    factor: item.factor
+                };
+            }
+            productosAgrupados[key].totalCantidad += parseFloat(item.totalCantidad || 0);
+        });
 
-    datos.forEach((prod, i) => {
-        const total = prod.totalCantidad / prod.factor;
-        const totalCantidad = prod.totalCantidad;
-        const unidad = total >= 1 ? prod.unidadReporte : (totalCantidad/(1/prod.equi))>=1?prod.nombreEqui:prod.unidadMedida;
-        let cantidad=totalCantidad/(1/prod.equi);
-        let badgeColor = 'bg-warning text-dark';
-        if (prod.estatus_logistico === 'completado') badgeColor = 'bg-success text-white';
-        if (prod.estatus_logistico === 'en_transito') badgeColor = 'bg-primary text-white';
+        // =========================================
+        // GENERAR FILAS
+        // =========================================
+        let filas = '';
 
-        filas += `
+        datos.forEach((prod, i) => {
+            const total = prod.totalCantidad / prod.factor;
+            const totalCantidad = prod.totalCantidad;
+            const unidad = total >= 1 ? prod.unidadReporte : (totalCantidad / (1 / prod.equi)) >= 1 ? prod.nombreEqui : prod.unidadMedida;
+            let cantidad = totalCantidad / (1 / prod.equi);
+            let badgeColor = 'bg-warning text-dark';
+            if (prod.estatus_logistico === 'completado') badgeColor = 'bg-success text-white';
+            if (prod.estatus_logistico === 'en_transito') badgeColor = 'bg-primary text-white';
+
+            filas += `
             <tr>
                 <td class="text-body-secondary fw-semibold">${i + 1}</td>
                 <td style="max-width:350px;" class="fw-medium text-body">${prod.nombreProducto}</td>
@@ -98,14 +105,14 @@ async function imprimirRuta(entrega_ida, folioViaje) {
                 </td>
             </tr>
         `;
-    });
+        });
 
-    // =========================================
-    // SECCIONES ADAPTATIVAS SEGÚN EL TIPO
-    // =========================================
-    const tituloDoc = esEntregaPatio ? '🏬 Venta ' + datos[0].folio_venta + ': Vales / Entrega en Patio' : '🚚 Venta ' + datos[0].folio_venta + ': Hoja de Ruta';
+        // =========================================
+        // SECCIONES ADAPTATIVAS SEGÚN EL TIPO
+        // =========================================
+        const tituloDoc = esEntregaPatio ? '🏬 Venta ' + datos[0].folio_venta + ': Vales / Entrega en Patio' : '🚚 Venta ' + datos[0].folio_venta + ': Hoja de Ruta';
 
-    const bloqueOperador = esEntregaPatio ? `
+        const bloqueOperador = esEntregaPatio ? `
         <div class="info-card">
             <div class="info-card-body">
                 <span class="info-label">Punto de Entrega</span>
@@ -139,7 +146,7 @@ async function imprimirRuta(entrega_ida, folioViaje) {
         </div>
     `;
 
-    const fechasHeader = esEntregaPatio ? `
+        const fechasHeader = esEntregaPatio ? `
         <div class="small text-body-secondary mb-1">Fecha Despacho:____________________</div>
         <div class="small text-body-secondary mb-1">Hora Entrega:____________________</div>
     ` : `
@@ -147,7 +154,7 @@ async function imprimirRuta(entrega_ida, folioViaje) {
         <div class="small text-body-secondary mb-1">Fecha de llegada:____________________</div>
     `;
 
-    const firmasSeccion = esEntregaPatio ? `
+        const firmasSeccion = esEntregaPatio ? `
         <div class="row g-5">
             <div class="col-4">
                 <div class="firma-box text-center">
@@ -193,10 +200,10 @@ async function imprimirRuta(entrega_ida, folioViaje) {
         </div>
     `;
 
-    // =========================================
-    // HTML GENERADO CON VARIABLES DE TEMA
-    // =========================================
-    let html = `
+        // =========================================
+        // HTML GENERADO CON VARIABLES DE TEMA
+        // =========================================
+        let html = `
         <div class="hoja-ruta-container p-4">
 
             <!-- HEADER INTERNO -->
@@ -438,17 +445,17 @@ async function imprimirRuta(entrega_ida, folioViaje) {
         </div>
     `;
 
-    cont.innerHTML = html;
+        cont.innerHTML = html;
 
-    const modal = new bootstrap.Modal(document.getElementById('modalImprimirRuta'));
-    modal.show();
-}
+        const modal = new bootstrap.Modal(document.getElementById('modalImprimirRuta'));
+        modal.show();
+    }
 
-function imprimirModalRuta() {
-    const contenido = document.getElementById('contenidoRutaPrint').innerHTML;
-    const ventana = window.open('', '_blank', 'width=950,height=650');
+    function imprimirModalRuta() {
+        const contenido = document.getElementById('contenidoRutaPrint').innerHTML;
+        const ventana = window.open('', '_blank', 'width=950,height=650');
 
-    ventana.document.write(`
+        ventana.document.write(`
         <!DOCTYPE html>
         <html lang="es">
         <head>
@@ -627,7 +634,7 @@ function imprimirModalRuta() {
         </html>
     `);
 
-    ventana.document.close();
-    ventana.focus();
-}
+        ventana.document.close();
+        ventana.focus();
+    }
 </script>
