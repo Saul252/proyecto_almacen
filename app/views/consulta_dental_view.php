@@ -57,6 +57,106 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                 padding-top: 90px;
             }
         }
+
+        /* ===== LOADER OVERLAY ===== */
+        #loaderOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: rgba(245, 245, 247, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: opacity 0.45s ease, visibility 0.45s ease;
+        }
+
+        #loaderOverlay.oculto {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loader-logo {
+            width: 72px;
+            height: 72px;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #376bd8, #2855b8);
+            color: #fff;
+            font-size: 1.9rem;
+            box-shadow: 0 12px 30px rgba(55, 107, 216, 0.35);
+            animation: pulseLogo 1.6s ease-in-out infinite;
+        }
+
+        .loader-spinner {
+            margin-top: 22px;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: 3px solid rgba(55, 107, 216, 0.15);
+            border-top-color: #376bd8;
+            animation: girar 0.85s linear infinite;
+        }
+
+        .loader-texto {
+            margin-top: 18px;
+            font-weight: 600;
+            color: #3a3a3c;
+            letter-spacing: 0.02em;
+            font-size: 0.95rem;
+            animation: fadeText 1.6s ease-in-out infinite;
+        }
+
+        .loader-subtexto {
+            margin-top: 4px;
+            font-size: 0.78rem;
+            color: #8e8e93;
+        }
+
+        @keyframes girar {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulseLogo {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 12px 30px rgba(55, 107, 216, 0.35);
+            }
+
+            50% {
+                transform: scale(1.06);
+                box-shadow: 0 16px 40px rgba(55, 107, 216, 0.5);
+            }
+        }
+
+        @keyframes fadeText {
+
+            0%,
+            100% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* ===== BLOQUEO VISUAL DEL FORMULARIO MIENTRAS CARGA ===== */
+        .formulario-cargando .card,
+        .formulario-cargando .main-content>* {
+            opacity: 0.5;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
     </style>
 </head>
 
@@ -66,26 +166,36 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
     } ?>
 
     <main class="main-content">
+        <!-- ===== OVERLAY DE CARGA ===== -->
+        <div id="loaderOverlay">
+            <div class="loader-logo">
+                <i class="bi bi-emoji-smile-fill"></i>
+            </div>
+            <div class="loader-spinner"></div>
+            <div class="loader-texto" id="loaderTexto">Cargando información del paciente…</div>
+            <div class="loader-subtexto" id="loaderSubtexto">Preparando el formulario dental</div>
+        </div>
+
         <!-- Encabezado -->
         <div class="d-flex align-items-center justify-content-between mb-4">
             <div>
-                <span class="text-uppercase fw-semibold tracking-wider text-secondary"
-                    style="font-size: 0.75rem;">Módulo Clínico - Odontología</span>
+                <span class="text-uppercase fw-semibold tracking-wider " style="font-size: 0.75rem;">Módulo Clínico -
+                    Odontología</span>
                 <h3 class="fw-bold m-0" style="letter-spacing: -0.5px;">Nueva Consulta Dental</h3>
             </div>
-            <button type="button" class="btn btn-light rounded-pill px-3 py-2 btn-sm text-secondary"
-                onclick="window.history.back();">
+            <button type="button" class="btn btn-light rounded-pill px-3 py-2 btn-sm " onclick="window.history.back();">
                 <i class="bi bi-x-lg me-1"></i> Cancelar
             </button>
         </div>
 
-        <!-- Select de almacén oculto/controlado si se requiere para la lógica de JS -->
+        <!-- Select de almacén oculto -->
         <div class="d-none">
             <select name="almacen_id_editar" id="almacen_id_editar" class="form-select">
                 <?php if (!empty($almacenes)):
                     foreach ($almacenes as $a): ?>
                         <option value="<?= $a['id'] ?>" <?= ($a['id'] == $almacen_usuario) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($a['nombre']) ?></option>
+                            <?= htmlspecialchars($a['nombre']) ?>
+                        </option>
                     <?php endforeach; endif; ?>
             </select>
         </div>
@@ -94,36 +204,56 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
             method="POST" enctype="multipart/form-data" onsubmit="event.preventDefault(); enviarDatos();">
 
             <!-- 1. INFORMACIÓN DEL CLIENTE (PACIENTE) -->
-            <div class="card shadow-sm rounded-4 mb-4">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center mb-4">
-                        <div class="rounded-3 d-flex align-items-center justify-content-center me-3"
-                            style="width:42px; height:42px; background:linear-gradient(135deg,#eaf2ff,#f3f7ff); color:#356ae6;">
-                            <i class="bi bi-person-badge-fill"></i>
-                        </div>
-                        <div>
-                            <h6 class="mb-1 fw-bold">Información del Paciente / Cliente</h6>
-                            <small class="text-secondary">Selección y datos generales del cliente</small>
-                        </div>
-                    </div>
+            <div class="row g-3 border border-2 border-primary-subtle rounded-4 shadow-sm p-3 mb-4 bg-body">
 
-                    <div class="row g-3">
-                        <!-- CLIENTE -->
-                        <div class="col-md-6">
-                            <label for="cliente_id" class="form-label small fw-semibold text-secondary">Paciente
-                                (Cliente)</label>
-                            <select class="form-select ios-input rounded-3 shadow-none" id="cliente_id"
-                                name="cliente_id" required onchange="cargarDatosCliente(this.value)">
-                                <option value="">Seleccionar paciente...</option>
+                <!-- Paciente -->
+                <div class="col-md-6">
+                    <label for="cliente_id" class="form-label small fw-semibold text-body-secondary mb-1">
+                        Paciente
+                    </label>
+
+                    <div class="d-flex gap-2 align-items-stretch">
+                        <div class="input-group flex-grow-1">
+                            <span class="input-group-text bg-body text-body-secondary border-end-0">
+                                <i class="bi bi-person"></i>
+                            </span>
+                            <select class="form-select border-start-0 shadow-none" id="cliente_id" name="cliente_id"
+                                required onchange="cargarDatosCliente(this.value)">
+                                <option value="">Seleccionar paciente…</option>
                             </select>
                         </div>
 
-                        <!-- Campos ocultos requeridos por JavaScript para evitar errores de referencias nulas -->
-                        <input type="hidden" id="rfc" name="rfc">
-                        <input type="hidden" id="telefono" name="telefono">
-                        <input type="hidden" id="email" name="email">
+                        <button type="button"
+                            class="btn btn-primary bg-gradient d-inline-flex align-items-center gap-2 fw-semibold shadow-sm border-0"
+                            onclick="nuevoCliente()" title="Registrar nuevo paciente">
+                            <i class="bi bi-person-plus-fill"></i>
+                            <span class="d-none d-sm-inline">Nuevo</span>
+                        </button>
                     </div>
                 </div>
+
+                <!-- Sexo -->
+                <div class="col-md-3 col-6">
+                    <label for="sexoC" class="form-label small fw-semibold text-body-secondary mb-1">Sexo</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-body text-body-secondary border-end-0">
+                            <i class="bi bi-gender-ambiguous"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 ps-0 shadow-none" id="sexoC" name="sexoC"
+                            readonly placeholder="—">
+                    </div>
+                </div>
+
+                <!-- Edad -->
+                <div class="col-md-3 col-6">
+                    <label for="edad" class="form-label small fw-semibold text-body-secondary mb-1">Edad</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control shadow-none" id="edad" name="edad" step="0.01" min="0"
+                            placeholder="0.00">
+                        <span class="input-group-text bg-body text-body-secondary">años</span>
+                    </div>
+                </div>
+
             </div>
 
             <!-- 2. CONSULTA Y SIGNOS VITALES -->
@@ -131,18 +261,18 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-4">
                         <div class="rounded-3 d-flex align-items-center justify-content-center me-3"
-                            style="width:42px; height:42px; background:linear-gradient(135deg,#f3f5ff,#f8f9ff); color:#5967d9;">
+                            style="width:42px; height:42px; background:linear-gradient(135deg,#f3f5ff,#f8f9ff);">
                             <i class="bi bi-clipboard2-pulse-fill"></i>
                         </div>
                         <div>
                             <h6 class="mb-1 fw-bold">Consulta dental y signos vitales</h6>
-                            <small class="text-secondary">Evaluación inicial y toma de signos</small>
+                            <small class="">Evaluación inicial y toma de signos</small>
                         </div>
                     </div>
 
                     <div class="row g-3">
                         <div class="col-12">
-                            <label for="motivo_consulta" class="form-label small fw-semibold text-secondary">Motivo de
+                            <label for="motivo_consulta" class="form-label small fw-semibold ">Motivo de
                                 la consulta dental</label>
                             <textarea class="form-control ios-input rounded-3 shadow-none" id="motivo_consulta"
                                 name="motivo_consulta" rows="2"
@@ -152,26 +282,26 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
                         <div class="col-12 mt-3">
                             <div class="d-flex align-items-center">
-                                <span class="small fw-bold text-dark">Signos Vitales</span>
+                                <span class="small fw-bold ">Signos Vitales</span>
                                 <div class="flex-grow-1 ms-3" style="height:1px;background:#eef0f4;"></div>
                             </div>
                         </div>
 
                         <div class="col-md-4 col-6">
-                            <label for="presion_arterial" class="form-label small fw-semibold text-secondary">Presión
+                            <label for="presion_arterial" class="form-label small fw-semibold ">Presión
                                 Arterial</label>
                             <div class="input-group">
                                 <input type="text" class="form-control ios-input rounded-start-3 shadow-none"
                                     id="presion_arterial" name="presion_arterial" placeholder="120/80">
-                                <span class="input-group-text text-secondary">mmHg</span>
+                                <span class="input-group-text ">mmHg</span>
                             </div>
                         </div>
 
                         <div class="col-md-4 col-6">
-                            <label for="costo" class="form-label small fw-semibold text-secondary">Costo de
+                            <label for="costo" class="form-label small fw-semibold ">Costo de
                                 consulta</label>
                             <div class="input-group">
-                                <span class="input-group-text text-secondary">$</span>
+                                <span class="input-group-text ">$</span>
                                 <input type="number" class="form-control ios-input rounded-end-3 shadow-none" id="costo"
                                     name="costo" step="0.01" min="0" placeholder="0.00">
                             </div>
@@ -190,29 +320,29 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                         </div>
                         <div>
                             <h6 class="mb-1 fw-bold">Anamnesis y diagnóstico dental</h6>
-                            <small class="text-secondary">Antecedentes, hallazgos clínicos y piezas afectadas</small>
+                            <small class="">Antecedentes, hallazgos clínicos y piezas afectadas</small>
                         </div>
                     </div>
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="antecedentes_medicos"
-                                class="form-label small fw-semibold text-secondary">Antecedentes Médicos</label>
+                            <label for="antecedentes_medicos" class="form-label small fw-semibold ">Antecedentes
+                                Médicos</label>
                             <textarea class="form-control ios-input rounded-3 shadow-none" id="antecedentes_medicos"
                                 name="antecedentes_medicos" rows="2"
                                 placeholder="Enfermedades crónicas, alergias a medicamentos..."></textarea>
                         </div>
 
                         <div class="col-md-6">
-                            <label for="antecedentes_dentales"
-                                class="form-label small fw-semibold text-secondary">Antecedentes Dentales</label>
+                            <label for="antecedentes_dentales" class="form-label small fw-semibold ">Antecedentes
+                                Dentales</label>
                             <textarea class="form-control ios-input rounded-3 shadow-none" id="antecedentes_dentales"
                                 name="antecedentes_dentales" rows="2"
                                 placeholder="Tratamientos previos, ortodoncia, cirugías bucales..."></textarea>
                         </div>
 
                         <div class="col-12">
-                            <label for="sintomas" class="form-label small fw-semibold text-secondary">Síntomas
+                            <label for="sintomas" class="form-label small fw-semibold ">Síntomas
                                 Reportados / Hallazgos</label>
                             <textarea class="form-control ios-input rounded-3 shadow-none" id="sintomas" name="sintomas"
                                 rows="2" placeholder="Dolor localizado, sangrado gingival, sensibilidad..."
@@ -220,14 +350,14 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                         </div>
 
                         <div class="col-12">
-                            <label for="piezas_dentales" class="form-label small fw-semibold text-secondary">Piezas
+                            <label for="piezas_dentales" class="form-label small fw-semibold ">Piezas
                                 Dentales Afectadas</label>
                             <input type="text" class="form-control ios-input rounded-3 shadow-none" id="piezas_dentales"
                                 name="piezas_dentales" placeholder="Ej. 18, 21, 46...">
                         </div>
 
                         <div class="col-12">
-                            <label for="diagnostico" class="form-label small fw-semibold text-secondary">Diagnóstico
+                            <label for="diagnostico" class="form-label small fw-semibold ">Diagnóstico
                                 Dental</label>
                             <textarea class="form-control ios-input rounded-3 shadow-none" id="diagnostico"
                                 name="diagnostico" rows="3"
@@ -247,21 +377,21 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                         </div>
                         <div>
                             <h6 class="mb-1 fw-bold">Procedimiento y plan de tratamiento</h6>
-                            <small class="text-secondary">Procedimientos realizados y evolución</small>
+                            <small class="">Procedimientos realizados y evolución</small>
                         </div>
                     </div>
 
                     <div class="row g-3">
                         <div class="col-12">
-                            <label for="procedimiento_realizado"
-                                class="form-label small fw-semibold text-secondary">Procedimiento Realizado</label>
+                            <label for="procedimiento_realizado" class="form-label small fw-semibold ">Procedimiento
+                                Realizado</label>
                             <textarea class="form-control ios-input rounded-3 shadow-none" id="procedimiento_realizado"
                                 name="procedimiento_realizado" rows="3"
                                 placeholder="Limpieza, endodoncia, resina, extracción..." required></textarea>
                         </div>
 
                         <div class="col-md-6">
-                            <label for="plan_tratamiento" class="form-label small fw-semibold text-secondary">Plan de
+                            <label for="plan_tratamiento" class="form-label small fw-semibold ">Plan de
                                 Tratamiento / Siguientes Pasos</label>
                             <textarea class="form-control ios-input rounded-3 shadow-none" id="plan_tratamiento"
                                 name="plan_tratamiento" rows="3"
@@ -269,7 +399,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                         </div>
 
                         <div class="col-md-6">
-                            <label for="observaciones" class="form-label small fw-semibold text-secondary">Observaciones
+                            <label for="observaciones" class="form-label small fw-semibold ">Observaciones
                                 Adicionales</label>
                             <textarea class="form-control ios-input rounded-3 shadow-none" id="observaciones"
                                 name="observaciones" rows="3"
@@ -277,22 +407,21 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                         </div>
 
                         <div class="col-12">
-                            <label for="evidencias" class="form-label small fw-semibold text-secondary">Evidencias
+                            <label for="evidencias" class="form-label small fw-semibold ">Evidencias
                                 (Fotos / Radiografías)</label>
 
-                            <div class="rounded-4 p-4 text-center position-relative mb-3"
-                                style="background:#f8fafc; border:1px dashed #d8dee8; transition:all .2s ease;">
+                            <div class="rounded-4 p-4 text-center position-relative mb-3">
                                 <input type="file" class="position-absolute top-0 start-0 w-100 h-100 opacity-0"
                                     id="evidencias" name="evidencias[]" accept=".jpg,.jpeg,.png,.pdf" multiple
                                     style="cursor:pointer; z-index: 2;">
 
-                                <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center"
-                                    style="width:48px; height:48px; background:#edf3ff; color:#4775d1;">
+                                <div
+                                    class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center">
                                     <i class="bi bi-cloud-arrow-up fs-5"></i>
                                 </div>
 
                                 <div class="fw-semibold small mb-1">Agregar archivos</div>
-                                <div class="small text-secondary">Arrastra radiografías o fotografías dentales aquí o
+                                <div class="small ">Arrastra radiografías o fotografías dentales aquí o
                                     haz clic</div>
                                 <div class="mt-2 text-muted" style="font-size:.72rem;">JPG, PNG o PDF</div>
                             </div>
@@ -309,7 +438,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                     <i class="bi bi-x-lg me-1"></i> Cancelar
                 </button>
 
-                <button type="submit" class="btn rounded-pill px-4 py-2 fw-semibold shadow-sm"
+                <button type="submit" id="btnGuardarConsulta" class="btn rounded-pill px-4 py-2 fw-semibold shadow-sm"
                     style="background:linear-gradient(135deg,#376bd8,#2855b8); color:#fff; border:0;">
                     <i class="bi bi-check-lg me-1"></i> Guardar consulta dental
                 </button>
@@ -323,45 +452,110 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <?php require_once __DIR__ . '/clientes/clientesMedic.php'; ?>
 
     <script>
+        /* =========================================================
+           ESTADO GLOBAL
+           ========================================================= */
         let archivosSeleccionados = [];
+        let listaClientes = [];
 
-        document.addEventListener('DOMContentLoaded', async function () {
+        /* =========================================================
+           CONTROL DEL LOADER
+           ========================================================= */
+        function mostrarLoader(texto = 'Cargando información…', subtexto = 'Por favor espera') {
+            const overlay = document.getElementById('loaderOverlay');
+            if (!overlay) return;
+            const t = document.getElementById('loaderTexto');
+            const s = document.getElementById('loaderSubtexto');
+            if (t) t.textContent = texto;
+            if (s) s.textContent = subtexto;
+            overlay.classList.remove('oculto');
+        }
+
+        function ocultarLoader() {
+            const overlay = document.getElementById('loaderOverlay');
+            if (overlay) overlay.classList.add('oculto');
+        }
+
+        /* =========================================================
+           INICIALIZACIÓN
+           ========================================================= */
+        document.addEventListener('DOMContentLoaded', async () => {
+            /* --- Input de evidencias --- */
             const inputEvidencias = document.getElementById('evidencias');
-
             if (inputEvidencias) {
-                inputEvidencias.addEventListener('change', function (e) {
-                    const nuevosArchivos = Array.from(e.target.files);
-
-                    nuevosArchivos.forEach(archivo => {
-                        const existe = archivosSeleccionados.some(a => a.name === archivo.name && a.size === archivo.size);
-                        if (!existe) {
-                            archivosSeleccionados.push(archivo);
-                        }
+                inputEvidencias.addEventListener('change', (e) => {
+                    Array.from(e.target.files).forEach((archivo) => {
+                        const existe = archivosSeleccionados.some(
+                            (a) => a.name === archivo.name && a.size === archivo.size
+                        );
+                        if (!existe) archivosSeleccionados.push(archivo);
                     });
-
                     inputEvidencias.value = '';
                     renderizarPrevisualizaciones();
                 });
             }
 
-            const parametros = new URLSearchParams(window.location.search);
-            const clienteIdUrl = parametros.get('id') ?? 0;
-            const razon = parametros.get('razon') ?? '';
-            $('#motivo_consulta').val(razon);
+            /* --- Bloquear visualmente el formulario mientras carga --- */
+            document.body.classList.add('formulario-cargando');
+            mostrarLoader('Cargando información…', 'Obteniendo datos del sistema');
 
-            await cargarClientes(clienteIdUrl);
+            /* --- Parámetros de URL --- */
+            const params = new URLSearchParams(window.location.search);
+            const clienteIdUrl = parseInt(params.get('id') ?? '0', 10) || 0;
+            const razon = params.get('razon') ?? '';
+
+            if (razon) {
+                const motivo = document.getElementById('motivo_consulta');
+                if (motivo) motivo.value = razon;
+            }
+
+            /* --- Carga de clientes y datos del paciente --- */
+            try {
+                mostrarLoader('Cargando lista de pacientes…', 'Consultando almacén');
+
+                const idPreseleccionado = clienteIdUrl || null;
+
+                if (idPreseleccionado) {
+                    mostrarLoader('Cargando datos del paciente…', 'Calculando edad y sexo');
+                }
+
+                await cargarClientes(idPreseleccionado);
+
+                // Pequeña pausa para que la animación se aprecie
+                await new Promise((r) => setTimeout(r, 350));
+
+            } catch (error) {
+                console.error('[init] Error en la carga inicial:', error);
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No se pudo cargar toda la información',
+                    text: error.message || 'Verifica tu conexión e intenta recargar.',
+                    confirmButtonText: 'Entendido'
+                });
+            } finally {
+                ocultarLoader();
+                document.body.classList.remove('formulario-cargando');
+            }
 
             if (window.location.search) {
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         });
 
+        /* =========================================================
+           PREVISUALIZACIÓN DE EVIDENCIAS
+           ========================================================= */
         function renderizarPrevisualizaciones() {
             const contenedor = document.getElementById('lista_evidencias');
             if (!contenedor) return;
 
+            if (contenedor._urlsPrevias) {
+                contenedor._urlsPrevias.forEach((u) => URL.revokeObjectURL(u));
+            }
+            contenedor._urlsPrevias = [];
             contenedor.innerHTML = '';
 
             archivosSeleccionados.forEach((archivo, index) => {
@@ -375,6 +569,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
                 if (esImagen) {
                     const urlImagen = URL.createObjectURL(archivo);
+                    contenedor._urlsPrevias.push(urlImagen);
                     thumbnailHtml = `<img src="${urlImagen}" class="rounded-3 mb-2" style="width: 100%; height: 90px; object-fit: cover;">`;
                 } else if (esPdf) {
                     thumbnailHtml = `
@@ -383,7 +578,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                     </div>`;
                 } else {
                     thumbnailHtml = `
-                    <div class="rounded-3 mb-2 d-flex align-items-center justify-content-center bg-light text-secondary" style="height: 90px;">
+                    <div class="rounded-3 mb-2 d-flex align-items-center justify-content-center bg-light " style="height: 90px;">
                         <i class="bi bi-file-earmark-text-fill fs-1"></i>
                     </div>`;
                 }
@@ -395,7 +590,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                         <i class="bi bi-x"></i>
                     </button>
                     ${thumbnailHtml}
-                    <div class="text-truncate small fw-semibold text-dark px-1" title="${archivo.name}">${archivo.name}</div>
+                    <div class="text-truncate small fw-semibold text-dark px-1" title="${escapeHtml(archivo.name)}">${escapeHtml(archivo.name)}</div>
                     <div class="text-muted px-1" style="font-size: 0.7rem;">${(archivo.size / 1024).toFixed(1)} KB</div>
                 </div>
             `;
@@ -409,66 +604,134 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
             renderizarPrevisualizaciones();
         }
 
-        let listaClientes = [];
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
 
+        /* =========================================================
+           CLIENTES
+           ========================================================= */
         async function cargarClientes(clienteIdSeleccionar = null) {
-            const almacenId = $('#almacen_id_editar').val();
             const select = document.getElementById('cliente_id');
             if (!select) return;
 
-            select.innerHTML = '<option value="">-- Seleccione un cliente --</option>';
+            const almacenId = $('#almacen_id_editar').val();
+
+            select.innerHTML = '<option value="">-- Seleccione un paciente --</option>';
+
+            const idBuscado =
+                clienteIdSeleccionar !== null && clienteIdSeleccionar !== undefined && clienteIdSeleccionar !== ''
+                    ? String(clienteIdSeleccionar).trim()
+                    : '';
 
             try {
                 const url = `/myvet/app/controllers/accesoController.php?action=obtenerClientes&almacen_id=${almacenId}`;
                 const respuesta = await fetch(url);
 
-                if (!respuesta.ok) throw new Error('Error en la respuesta del servidor');
+                if (!respuesta.ok) throw new Error('HTTP ' + respuesta.status);
 
                 const resultado = await respuesta.json();
 
-                if (resultado.success && Array.isArray(resultado.data)) {
-                    listaClientes = resultado.data;
-
-                    listaClientes.forEach(cliente => {
-                        const opcion = document.createElement('option');
-                        opcion.value = Number(cliente.id);
-                        opcion.textContent = cliente.nombre_comercial;
-                        select.appendChild(opcion);
-                    });
-
-                    if (clienteIdSeleccionar !== null && clienteIdSeleccionar !== '') {
-                        const idBuscado = parseInt(clienteIdSeleccionar, 10);
-
-                        if (!isNaN(idBuscado)) {
-                            const coincidentes = listaClientes.filter(c => Number(c.id) === idBuscado);
-
-                            if (coincidentes.length > 0) {
-                                const clienteEncontrado = coincidentes[0];
-                                select.value = idBuscado;
-                                cargarDatosCliente(idBuscado);
-                            }
-                        }
-                    }
-                } else {
-                    select.innerHTML = '<option value="">No se pudieron cargar los usuarios</option>';
+                if (!resultado.success || !Array.isArray(resultado.data)) {
+                    throw new Error(resultado.message || 'Respuesta inválida al cargar clientes.');
                 }
+
+                listaClientes = resultado.data;
+                const fragment = document.createDocumentFragment();
+
+                listaClientes.forEach(cliente => {
+                    const opcion = document.createElement('option');
+                    opcion.value = String(cliente.id ?? '').trim();
+                    opcion.textContent = cliente.nombre_comercial || cliente.nombre || '(sin nombre)';
+                    fragment.appendChild(opcion);
+                });
+
+                select.appendChild(fragment);
+
+                if (idBuscado !== '') {
+                    const existe = listaClientes.some(
+                        (c) => String(c.id).trim() === idBuscado
+                    );
+
+                    if (existe) {
+                        select.value = idBuscado;
+
+                        try {
+                            await cargarDatosCliente(idBuscado);
+                        } catch (err) {
+                            console.warn('[cargarClientes] Error al precargar datos del cliente:', err);
+                        }
+                    } else {
+                        console.warn(
+                            '[cargarClientes] El id de la URL no coincide con ningún cliente cargado:',
+                            idBuscado
+                        );
+                    }
+                }
+
             } catch (error) {
-                select.innerHTML = '<option value="">Error al cargar la lista</option>';
                 console.error('Error al ejecutar cargarClientes:', error);
+                select.innerHTML = '<option value="">Error al cargar la lista de clientes</option>';
+                throw error;
             }
         }
 
-        function cargarDatosCliente(id) {
-            const cliente = listaClientes.find(c => String(c.id) === String(id));
-            const elemRfc = document.getElementById('rfc');
-            const elemTel = document.getElementById('telefono');
-            const elemEmail = document.getElementById('email');
+        /* =========================================================
+           DATOS DEL CLIENTE (sexo + edad)
+           ========================================================= */
+        async function cargarDatosCliente(clienteId) {
+            try {
+                const url = `/myvet/app/controllers/consultaDentalController.php?action=obtenerPorId&id=${clienteId}`;
 
-            if (elemRfc) elemRfc.value = cliente ? (cliente.rfc || '') : '';
-            if (elemTel) elemTel.value = cliente ? (cliente.telefono || '') : '';
-            if (elemEmail) elemEmail.value = cliente ? (cliente.email || '') : '';
+                const respuesta = await fetch(url);
+
+                if (!respuesta.ok) {
+                    throw new Error(`Error HTTP: ${respuesta.status}`);
+                }
+
+                const data = await respuesta.json();
+
+                if (data.success && data.data && data.data.fecha_nacimiento) {
+                    const fechaNacimientoString = data.data.fecha_nacimiento;
+                    $('#sexoC').val(data.data.sexo ?? '');
+
+                    const edad = calcularEdad(fechaNacimientoString);
+                    const inputEdad = document.getElementById('edad');
+
+                    if (inputEdad) {
+                        inputEdad.value = edad >= 0 ? edad : 0;
+                    } else {
+                        console.warn('No se encontró el input con id="edad"');
+                    }
+                } else {
+                    console.warn('La respuesta no contiene una fecha de nacimiento válida');
+                }
+
+            } catch (error) {
+                console.error('Error al ejecutar cargarDatosCliente:', error);
+                throw error;
+            }
         }
 
+        function calcularEdad(fechaNacimiento) {
+            const nacimiento = new Date(fechaNacimiento);
+            const hoy = new Date();
+
+            let edad = hoy.getFullYear() - nacimiento.getFullYear();
+            const mes = hoy.getMonth() - nacimiento.getMonth();
+
+            if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+                edad--;
+            }
+
+            return edad;
+        }
+
+        /* =========================================================
+           EVIDENCIAS
+           ========================================================= */
         async function guardarEvidenciaSilenciosa(pacienteId, consultaId, archivo) {
             const formData = new FormData();
             formData.append('pacienteId', pacienteId);
@@ -492,7 +755,12 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
             return data;
         }
 
+        /* =========================================================
+           GUARDAR CONSULTA
+           ========================================================= */
         async function enviarDatos() {
+            const btnGuardar = document.getElementById('btnGuardarConsulta');
+
             try {
                 const clienteId = document.getElementById('cliente_id')?.value;
 
@@ -514,6 +782,11 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                 datos.append('observaciones', document.getElementById('observaciones')?.value || '');
                 datos.append('presion_arterial', document.getElementById('presion_arterial')?.value || '');
                 datos.append('costo', document.getElementById('costo')?.value || '0');
+
+                if (btnGuardar) {
+                    btnGuardar.disabled = true;
+                    btnGuardar.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Guardando...';
+                }
 
                 Swal.fire({
                     title: 'Guardando consulta dental...',
@@ -537,6 +810,10 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
                 if (typeof archivosSeleccionados !== 'undefined' && archivosSeleccionados.length > 0) {
                     for (let i = 0; i < archivosSeleccionados.length; i++) {
+                        Swal.update({
+                            title: 'Subiendo evidencias...',
+                            html: `Archivo ${i + 1} de ${archivosSeleccionados.length}`
+                        });
                         await guardarEvidenciaSilenciosa(clienteId, consultaId, archivosSeleccionados[i]);
                     }
                 }
@@ -557,6 +834,11 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                     title: 'Error al guardar',
                     text: error.message || 'Ocurrió un problema desconocido.'
                 });
+            } finally {
+                if (btnGuardar) {
+                    btnGuardar.disabled = false;
+                    btnGuardar.innerHTML = '<i class="bi bi-check-lg me-1"></i> Guardar consulta dental';
+                }
             }
         }
     </script>

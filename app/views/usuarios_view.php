@@ -105,6 +105,84 @@
                 padding: 20px;
             }
         }
+
+        /* ============================================================
+           ANIMACIÓN DE CARGA (spinner + texto animado)
+           ============================================================ */
+        @keyframes loaderSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes loaderPulse {
+
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes loaderDots {
+
+            0%,
+            20% {
+                content: '';
+            }
+
+            40% {
+                content: '.';
+            }
+
+            60% {
+                content: '..';
+            }
+
+            80%,
+            100% {
+                content: '...';
+            }
+        }
+
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 20px;
+            gap: 16px;
+        }
+
+        .loader-spinner {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: 4px solid rgba(13, 110, 253, 0.15);
+            border-top-color: #0d6efd;
+            animation: loaderSpin 0.8s linear infinite;
+        }
+
+        [data-bs-theme="dark"] .loader-spinner {
+            border-color: rgba(99, 162, 255, 0.15);
+            border-top-color: #6ea8fe;
+        }
+
+        .loader-text {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--bs-secondary-color);
+            letter-spacing: 0.3px;
+            animation: loaderPulse 1.4s ease-in-out infinite;
+        }
+
+        .loader-text::after {
+            content: '';
+            animation: loaderDots 1.4s steps(1) infinite;
+        }
     </style>
 </head>
 
@@ -268,7 +346,7 @@
                             <?php endif; ?>
                         </div>
 
-                        <!-- Almacén (CORREGIDO: antes estaba suelto, sin label ni col) -->
+                        <!-- Almacén -->
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Almacén</label>
                             <select name="almacen_id" id="userAlmacen" class="form-select">
@@ -321,13 +399,29 @@
         }
 
         /* ============================================================
+           ANIMACIÓN DE CARGA
+           ============================================================ */
+        function renderLoader() {
+            return `
+                <tr>
+                    <td colspan="6">
+                        <div class="loader-container">
+                            <div class="loader-spinner"></div>
+                            <div class="loader-text">Cargando usuarios</div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        /* ============================================================
            CARGAR USUARIOS
            ============================================================ */
         async function cargarUsuarios() {
             const $tbody = $('#listaUsuarios');
             const almacenId = $('#almacen_id').val() || '';
 
-            $tbody.html('<tr><td colspan="6" class="text-center py-4 text-muted">Cargando usuarios...</td></tr>');
+            $tbody.html(renderLoader());
 
             try {
                 const url = `/myvet/app/controllers/usuariosController.php?action=obtenerUsuarios&almacen_id=${encodeURIComponent(almacenId)}`;
@@ -424,7 +518,6 @@
             $('#userPass').prop('required', true).val('');
             $('#passNote').hide();
 
-            // Select2: resetear si existen
             if ($('#userRol').length) {
                 $('#userRol').val('').trigger('change');
             }
@@ -453,14 +546,12 @@
             $('#modalTitle').text('Actualizar Usuario');
             $('#passNote').show();
 
-            // Rol: puede ser <select> o <input hidden> según rol del usuario
             if ($('#userRol').length) {
                 $('#userRol').val(u.rol_id).trigger('change');
             } else if ($('#userRolHidden').length) {
                 $('#userRolHidden').val(u.rol_id);
             }
 
-            // Almacén
             if ($('#userAlmacen').length) {
                 $('#userAlmacen').val(u.almacen_id).trigger('change');
             }
@@ -511,7 +602,7 @@
            TOGGLE ACTIVAR / DESACTIVAR
            ============================================================ */
         async function toggleUsuario(id, checkbox) {
-            const estabaActivo = !checkbox.checked; // si ahora está unchecked, antes estaba activo
+            const estabaActivo = !checkbox.checked;
             const accion = estabaActivo ? 'eliminar' : 'activar';
 
             try {
@@ -526,7 +617,7 @@
                 const res = await resp.json();
 
                 if (res.status !== 'success') {
-                    checkbox.checked = !checkbox.checked; // revertir
+                    checkbox.checked = !checkbox.checked;
                     Swal.fire('Error', res.message || 'No se pudo actualizar', 'error');
                 }
             } catch (err) {
@@ -536,7 +627,6 @@
             }
         }
 
-        // Compatibilidad: el nombre original era eliminarUsuario
         function eliminarUsuario(id) {
             const input = $(`tr:has(button[onclick*="toggleUsuario(${id}"]) .form-check-input`)[0];
             if (input) toggleUsuario(id, input);
@@ -553,7 +643,6 @@
             $('#almacen_id').select2({
                 theme: 'bootstrap-5',
                 placeholder: '<?= $tipo == 1 ? "Todos" : "Selecciona un almacén" ?>',
-                allowClear: true,
                 width: '100%',
                 language: {
                     noResults: () => 'No se encontraron resultados',

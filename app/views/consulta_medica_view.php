@@ -189,15 +189,14 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
         <!-- ENCABEZADO -->
         <div class="d-flex align-items-center justify-content-between mb-4">
             <div>
-                <span class="text-uppercase fw-semibold tracking-wider text-secondary" style="font-size: 0.75rem;">
+                <span class="text-uppercase fw-semibold tracking-wider " style="font-size: 0.75rem;">
                     Módulo Clínico
                 </span>
                 <h3 class="fw-bold m-0" style="letter-spacing: -0.5px;">
                     Nueva Consulta Medica
                 </h3>
             </div>
-            <button type="button" class="btn btn-light rounded-pill px-3 py-2 btn-sm text-secondary"
-                onclick="window.history.back();">
+            <button type="button" class="btn btn-light rounded-pill px-3 py-2 btn-sm " onclick="window.history.back();">
                 <i class="bi bi-x-lg me-1"></i>
                 Cancelar
             </button>
@@ -205,7 +204,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
         <!-- ALMACÉN -->
         <div class="mb-4">
-            <label for="almacen_id_editar" class="form-label small fw-semibold text-secondary">
+            <label for="almacen_id_editar" class="form-label small fw-semibold ">
                 Almacén
             </label>
             <select name="almacen_id_editar" id="almacen_id_editar" class="form-select shadow-sm rounded-3 py-2"
@@ -240,7 +239,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                     </div>
 
                     <!-- Fila de campos -->
-                    <div class="row g-3">
+                    <div class="row g-3 p-4">
 
                         <!-- Paciente -->
                         <div class="col-md-6">
@@ -313,7 +312,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                             <h6 class="mb-1 fw-bold">
                                 Consulta medica y signos vitales
                             </h6>
-                            <small class="text-secondary">
+                            <small class="">
                                 Evaluación inicial y toma de signos
                             </small>
                         </div>
@@ -322,7 +321,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                     <div class="row g-3">
                         <!-- MOTIVO -->
                         <div class="col-12">
-                            <label for="motivo_consulta" class="form-label small fw-semibold text-secondary">
+                            <label for="motivo_consulta" class="form-label small fw-semibold ">
                                 Motivo de la consulta medica
                             </label>
                             <textarea class="form-control ios-input rounded-3 shadow-none" id="motivo_consulta"
@@ -333,7 +332,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                         <!-- SEPARADOR -->
                         <div class="col-12 mt-3">
                             <div class="d-flex align-items-center">
-                                <span class="small fw-bold text-dark">
+                                <span class="small fw-bold ">
                                     Signos Vitales
                                 </span>
                                 <div class="flex-grow-1 ms-3" style="height:1px;background:#eef0f4;">
@@ -343,13 +342,13 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
                         <!-- PRESIÓN -->
                         <div class="col-md-3 col-6">
-                            <label for="presion_arterial" class="form-label small fw-semibold text-secondary">
+                            <label for="presion_arterial" class="form-label small fw-semibold ">
                                 Presión Arterial
                             </label>
                             <div class="input-group">
                                 <input type="text" class="form-control ios-input rounded-start-3 shadow-none"
                                     id="presion_arterial" name="presion_arterial" placeholder="120/80">
-                                <span class="input-group-text text-secondary">
+                                <span class="input-group-text ">
                                     mmHg
                                 </span>
                             </div>
@@ -357,13 +356,13 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
                         <!-- TEMPERATURA -->
                         <div class="col-md-3 col-6">
-                            <label for="temperatura" class="form-label small fw-semibold text-secondary">
+                            <label for="temperatura" class="form-label small fw-semibold ">
                                 Temperatura
                             </label>
                             <div class="input-group">
                                 <input type="number" class="form-control ios-input rounded-start-3 shadow-none"
                                     id="temperatura" name="temperatura" step="0.1" min="0" placeholder="36.5">
-                                <span class="input-group-text text-secondary">
+                                <span class="input-group-text ">
                                     °C
                                 </span>
                             </div>
@@ -371,13 +370,13 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
                         <!-- ESTATURA -->
                         <div class="col-md-3 col-6">
-                            <label for="estatura" class="form-label small fw-semibold text-secondary">
+                            <label for="estatura" class="form-label small fw-semibold ">
                                 Estatura
                             </label>
                             <div class="input-group">
                                 <input type="number" class="form-control ios-input rounded-start-3 shadow-none"
                                     id="estatura" name="estatura" step="0.01" min="0" placeholder="1.70">
-                                <span class="input-group-text text-secondary">
+                                <span class="input-group-text ">
                                     m
                                 </span>
                             </div>
@@ -385,13 +384,13 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
                         <!-- PESO -->
                         <div class="col-md-3 col-6">
-                            <label for="peso" class="form-label small fw-semibold text-secondary">
+                            <label for="peso" class="form-label small fw-semibold ">
                                 Peso
                             </label>
                             <div class="input-group">
                                 <input type="number" class="form-control ios-input rounded-start-3 shadow-none"
                                     id="peso" name="peso" step="0.01" min="0" placeholder="70.00">
-                                <span class="input-group-text text-secondary">
+                                <span class="input-group-text ">
                                     kg
                                 </span>
                             </div>
@@ -400,11 +399,11 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
                         <!-- COSTO -->
                         <div class="col-md-4 col-6">
-                            <label for="costo" class="form-label small fw-semibold text-secondary">
+                            <label for="costo" class="form-label small fw-semibold ">
                                 Costo de consulta
                             </label>
                             <div class="input-group">
-                                <span class="input-group-text text-secondary">
+                                <span class="input-group-text ">
                                     $
                                 </span>
                                 <input type="number" class="form-control ios-input rounded-end-3 shadow-none" id="costo"
@@ -429,7 +428,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                             <h6 class="mb-1 fw-bold">
                                 Anamnesis y diagnóstico medico
                             </h6>
-                            <small class="text-secondary">
+                            <small class="">
                                 Antecedentes, hallazgos clínicos
                             </small>
                         </div>
@@ -438,7 +437,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                     <div class="row g-3">
                         <!-- ANTECEDENTES MÉDICOS -->
                         <div class="col-md-6">
-                            <label for="antecedentes_medicos" class="form-label small fw-semibold text-secondary">
+                            <label for="antecedentes_medicos" class="form-label small fw-semibold ">
                                 Antecedentes Médicos
                             </label>
                             <textarea class="form-control ios-input rounded-3 shadow-none" id="antecedentes_medicos"
@@ -448,7 +447,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
                         <!-- SÍNTOMAS -->
                         <div class="col-md-6">
-                            <label for="sintomas" class="form-label small fw-semibold text-secondary">
+                            <label for="sintomas" class="form-label small fw-semibold ">
                                 Síntomas Reportados / Hallazgos
                             </label>
                             <textarea class="form-control ios-input rounded-3 shadow-none" id="sintomas" name="sintomas"
@@ -458,7 +457,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
                         <!-- DIAGNÓSTICO -->
                         <div class="col-12">
-                            <label for="diagnostico" class="form-label small fw-semibold text-secondary">
+                            <label for="diagnostico" class="form-label small fw-semibold ">
                                 Diagnóstico medico
                             </label>
                             <textarea class="form-control ios-input rounded-3 shadow-none" id="diagnostico"
@@ -482,7 +481,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                             <h6 class="mb-1 fw-bold">
                                 Procedimiento y plan de tratamiento
                             </h6>
-                            <small class="text-secondary">
+                            <small class="">
                                 Procedimientos realizados y evolución
                             </small>
                         </div>
@@ -491,7 +490,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                     <div class="row g-3">
                         <!-- PROCEDIMIENTO -->
                         <div class="col-12">
-                            <label for="procedimiento_realizado" class="form-label small fw-semibold text-secondary">
+                            <label for="procedimiento_realizado" class="form-label small fw-semibold ">
                                 Procedimiento Realizado
                             </label>
                             <textarea class="form-control ios-input rounded-3 shadow-none" id="procedimiento_realizado"
@@ -501,7 +500,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
                         <!-- PLAN -->
                         <div class="col-md-6">
-                            <label for="plan_tratamiento" class="form-label small fw-semibold text-secondary">
+                            <label for="plan_tratamiento" class="form-label small fw-semibold ">
                                 Plan de Tratamiento / Siguientes Pasos
                             </label>
                             <textarea class="form-control ios-input rounded-3 shadow-none" id="plan_tratamiento"
@@ -511,7 +510,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
                         <!-- OBSERVACIONES -->
                         <div class="col-md-6">
-                            <label for="observaciones" class="form-label small fw-semibold text-secondary">
+                            <label for="observaciones" class="form-label small fw-semibold ">
                                 Observaciones Adicionales
                             </label>
                             <textarea class="form-control ios-input rounded-3 shadow-none" id="observaciones"
@@ -521,7 +520,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
 
                         <!-- EVIDENCIAS -->
                         <div class="col-12">
-                            <label for="evidencias" class="form-label small fw-semibold text-secondary">
+                            <label for="evidencias" class="form-label small fw-semibold ">
                                 Evidencias (Fotos / Radiografías)
                             </label>
                             <div class="rounded-4 p-4 text-center position-relative mb-3"
@@ -536,7 +535,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
                                 <div class="fw-semibold small mb-1">
                                     Agregar archivos
                                 </div>
-                                <div class="small text-secondary">
+                                <div class="small ">
                                     Arrastra radiografías o fotografías medicas aquí o haz clic
                                 </div>
                                 <div class="mt-2 text-muted" style="font-size:.72rem;">
@@ -702,7 +701,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0);
             `;
                 } else {
                     thumbnailHtml = `
-                <div class="rounded-3 mb-2 d-flex align-items-center justify-content-center bg-light text-secondary"
+                <div class="rounded-3 mb-2 d-flex align-items-center justify-content-center bg-light "
                     style="height:90px;">
                     <i class="bi bi-file-earmark-text-fill fs-1"></i>
                 </div>

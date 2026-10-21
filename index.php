@@ -218,6 +218,12 @@ if (empty($images)) {
                 <button type="submit" id="btnIngresar" class="btn btn-login w-100">
                     <span>Ingresar al Sistema</span>
                 </button>
+                <a href="/myvet/recuperacion.php"
+                    class="link-primary text-decoration-none d-inline-flex align-items-center justify-content-center gap-2 small fw-semibold p-2">
+
+                    <span>¿Olvidaste tu contraseña? Recupérala</span>
+                </a>
+
             </form>
 
             <!-- ============================================
@@ -231,6 +237,7 @@ if (empty($images)) {
                 <i class="bi bi-person-plus-fill"></i>
                 <span>¿No tienes cuenta? Crear una</span>
             </a>
+
 
             <div class="card-footer-text">
                 © <?php echo date('Y'); ?> <span class="accent">JSEA SISTEM</span><br>

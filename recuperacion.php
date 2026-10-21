@@ -257,7 +257,7 @@
 
                             <!-- VOLVER -->
                             <div class="text-center mt-3">
-                                <a href="/myvet/login" class="link-back">
+                                <a href="/myvet/index.php" class="link-back">
                                     <i class="bi bi-arrow-left"></i> Volver al inicio de sesión
                                 </a>
                             </div>
@@ -294,7 +294,7 @@
                             </ol>
                         </div>
 
-                        <a href="/myvet/login" class="btn btn-custom w-100 py-3">
+                        <a href="/myvet/index.php" class="btn btn-custom w-100 py-3">
                             <i class="bi bi-box-arrow-in-right me-1"></i>
                             IR AL INICIO DE SESIÓN
                         </a>

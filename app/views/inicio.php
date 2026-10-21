@@ -26,7 +26,6 @@ $gruposModulos = [
             ['id' => 'comprobantes', 'url' => '/myvet/comprobantes', 'icon' => 'bi-patch-check-fill', 'class' => 'text-info', 'label' => 'Comprobantes'],
             ['id' => 'registrarPagos', 'url' => '/myvet/registrarPagos', 'icon' => 'bi-wallet-fill', 'class' => 'text-success', 'label' => 'Registrar Pagos'],
             ['id' => 'historialPagos', 'url' => '/myvet/historialPagos', 'icon' => 'bi-coin', 'class' => 'text-danger', 'label' => 'Historial Pagos'],
-
         ]
     ],
     [
@@ -91,7 +90,7 @@ $gruposModulos = [
     [
         'id_grupo' => 'atencion_veterinaria',
         'titulo' => 'Atención Veterinaria',
-        'icono' => 'bi-hospital-fill', // Cruz de hospital / clínica veterinaria
+        'icono' => 'bi-hospital-fill',
         'theme' => 'teal',
         'submodulos' => [
             ['id' => 'pacientes', 'url' => '/myvet/pacientes', 'icon' => 'bi-paw-fill', 'class' => 'text-primary', 'label' => 'Mascotas / Pacientes'],
@@ -140,6 +139,28 @@ $gruposModulos = [
         ]
     ]
 ];
+
+// ---------------------------------------------------------------
+// PRECÁLCULO: filtrar grupos y submódulos permitidos UNA SOLA VEZ
+// ---------------------------------------------------------------
+$gruposFiltrados = [];
+foreach ($gruposModulos as $grupo) {
+    $permitidos = array_values(array_filter($grupo['submodulos'], function ($m) {
+        return puedeVerModulo($m['id']);
+    }));
+
+    if (!empty($permitidos)) {
+        $grupo['submodulos'] = $permitidos;
+        $gruposFiltrados[] = $grupo;
+    }
+}
+
+$totalGruposVisibles = count($gruposFiltrados);
+
+// Regla de apertura:
+//   <= 2 grupos visibles  → todos abiertos
+//   >  2 grupos visibles  → solo el primero abierto
+$abrirTodos = ($totalGruposVisibles <= 2);
 ?><!DOCTYPE html>
 <html lang="es">
 
@@ -164,8 +185,6 @@ $gruposModulos = [
     <?php if (function_exists('cargarEstilos')) {
         cargarEstilos();
     } ?>
-
-
 </head>
 
 <body>
@@ -179,7 +198,6 @@ $gruposModulos = [
         <!-- SECCIÓN SUPERIOR: HERO HUB -->
         <div class="row g-3 mb-4">
 
-            <!-- BANNER PRINCIPAL BIENVENIDA + RELOJ -->
             <!-- BANNER CON RELOJ CENTRAL HERO -->
             <div class="col-12">
                 <div class="hero-welcome">
@@ -270,65 +288,75 @@ $gruposModulos = [
         <!-- GRID BENTO BOX DE APLICACIONES -->
         <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
 
-            <?php foreach ($gruposModulos as $index => $grupo): ?>
-
-                <?php
-                $submodulosPermitidos = array_filter($grupo['submodulos'], function ($m) {
-                    return puedeVerModulo($m['id']);
-                });
-
-                if (empty($submodulosPermitidos))
-                    continue;
-
-                $estaAbierto = ($index < 2);
-                $idCollapse = "desplegable_" . $grupo['id_grupo'];
-                $tema = $grupo['theme'] ?? 'indigo';
-                ?>
-
-                <div class="col">
-                    <div class="bento-card theme-<?= $tema ?>">
-
-                        <div class="bento-header <?= $estaAbierto ? '' : 'collapsed' ?>" data-bs-toggle="collapse"
-                            data-bs-target="#<?= $idCollapse ?>" aria-expanded="<?= $estaAbierto ? 'true' : 'false' ?>"
-                            aria-controls="<?= $idCollapse ?>">
-
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="icon-square">
-                                    <i class="bi <?= $grupo['icono'] ?>"></i>
-                                </div>
-                                <div>
-                                    <h3 class="bento-title"><?= $grupo['titulo'] ?></h3>
-                                    <span class="bento-badge mt-1 d-inline-block">
-                                        <?= count($submodulosPermitidos) ?> accesos
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="toggle-circle">
-                                <i class="bi bi-chevron-down"></i>
-                            </div>
-                        </div>
-
-                        <div id="<?= $idCollapse ?>" class="collapse <?= $estaAbierto ? 'show' : '' ?>">
-                            <div class="bento-body">
-                                <div
-                                    class="row row-cols-1 row-cols-sm-2 g-2 pt-2 border-top border-secondary border-opacity-10">
-                                    <?php foreach ($submodulosPermitidos as $m): ?>
-                                        <div class="col">
-                                            <a href="<?= $m['url'] ?>" class="chip-module">
-                                                <i class="bi <?= $m['icon'] ?> <?= $m['class'] ?? '' ?>"></i>
-                                                <span class="text-truncate"><?= $m['label'] ?></span>
-                                            </a>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                        </div>
-
+            <?php if (empty($gruposFiltrados)): ?>
+                <div class="col-12">
+                    <div class="alert alert-warning text-center mb-0">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        No tienes módulos asignados. Contacta al administrador.
                     </div>
                 </div>
+            <?php else: ?>
 
-            <?php endforeach; ?>
+                <?php foreach ($gruposFiltrados as $index => $grupo): ?>
+
+                    <?php
+                    // Regla de apertura aplicada por grupo
+                    if ($abrirTodos) {
+                        $estaAbierto = true;            // 1 o 2 grupos → todos abiertos
+                    } else {
+                        $estaAbierto = ($index === 0);  // 3+ grupos → solo el primero
+                    }
+
+                    $idCollapse = "desplegable_" . $grupo['id_grupo'];
+                    $tema = $grupo['theme'] ?? 'indigo';
+                    ?>
+
+                    <div class="col">
+                        <div class="bento-card theme-<?= $tema ?>">
+
+                            <div class="bento-header <?= $estaAbierto ? '' : 'collapsed' ?>" data-bs-toggle="collapse"
+                                data-bs-target="#<?= $idCollapse ?>" aria-expanded="<?= $estaAbierto ? 'true' : 'false' ?>"
+                                aria-controls="<?= $idCollapse ?>">
+
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="icon-square">
+                                        <i class="bi <?= $grupo['icono'] ?>"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="bento-title"><?= htmlspecialchars($grupo['titulo']) ?></h3>
+                                        <span class="bento-badge mt-1 d-inline-block">
+                                            <?= count($grupo['submodulos']) ?> accesos
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="toggle-circle">
+                                    <i class="bi bi-chevron-down"></i>
+                                </div>
+                            </div>
+
+                            <div id="<?= $idCollapse ?>" class="collapse <?= $estaAbierto ? 'show' : '' ?>">
+                                <div class="bento-body">
+                                    <div
+                                        class="row row-cols-1 row-cols-sm-2 g-2 pt-2 border-top border-secondary border-opacity-10">
+                                        <?php foreach ($grupo['submodulos'] as $m): ?>
+                                            <div class="col">
+                                                <a href="<?= htmlspecialchars($m['url']) ?>" class="chip-module">
+                                                    <i class="bi <?= $m['icon'] ?> <?= $m['class'] ?? '' ?>"></i>
+                                                    <span class="text-truncate"><?= htmlspecialchars($m['label']) ?></span>
+                                                </a>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                <?php endforeach; ?>
+
+            <?php endif; ?>
 
         </div>
 
