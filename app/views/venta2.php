@@ -852,8 +852,6 @@
             const select = document.getElementById('cliente_id_editar');
             if (!select) return;
 
-            select.innerHTML = '<option value="">-- Seleccione un cliente --</option>';
-
             try {
                 const url = `/myvet/app/controllers/accesoController.php?action=obtenerClientes`;
                 const respuesta = await fetch(url);
@@ -865,7 +863,7 @@
 
                 if (resultado.success && Array.isArray(resultado.data)) {
                     const clientesFiltrados = resultado.data.filter(cliente => {
-                        const nombreNorm = cliente.nombre_comercial.toLowerCase().trim();
+                        const nombreNorm = String(cliente.nombre_comercial || '').toLowerCase().trim();
                         const esPublicoGeneral = nombreNorm.includes('publico en general') || nombreNorm.includes('público en general');
 
                         if (esPublicoGeneral) {
@@ -886,12 +884,12 @@
                     clientesFiltrados.forEach(cliente => {
                         const opcion = document.createElement('option');
                         opcion.value = cliente.id;
-                        opcion.textContent = cliente.nombre_comercial || '';
+                        opcion.textContent = String(cliente.nombre_comercial || '');
 
-                        // Datos extra para los templates
-                        opcion.dataset.nombre = cliente.nombre_comercial || '';
-                        opcion.dataset.razonSocial = cliente.razon_social || '';
-                        opcion.dataset.contacto = cliente.contacto || '';
+                        // Datos extra para los templates (forzados a string)
+                        opcion.dataset.nombre = String(cliente.nombre_comercial || '');
+                        opcion.dataset.razonSocial = String(cliente.razon_social || '');
+                        opcion.dataset.contacto = String(cliente.contacto || '');
 
                         fragment.appendChild(opcion);
                     });
@@ -903,31 +901,47 @@
                         $(select).select2('destroy');
                     }
 
-                    // 🔥 Inicializar Select2 con width: 'resolve' y templates Bootstrap
+                    // 🔥 Inicializar Select2 con matcher personalizado
                     $(select).select2({
                         theme: 'bootstrap-5',
                         width: 'resolve',
+                        matcher: function (params, data) {
+                            if (!params.term || params.term.trim() === '') return data;
+
+                            const term = String(params.term).toLowerCase().trim();
+                            const text = String(data.text || '').toLowerCase();
+
+                            const $el = $(data.element);
+                            const razonSocial = String($el.data('razonSocial') || '').toLowerCase();
+                            const contacto = String($el.data('contacto') || '').toLowerCase();
+
+                            if (text.includes(term) || razonSocial.includes(term) || contacto.includes(term)) {
+                                return data;
+                            }
+
+                            return null;
+                        },
                         templateResult: function (state) {
                             if (!state.id) return state.text;
 
                             const $opt = $(state.element);
-                            const nombre = $opt.data('nombre') || state.text || '';
-                            const razonSocial = $opt.data('razonSocial') || '';
-                            const contacto = $opt.data('contacto') || '';
+                            const nombre = String($opt.data('nombre') || state.text || '');
+                            const razonSocial = String($opt.data('razonSocial') || '');
+                            const contacto = String($opt.data('contacto') || '');
 
                             if (!razonSocial && !contacto) {
-                                return $(`<span class="fw-semibold text-dark">${nombre}</span>`);
+                                return $(`<span class="fw-semibold text-dark">${nombre.toUpperCase()}</span>`);
                             }
 
                             return $(`
                         <div class="d-flex flex-column">
-                            <span class="fw-semibold text-dark">${nombre}</span>
+                            <span class="fw-semibold text-dark">${nombre.toUpperCase()}</span>
                             <div class="d-flex justify-content-between align-items-center gap-2 mt-1">
                                 <small class="text-secondary text-truncate" style="max-width:65%;">
-                                    ${razonSocial || ''}
+                                    ${razonSocial.toUpperCase()}
                                 </small>
                                 <small class="text-primary fw-semibold text-nowrap">
-                                    ${contacto ? `👤 ${contacto}` : ''}
+                                    ${contacto ? `👤 ${contacto.toUpperCase()}` : ''}
                                 </small>
                             </div>
                         </div>
@@ -938,7 +952,7 @@
 
                             // 🔥 Solo el nombre en el select cerrado
                             const $opt = $(state.element);
-                            return $opt.data('nombre') || state.text;
+                            return String($opt.data('nombre') || state.text || '').toUpperCase();
                         }
                     });
 
@@ -946,16 +960,19 @@
                     if (clientesFiltrados.length > 0) {
                         const primerClienteId = clientesFiltrados[0].id;
                         $('#cliente_id_editar').val(primerClienteId).trigger('change');
+                    } else {
+                        $('#cliente_id_editar').val(null).trigger('change');
                     }
                 } else {
                     select.innerHTML = '<option value="">No se pudieron cargar los usuarios</option>';
+                    $(select).trigger('change.select2');
                 }
             } catch (error) {
                 select.innerHTML = '<option value="">Error al cargar la lista</option>';
+                $(select).trigger('change.select2');
                 console.error('Error al ejecutar cargarClientes:', error);
             }
-        }   // =====================================================
-        // CALCULAR TOTAL EDITAR
+        } // CALCULAR TOTAL EDITAR
         // =====================================================
         function calcularTotalSolEditar(input) {
             if (recalculandoFilaEditar) return;

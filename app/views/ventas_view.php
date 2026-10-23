@@ -672,7 +672,7 @@
                 }
 
                 const filtrados = data.data.filter(c => {
-                    const nombre = (c.nombre_comercial || '').toLowerCase().trim();
+                    const nombre = String(c.nombre_comercial || '').toLowerCase().trim();
                     const esPublico = nombre.includes('publico en general') ||
                         nombre.includes('público en general');
                     return esPublico ? String(c.almacen_id) === String(almacenId) : true;
@@ -689,10 +689,10 @@
                 filtrados.forEach(c => {
                     const opt = document.createElement('option');
                     opt.value = c.id;
-                    opt.textContent = c.nombre_comercial || '';
-                    opt.dataset.nombre = c.nombre_comercial || '';
-                    opt.dataset.razonSocial = c.razon_social || '';
-                    opt.dataset.contacto = c.contacto || '';
+                    opt.textContent = String(c.nombre_comercial || '');
+                    opt.dataset.nombre = String(c.nombre_comercial || '');
+                    opt.dataset.razonSocial = String(c.razon_social || '');
+                    opt.dataset.contacto = String(c.contacto || '');
                     fragment.appendChild(opt);
                 });
 
@@ -703,33 +703,49 @@
                     $(select).select2('destroy');
                 }
 
-                // 3. Inicializar Select2 con width: 'resolve' (respeta el input-group)
+                // 3. Inicializar Select2 con width: 'resolve' + matcher personalizado
                 $(select).select2({
                     theme: 'bootstrap-5',
-                    width: 'resolve',   // 🔥 clave para que no se expanda al 100%
+                    width: 'resolve',
+                    matcher: function (params, data) {
+                        if (!params.term || params.term.trim() === '') return data;
+
+                        const term = String(params.term).toLowerCase().trim();
+                        const text = String(data.text || '').toLowerCase();
+
+                        const $el = $(data.element);
+                        const razonSocial = String($el.data('razonSocial') || '').toLowerCase();
+                        const contacto = String($el.data('contacto') || '').toLowerCase();
+
+                        if (text.includes(term) || razonSocial.includes(term) || contacto.includes(term)) {
+                            return data;
+                        }
+
+                        return null;
+                    },
                     templateResult: function (state) {
                         if (!state.id) return state.text;
 
                         const $opt = $(state.element);
-                        const nombre = $opt.data('nombre') || state.text || '';
-                        const razonSocial = $opt.data('razonSocial') || '';
-                        const contacto = $opt.data('contacto') || '';
+                        const nombre = String($opt.data('nombre') || state.text || '');
+                        const razonSocial = String($opt.data('razonSocial') || '');
+                        const contacto = String($opt.data('contacto') || '');
 
                         // Si no hay datos extra, solo el nombre
                         if (!razonSocial && !contacto) {
-                            return $(`<span class="fw-semibold">${nombre}</span>`);
+                            return $(`<span class="fw-semibold">${nombre.toUpperCase()}</span>`);
                         }
 
                         // Con datos extra: nombre arriba, razón + contacto abajo
                         return $(`
                     <div class="d-flex flex-column">
-                        <span class="fw-semibold ">${nombre}</span>
+                        <span class="fw-semibold">${nombre.toUpperCase()}</span>
                         <div class="d-flex justify-content-between align-items-center gap-2 mt-1">
-                            <small class=" text-truncate" style="max-width:65%;">
-                                ${razonSocial || ''}
+                            <small class="text-truncate" style="max-width:65%;">
+                                ${razonSocial.toUpperCase()}
                             </small>
-                            <small class=" fw-semibold text-nowrap">
-                                ${contacto ? `👤 ${contacto}` : ''}
+                            <small class="fw-semibold text-nowrap">
+                                ${contacto ? `👤 ${contacto.toUpperCase()}` : ''}
                             </small>
                         </div>
                     </div>
@@ -740,22 +756,23 @@
 
                         // 🔥 Solo el nombre en el select cerrado
                         const $opt = $(state.element);
-                        return $opt.data('nombre') || state.text;
+                        return String($opt.data('nombre') || state.text || '').toUpperCase();
                     }
                 });
 
                 // 4. Autoseleccionar el primero
                 if (filtrados.length) {
                     $cliente().val(filtrados[0].id).trigger('change');
+                } else {
+                    $cliente().val(null).trigger('change');
                 }
 
             } catch (e) {
-                err('[cargarClientes]', e);
+                console.error('[cargarClientes]', e);
                 select.innerHTML = '<option value="">Error al cargar clientes</option>';
+                $(select).trigger('change.select2');
             }
-        }       /* =========================================================
-           PRODUCTOS
-           ========================================================= */
+        }
         async function recargarProductosEditar() {
             const almacenId = getAlmacenId();
             if (!almacenId) return;
