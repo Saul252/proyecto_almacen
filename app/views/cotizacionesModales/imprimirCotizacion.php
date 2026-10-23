@@ -1,194 +1,659 @@
- <div class="modal fade" id="modalImprimirSolicitud" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content  shadow-lg" style="border-radius: 16px; overflow: hidden;">
-
-                <!-- HEADER -->
-                <div class="modal-header text-white "
-                    style="background: linear-gradient(135deg, #1f2a37 0%, #334155 100%);">
-                    <h5 class="fw-bold mb-0">
-                        Vista de Cotizacion
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body p-0">
-
-                    <div id="areaImpresion" class="p-5 bg-white" style="min-height: 650px; font-size: 0.95rem;">
-
-                        <!-- ENCABEZADO -->
-                        
-<div class="d-flex justify-content-between align-items-center mb-4">
-
-    <!-- Logo + Título -->
-    <div class="d-flex align-items-center">
-
-        <img src="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
-             alt="Logo"
-             width="55"
-             height="55"
-             class="me-3">
-
-        <div>
-            <h2 class="fw-bold text-uppercase mb-0" style="color:#1f2a37; letter-spacing:1px;">
-                COTIZACIÓN
-            </h2>
-
-            <div class="text-body-secondary small mt-1" id="print-folio">
-                Folio: <span class="fw-semibold">#00000</span>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Empresa -->
-    <div class="text-end">
-        <div class="fw-bold fs-5" style="color:#1f2a37;">
-            CFSistem
-        </div>
-
-        <div class="text-body-secondary small" id="print-fecha">
-            Fecha: --/--/----
-        </div>
-    </div>
-
-</div>
-                       
-
-                        <!-- INFO -->
-<div class="row p-3"style="background: #ffffff02 !important;">
-    <div style="background: #ffffff02 !important;"class="col-4 border rounded-3 bg-light p-3 shadow-sm">
-        <div class="  ">
-            <small class="text-uppercase text-body-secondary fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">
-                Vendedor:
-            </small>
-            <div class="fw-bold text-black" id="vendedor" style="background: #ffffff02 !important;font-size: 0.9rem;">---</div>
-        </div>
-    </div>
-    
-    <div style="background: #ffffff02 !important;" class="col-8 border rounded-3 bg-light p-3 shadow-sm">
-        
-            <small class="text-uppercase text-body-secondary fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">
-                Cliente:
-            </small>
-            <div class="row fw-bold text-black" id="clienteData"style="background: #ffffff02 !important;font-size: 0.9rem;">---</div>
-       
-    </div>
-    </div>
-
-
-                        <!-- TABLA -->
-                        <div class="table-responsive mb-3">
-                            <table class="table align-middle">
-
-                                <thead style="background: #ffffff02 !important; color:#fff;">
-                                    <tr style="background: #ffffff02 !important;">
-                                        <th>Producto</th>
-                                        <th class="text-center">Cantidad</th>
-                                        <th class="text-center">Costo Unitario</th>
-                                        <th class="text-center">Costo Total</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody id="print-tabla-cuerpo"></tbody>
-
-                            </table>
-                        </div>
-
-                        <!-- TOTAL -->
-                        <div class="text-end mb-4">
-                            <div class="fw-bold fs-5">
-                                Total: <span id="costo_total"></span>
-                            </div>
-                        </div>
-
-                        <!-- FIRMAS -->
-                        
-
+<div class="modal fade" id="modalImprimirSolicitud" tabindex="-1" aria-hidden="true">
+    <div class="mi-modal-overlay">
+        <div class="mi-modal">
+            <!-- HEADER -->
+            <div class="mi-modal-header">
+                <div class="mi-modal-header-left">
+                    <div class="mi-modal-icon">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 1h5l3 3v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z" />
+                            <path d="M9 1v3h3" />
+                            <path d="M5 8h6M5 10h6M5 12h4" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h6 class="mi-modal-title">Vista previa de cotización</h6>
+                        <small class="mi-modal-subtitle">JSEA · Documento comercial</small>
                     </div>
                 </div>
+                <button type="button" class="mi-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+            </div>
 
-                <!-- FOOTER -->
+            <div class="mi-modal-body">
+                <div id="areaImpresion" class="mi-documento">
 
+                    <!-- ENCABEZADO -->
+                    <div class="mi-doc-header">
+                        <div class="mi-doc-header-left">
+                            <img src="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
+                                alt="Logo" class="mi-doc-logo">
+                            <div>
+                                <div class="mi-doc-eyebrow">Documento comercial</div>
+                                <h2 class="mi-doc-titulo">Cotización</h2>
+                                <div class="mi-doc-folio">Folio <span id="print-folio">#00000</span></div>
+                            </div>
+                        </div>
+                        <div class="mi-doc-header-right">
+                            <div class="mi-doc-empresa">JSEA</div>
+                            <div class="mi-doc-fecha" id="print-fecha">—</div>
+                            <div class="mi-doc-estado">Vigente</div>
+                        </div>
+                    </div>
 
+                    <div class="mi-doc-hairline"></div>
+
+                    <!-- INFO COMPACTA -->
+                    <div class="mi-doc-info">
+                        <div class="mi-doc-card">
+                            <div class="mi-doc-label">Vendedor</div>
+                            <div class="mi-doc-valor" id="vendedor">—</div>
+                        </div>
+                        <div class="mi-doc-card">
+                            <div class="mi-doc-label">Cliente</div>
+                            <div class="mi-doc-valor" id="clienteData">—</div>
+                        </div>
+                    </div>
+
+                    <!-- TABLA CON BORDES -->
+                    <div class="mi-doc-tabla-wrap">
+                        <table class="mi-doc-tabla">
+                            <thead>
+                                <tr>
+                                    <th class="mi-col-num">#</th>
+                                    <th class="mi-col-producto">Producto</th>
+                                    <th class="mi-col-unidad">Unidad</th>
+                                    <th class="mi-col-cantidad">Cant.</th>
+                                    <th class="mi-col-precio">P. Unit.</th>
+                                    <th class="mi-col-subtotal">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="print-tabla-cuerpo"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- TOTAL -->
+                    <div class="mi-doc-total-wrap">
+                        <div class="mi-doc-total">
+                            <div class="mi-doc-total-label">Total</div>
+                            <div class="mi-doc-total-valor" id="costo_total">$0.00</div>
+                        </div>
+                    </div>
+
+                    <!-- FIRMA -->
+                    <div class="mi-doc-firma">
+                        <div class="mi-doc-firma-line"></div>
+                        <div class="mi-doc-firma-label">Firma autorizada · JSEA</div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
+</div>
+
+<style>
+    /* FORZAR COLORES AL IMPRIMIR */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /* MODAL */
+    #modalImprimirSolicitud {
+        position: fixed;
+        inset: 0;
+        z-index: 1055;
+        display: none;
+        overflow-y: auto;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        color: #111827;
+    }
+
+    #modalImprimirSolicitud.mi-abierto {
+        display: block;
+    }
+
+    .mi-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(17, 24, 39, 0.45);
+        backdrop-filter: blur(2px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+    }
+
+    .mi-modal {
+        background: #ffffff;
+        border-radius: 14px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+        width: 100%;
+        max-width: 820px;
+        max-height: 92vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .mi-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        background: #fafbfc;
+        border-bottom: 1px solid #eef0f3;
+        flex-shrink: 0;
+    }
+
+    .mi-modal-header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .mi-modal-icon {
+        width: 28px;
+        height: 28px;
+        background: #eef4ff;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #2563eb;
+    }
+
+    .mi-modal-icon svg {
+        width: 15px;
+        height: 15px;
+    }
+
+    .mi-modal-title {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #1f2937;
+        letter-spacing: -0.1px;
+    }
+
+    .mi-modal-subtitle {
+        display: block;
+        font-size: 0.7rem;
+        color: #9ca3af;
+        margin-top: 1px;
+    }
+
+    .mi-modal-close {
+        background: none;
+        border: none;
+        font-size: 1.4rem;
+        line-height: 1;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 0 4px;
+        opacity: 0.7;
+        transition: opacity 0.15s;
+    }
+
+    .mi-modal-close:hover {
+        opacity: 1;
+    }
+
+    .mi-modal-body {
+        background: #f8f9fb;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    /* DOCUMENTO */
+    .mi-documento {
+        background: #ffffff;
+        padding: 40px 40px;
+        min-height: 620px;
+        font-size: 0.85rem;
+        color: #111827;
+    }
+
+    /* ENCABEZADO */
+    .mi-doc-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 22px;
+    }
+
+    .mi-doc-header-left {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .mi-doc-logo {
+        width: 42px;
+        height: 42px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        padding: 3px;
+        background: #ffffff;
+    }
+
+    .mi-doc-eyebrow {
+        font-size: 0.58rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: #9ca3af;
+        margin-bottom: 1px;
+    }
+
+    .mi-doc-titulo {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #000000;
+        letter-spacing: -0.5px;
+        line-height: 1.1;
+    }
+
+    .mi-doc-folio {
+        font-size: 0.7rem;
+        color: #6b7280;
+        margin-top: 3px;
+    }
+
+    .mi-doc-folio span {
+        color: #000000;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .mi-doc-header-right {
+        text-align: right;
+    }
+
+    .mi-doc-empresa {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #000000;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .mi-doc-fecha {
+        font-size: 0.7rem;
+        color: #6b7280;
+        margin-top: 1px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .mi-doc-estado {
+        display: inline-block;
+        margin-top: 5px;
+        font-size: 0.58rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #111827;
+        background: #f3f4f6;
+        padding: 2px 7px;
+        border-radius: 4px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .mi-doc-hairline {
+        height: 1px;
+        background: #e5e7eb;
+        margin: 0 0 18px 0;
+    }
+
+    /* INFO COMPACTA */
+    .mi-doc-info {
+        display: grid;
+        grid-template-columns: 1fr 1.6fr;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .mi-doc-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 9px 12px;
+        background: #ffffff;
+    }
+
+    .mi-doc-label {
+        font-size: 0.55rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.9px;
+        color: #9ca3af;
+        margin-bottom: 3px;
+    }
+
+    .mi-doc-valor {
+        font-size: 0.8rem;
+        color: #111827;
+        font-weight: 500;
+        line-height: 1.4;
+    }
+
+    .mi-doc-valor>div {
+        font-weight: 500;
+    }
+
+    .mi-doc-valor div[style*="color:#6b7280"] {
+        font-weight: 400;
+    }
+
+    /* TABLA CON BORDES */
+    .mi-doc-tabla-wrap {
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        overflow: hidden;
+        margin-bottom: 18px;
+    }
+
+    .mi-doc-tabla {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.78rem;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .mi-doc-tabla thead {
+        background: #111827;
+    }
+
+    .mi-doc-tabla th {
+        color: #ffffff;
+        font-size: 0.58rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.9px;
+        padding: 8px 10px;
+        text-align: left;
+        white-space: nowrap;
+        border-right: 1px solid #374151;
+    }
+
+    .mi-doc-tabla th:last-child {
+        border-right: none;
+    }
+
+    .mi-doc-tabla td {
+        color: #111827;
+        padding: 7px 10px;
+        border-bottom: 1px solid #e5e7eb;
+        border-right: 1px solid #e5e7eb;
+        vertical-align: middle;
+    }
+
+    .mi-doc-tabla td:last-child {
+        border-right: none;
+    }
+
+    .mi-doc-tabla tbody tr:nth-child(even) {
+        background: #f9fafb;
+    }
+
+    .mi-doc-tabla tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .mi-col-num {
+        width: 6%;
+        text-align: center;
+    }
+
+    .mi-col-producto {
+        width: 34%;
+    }
+
+    .mi-col-unidad {
+        width: 14%;
+        text-align: center;
+    }
+
+    .mi-col-cantidad {
+        width: 10%;
+        text-align: center;
+    }
+
+    .mi-col-precio {
+        width: 17%;
+        text-align: right;
+    }
+
+    .mi-col-subtotal {
+        width: 19%;
+        text-align: right;
+    }
+
+    .mi-doc-tabla th.mi-col-num,
+    .mi-doc-tabla th.mi-col-unidad,
+    .mi-doc-tabla th.mi-col-cantidad {
+        text-align: center;
+    }
+
+    .mi-doc-tabla th.mi-col-precio,
+    .mi-doc-tabla th.mi-col-subtotal {
+        text-align: right;
+    }
+
+    .mi-doc-tabla td.mi-col-num {
+        text-align: center;
+        color: #9ca3af;
+        font-size: 0.68rem;
+        font-weight: 500;
+    }
+
+    .mi-doc-tabla td.mi-col-unidad,
+    .mi-doc-tabla td.mi-col-cantidad {
+        text-align: center;
+        color: #4b5563;
+    }
+
+    .mi-doc-tabla td.mi-col-precio {
+        text-align: right;
+        color: #4b5563;
+    }
+
+    .mi-doc-tabla td.mi-col-subtotal {
+        text-align: right;
+        font-weight: 600;
+        color: #000000;
+    }
+
+    /* TOTAL */
+    .mi-doc-total-wrap {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 30px;
+    }
+
+    .mi-doc-total {
+        background: #000000;
+        border-radius: 6px;
+        padding: 10px 20px;
+        min-width: 220px;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 20px;
+    }
+
+    .mi-doc-total-label {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.58rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .mi-doc-total-valor {
+        color: #ffffff;
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+        line-height: 1.2;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* FIRMA */
+    .mi-doc-firma {
+        margin-top: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .mi-doc-firma-line {
+        width: 180px;
+        height: 1px;
+        background: #111827;
+        margin-bottom: 6px;
+    }
+
+    .mi-doc-firma-label {
+        font-size: 0.6rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 500;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 640px) {
+        .mi-documento {
+            padding: 24px 20px;
+        }
+
+        .mi-doc-info {
+            grid-template-columns: 1fr;
+        }
+
+        .mi-doc-tabla th,
+        .mi-doc-tabla td {
+            padding: 6px 5px;
+            font-size: 0.68rem;
+        }
+
+        .mi-doc-tabla th {
+            font-size: 0.52rem;
+        }
+
+        .mi-doc-total {
+            min-width: 160px;
+        }
+
+        .mi-doc-firma-line {
+            width: 130px;
+        }
+    }
+
+    /* PRINT — forzar colores y bordes */
+    @media print {
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #ffffff !important;
+        }
+
+        .mi-doc-tabla thead {
+            background: #111827 !important;
+        }
+
+        .mi-doc-tabla th {
+            background: #111827 !important;
+            color: #ffffff !important;
+        }
+
+        .mi-doc-tabla tbody tr:nth-child(even) {
+            background: #f9fafb !important;
+        }
+
+        .mi-doc-total {
+            background: #000000 !important;
+            color: #ffffff !important;
+        }
+
+        .mi-doc-total-valor {
+            color: #ffffff !important;
+        }
+
+        .mi-doc-tabla td {
+            border-bottom: 1px solid #e5e7eb !important;
+            border-right: 1px solid #e5e7eb !important;
+        }
+    }
+</style>
+
 <script>
-
- async function prepararImpresion(id) {
+    async function prepararImpresion(id) {
         try {
-            
-            $('#tablaConversion tbody').empty();
-
-            console.log(id);
+            const $tbody = document.getElementById('print-tabla-cuerpo');
+            $tbody.innerHTML = '';
 
             const resp = await fetch(`${URL_CONTROLADOR}?action=obtenerDetalle&id=${id}`);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
 
-            const datos = await resp.json(); // 👈 AQUÍ
+            const datos = await resp.json();
             const data = datos.data;
 
-            console.log('DATA REAL:', data);
-
-
             if (!Array.isArray(data) || data.length === 0) {
-                console.error('Sin datos');
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Sin datos',
+                    text: 'No se encontró el detalle de la cotización.',
+                    confirmButtonColor: '#111827'
+                });
                 return;
             }
 
             const infoBase = data[0];
+            const folio = String(id).padStart(5, '0');
+            const fecha = new Date().toLocaleDateString('es-MX', {
+                day: '2-digit', month: 'short', year: 'numeric'
+            });
 
-            $('#print-folio').text(`FOLIO: #${id.toString().padStart(5, '0')}`);
-            $('#print-fecha').text(`Fecha: ${new Date().toLocaleDateString()}`);
-            $('#print-almacen').text(infoBase.almacen_nombre);
-            $('#print-proveedor').text(infoBase.cliente_nombre || 'No especificado');
-let cliente=`
-    
-        <div class="col-6">
-            <small class="text-body-secondary d-block" style="font-size: 0.75rem;">CLIENTE</small>
-             
-            <div>
-                 <span id="print-cliente-nombre" class="fw-bold text-dark">${infoBase.cliente_nombre}</span>
-            </div>
-        </div>
-        
-        <div class="col-6">
-           
-            <div>
-                <small class="text-body-secondary d-block" style="font-size: 0.75rem;">Dirección</small>
-                <span id="print-cliente-direccion" class="text-secondary small">${infoBase.direccion ?? ''}</span>
-            </div>
-        </div>
+            document.getElementById('print-folio').textContent = `#${folio}`;
+            document.getElementById('print-fecha').textContent = fecha;
 
-        <div class="col-6">
-             <div>
-                <small class="text-body-secondary d-block" style="font-size: 0.75rem;">Teléfono</small>
-                <span id="print-cliente-telefono" class="text-secondary small">${infoBase.telefono ?? '#'}</span>
-            </div>
-        </div>
-    
-`;
-$('#clienteData').html(cliente);
+            // Cliente
+            const clienteHtml = `
+            <div style="font-weight:500;color:#111827;">${infoBase.cliente_nombre || 'No especificado'}</div>
+            ${infoBase.direccion ? `<div style="color:#6b7280;font-size:0.72rem;font-weight:400;">${infoBase.direccion}</div>` : ''}
+            ${infoBase.telefono ? `<div style="color:#6b7280;font-size:0.72rem;font-weight:400;">${infoBase.telefono}</div>` : ''}
+        `;
+            document.getElementById('clienteData').innerHTML = clienteHtml;
 
-let vendedor=`<div class="card  bg-light">
-    <div class="d-flex flex-column gap-2">
-        <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-person-fill text-secondary fs-5"></i>
-            <div>
-                <small class="text-body-secondary d-block" style="font-size: 0.75rem;">Vendedor</small>
-                <span id="print-cliente-nombre" class="fw-bold text-dark">${infoBase.nombreVendedor}</span>
+            // Vendedor
+            const vendedorHtml = `
+            <div style="display:flex;align-items:center;gap:5px;">
+                <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="#111827" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="8" cy="5" r="3"/>
+                    <path d="M2 14c0-3 3-5 6-5s6 2 6 5"/>
+                </svg>
+                <span>${infoBase.nombreVendedor || '—'}</span>
             </div>
-        </div>
-        
-        
-    </div>
-</div>`;
-$('#vendedor').html(vendedor);
+        `;
+            document.getElementById('vendedor').innerHTML = vendedorHtml;
 
+            // Filas
             let totalGeneral = 0;
             let html = '';
+            let n = 1;
 
             data.forEach(i => {
-
                 const cantidad = parseFloat(i.cantidad) || 0;
                 const precioUnitario = parseFloat(i.precio_unitario) || 0;
                 const subtotal = parseFloat(i.subtotal) || 0;
@@ -197,236 +662,409 @@ $('#vendedor').html(vendedor);
 
                 html += `
                 <tr>
-                    <td class="text-uppercase text-center" style="font-size: 0.7rem;">
-                        ${cantidad} 
-                    </td> <td class="text-uppercase text-center" style="font-size: 0.7rem;">
-                         ${i.nombre || ''}
-                    </td>
- <td class="text-uppercase fw-bold"style="font-size: 0.7rem;">${i.producto_nombre}</td>
-
-                   
-                    <td class="text-uppercase text-center" style="font-size: 0.7rem;">
-                        ${precioUnitario.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}
-                    </td>
-
-                    <td class="text-uppercase text-center" style="font-size: 0.7rem;">
-                        ${subtotal.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}
-                    </td>
+                    <td class="mi-col-num">${String(n).padStart(2, '0')}</td>
+                    <td class="mi-col-producto">${i.producto_nombre || ''}</td>
+                    <td class="mi-col-unidad">${i.nombre || ''}</td>
+                    <td class="mi-col-cantidad">${cantidad}</td>
+                    <td class="mi-col-precio">${precioUnitario.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</td>
+                    <td class="mi-col-subtotal">${subtotal.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</td>
                 </tr>`;
+                n++;
             });
 
-            $('#costo_total').text(
-                totalGeneral.toLocaleString('es-MX', {
-                    style: 'currency',
-                    currency: 'MXN'
-                })
-            );
+            $tbody.innerHTML = html;
+            document.getElementById('costo_total').textContent = totalGeneral.toLocaleString('es-MX', {
+                style: 'currency', currency: 'MXN'
+            });
 
-            $('#print-tabla-cuerpo').html(html);
-
-            ejecutarImpresion(vendedor,cliente,html,id,totalGeneral);
+            ejecutarImpresion(clienteHtml, vendedorHtml, html, id, totalGeneral, folio, fecha);
 
         } catch (e) {
-            console.error(e);
+            console.error('[IMPRIMIR] Error:', e);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo preparar la cotización: ' + e.message,
+                confirmButtonColor: '#111827'
+            });
         }
     }
- function ejecutarImpresion(vendedor,cliente,html,id,totalGeneral) {
-        // 1. Obtener el contenido del área de impresión
-        
+    function ejecutarImpresion(cliente, vendedor, html, id, totalGeneral, folio, fecha) {
+        const ventana = window.open('', '_blank', 'height=700,width=900');
+        if (!ventana) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Ventana bloqueada',
+                text: 'Permite las ventanas emergentes para imprimir.',
+                confirmButtonColor: '#111827'
+            });
+            return;
+        }
 
-        // 2. Crear una ventana nueva
-        const ventana = window.open('', '_blank', 'height=600,width=800');
-let fecha = "<?= date('d/m/Y') ?>"; // Resultado: 01/07/2026
-       
-          
+        const totalFormateado = totalGeneral.toLocaleString('es-MX', {
+            style: 'currency', currency: 'MXN'
+        });
+
         ventana.document.write(`
-        <html>
-            <head>
-                <title>COTIZACION </title>
-      <link rel="icon" type="image/png" href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
-
-    <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>" type="image/x-icon">
-
-                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-                <style>
-                    body { font-family: 'Inter', sans-serif;  }
-                    .table-bordered th, .table-bordered td { border: 1px solid #000 !important; }
-                    .fw-bold { font-weight: bold !important; }
-                    @media print {
-                        .no-print { display: none; }
-                        
-                    }
-                        @page { 
-                        margin: 0; /* Esto elimina el título de arriba y la fecha/hora de abajo */
-                    }
-                    
-                    body { 
-                        padding: 1.5cm; /* Le da margen al contenido para que no se pegue al borde del papel */
-                    }
-                    .firma-linea { border-top: 1px solid #000; margin-top: 50px; text-align: center; padding-top: 5px; font-size: 12px; }
-                </style>
-               </head>
-            <body>
-   <img
-    src="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
-    style="
-        position: fixed;
-        top: 30%;                  /* Centro vertical */
-        left: 50%;                 /* Centro horizontal */
-        transform: translate(-50%, -50%); /* Compensa el propio tamaño de la imagen */
-        width: 240px;
-        opacity: 0.08;
-        z-index: 1;               /* Cambiado a -1 para que quede detrás del texto y no tape los clics */
-        pointer-events: none;      /* Evita que interfiera si alguien intenta hacer clic sobre ella */
-    "
->
-<div id="areaImpresion" class="text-uppercase  bg-white" style="min-height: 650px; font-size: 0.95rem;">
-
-                        <!-- ENCABEZADO -->
-                        
-<div class="d-flex justify-content-between align-items-center mb-4">
-
-    <!-- Logo + Título -->
-    <div class="d-flex align-items-center">
-
-        <img src="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
-             alt="Logo"
-             width="55"
-             height="55"
-             class="me-3">
-
-        <div>
-            <h2 class="fw-bold text-uppercase mb-0" style="color:#1f2a37; letter-spacing:1px;">
-                COTIZACIÓN
-            </h2>
-
-            <div class="text-body-secondary small mt-1 text-uppercase" id="print-folio">
-                Folio: <span class="fw-semibold">${id}</span>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Empresa -->
-    <div class="text-end text-uppercase">
-        <div class="fw-bold fs-5" style="color:#1f2a37;">
-            CFSistem
-        </div>
-
-        <div class="text-uppercase text-body-secondary small" id="print-fecha">
-            Fecha: ${fecha}
-        </div>
-    </div>
-
-</div>
-                       
-
-                        <!-- INFO -->
-<div class="row p-3"style="background: #ffffff02 !important;">
-    <div style="background: #ffffff02 !important;"class="col-5 border rounded-3 bg-light  shadow-sm">
-        <div class="  ">
-            <small class="text-uppercase text-body-secondary fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">
-                
-            </small>
-            <div class="text-uppercase fw-bold text-black" id="vende" style="background: #ffffff02 !important;font-size: 0.9rem;">${vendedor}</div>
-        </div>
-    </div>
-    
-    <div style="background: #ffffff02 !important;" class="col-7 border rounded-3 bg-light  shadow-sm">
-        
-            <small class="text-uppercase text-body-secondary fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">
-              
-            </small>
-            <div class="row fw-bold text-blackcard  bg-light " id="clienteD"style="background: #ffffff02 !important;font-size: 0.9rem;">${cliente}</div>
-         
-    </div>
-    </div>
-
-
-                        <!-- TABLA -->
-                        <div class="table-responsive mb-3">
-                            <table class="table align-middle">
-
-                                <thead style="background: #ffffff02 !important; color:#fff;">
-                                    <tr style="background: #ffffff02 !important;">
-                                         <th class="text-uppercase text-center">Cantidad</th>
-                                        <th class="text-uppercase text-center">UNIDAD</th>
-                                         <th>Producto</th>
-                                      
-                                        <th class="text-uppercase text-center">Costo Unitario</th>
-                                        <th class="text-uppercase text-center">Costo Total</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody id="print-tabla"></tbody>
-                               
-${html}
-                            </table>
-                        </div>
-
-                        <!-- TOTAL -->
-                        <div class="text-end mb-4">
-                            <div class="fw-bold fs-5">
-                                Total: <span id="costo_total">${totalGeneral.toLocaleString('es-MX', {
-                    style: 'currency',
-                    currency: 'MXN'
-                })}</span>
-                
-
-                            </div>
-                        </div>
-
-                       <div class="mt-4 p-3 bg-light border rounded-3 shadow-sm" style="background-color: #f8f9fa !important; border-color: #dee2e6 !important;">
-    <div class="fw-bold mb-2 text-uppercase text-secondary" style="font-size: 0.75rem; letter-spacing: 0.5px;">
-        Notas y Condiciones de Venta:
-    </div>
-    <ul class="mb-0 text-body-secondary" style="font-size: 0.85rem; padding-left: 1.2rem; line-height: 1.5;">
-        <li>Los precios están sujetos a cambios sin previo aviso.</li>
-        <li>Los precios ya incluyen IVA.</li>
-        <li>Las descargas son a pie de carro.</li>
-        <li>Para programar un pedido se debe liquidar primero y debe estar en firme.</li>
-        <li>No hay cambios ni devoluciones una vez descargado.</li>
-        <li>Una vez liquidado se entregará de 1 a 2 días hábiles.</li>
-    </ul>
-</div>
-                        
-
-                    </div>
-           <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script> 
-                <script>
-   window.addEventListener('DOMContentLoaded', () => {
-        // 1. Detectar si el usuario está en un dispositivo móvil
-        const esMovil = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-        // 2. Esperar 1 segundo a que carguen estilos, fuentes e imágenes
-        setTimeout(() => {
-            if (esMovil) {
-                // --- COMPORTAMIENTO EN CELULARES: DESCARGA DE PDF AUTOMÁTICA ---
-                const elementoParaConvertir = document.getElementById('areaImpresion');
-
-                const opciones = {
-                    margin:       1,
-                    filename:     'Cotizacion_${id}.pdf',
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true }, // Mayor calidad visual
-                    jsPDF:        { unit: 'cm', format: 'letter', orientation: 'portrait' }
-                };
-
-                // Generar y descargar el PDF directamente
-                html2pdf().set(opciones).from(elementoParaConvertir).save();
-                
-            } else {
-                // --- COMPORTAMIENTO EN COMPUTADORAS: DIÁLOGO NATIVO DE IMPRESIÓN ---
-                window.print();
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Cotización #${folio} — JSEA</title>
+        <link rel="icon" type="image/png" href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
+        <style>
+            @page { margin: 0; }
+            * {
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                box-sizing: border-box;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
             }
-        }, 1000); // 1000 milisegundos = 1 segundo de espera
-    });
- <\/script>
-            </body>
-        </html>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+                padding: 1.3cm;
+                color: #111827;
+                background: #ffffff;
+                margin: 0;
+                font-size: 0.85rem;
+            }
+
+            /* ENCABEZADO */
+            .doc-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 22px;
+            }
+            .doc-header-left { display: flex; align-items: flex-start; gap: 12px; }
+            .doc-logo {
+                width: 42px; height: 42px;
+                border-radius: 8px;
+                border: 1px solid #e5e7eb;
+                padding: 3px;
+                background: #ffffff;
+            }
+            .doc-eyebrow {
+                font-size: 0.58rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 1.2px;
+                color: #9ca3af;
+                margin-bottom: 1px;
+            }
+            .doc-titulo {
+                margin: 0;
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #000000;
+                letter-spacing: -0.5px;
+                line-height: 1.1;
+            }
+            .doc-folio {
+                font-size: 0.7rem;
+                color: #6b7280;
+                margin-top: 3px;
+            }
+            .doc-folio span {
+                color: #000000;
+                font-weight: 600;
+                font-variant-numeric: tabular-nums;
+            }
+            .doc-header-right { text-align: right; }
+            .doc-empresa {
+                font-size: 0.9rem;
+                font-weight: 700;
+                color: #000000;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+            }
+            .doc-fecha {
+                font-size: 0.7rem;
+                color: #6b7280;
+                margin-top: 1px;
+                font-variant-numeric: tabular-nums;
+            }
+            .doc-estado {
+                display: inline-block;
+                margin-top: 5px;
+                font-size: 0.58rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.8px;
+                color: #111827;
+                background: #f3f4f6;
+                padding: 2px 7px;
+                border-radius: 4px;
+                border: 1px solid #e5e7eb;
+            }
+
+            .doc-hairline {
+                height: 1px;
+                background: #e5e7eb;
+                margin: 0 0 18px 0;
+            }
+
+            /* INFO COMPACTA */
+            .doc-info {
+                display: grid;
+                grid-template-columns: 1fr 1.6fr;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+            .doc-card {
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                padding: 9px 12px;
+                background: #ffffff;
+            }
+            .doc-label {
+                font-size: 0.55rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.9px;
+                color: #9ca3af;
+                margin-bottom: 3px;
+            }
+            .doc-valor {
+                font-size: 0.8rem;
+                color: #111827;
+                font-weight: 500;
+                line-height: 1.4;
+            }
+
+            /* TABLA CON BORDES */
+            .doc-tabla-wrap {
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                overflow: hidden;
+                margin-bottom: 18px;
+            }
+            .doc-tabla {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.78rem;
+                font-variant-numeric: tabular-nums;
+            }
+            .doc-tabla thead { background: #111827; }
+            .doc-tabla th {
+                color: #ffffff;
+                font-size: 0.58rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.9px;
+                padding: 8px 10px;
+                text-align: left;
+                white-space: nowrap;
+                border-right: 1px solid #374151;
+            }
+            .doc-tabla th:last-child { border-right: none; }
+
+            .doc-tabla td {
+                color: #111827;
+                padding: 7px 10px;
+                border-bottom: 1px solid #e5e7eb;
+                border-right: 1px solid #e5e7eb;
+                vertical-align: middle;
+            }
+            .doc-tabla td:last-child { border-right: none; }
+            .doc-tabla tbody tr:nth-child(even) { background: #f9fafb; }
+            .doc-tabla tbody tr:last-child td { border-bottom: none; }
+
+            .col-num      { width: 6%;  text-align: center; }
+            .col-producto { width: 34%; }
+            .col-unidad   { width: 14%; text-align: center; }
+            .col-cantidad { width: 10%; text-align: center; }
+            .col-precio   { width: 17%; text-align: right; }
+            .col-subtotal { width: 19%; text-align: right; }
+
+            .doc-tabla th.col-num,
+            .doc-tabla th.col-unidad,
+            .doc-tabla th.col-cantidad { text-align: center; }
+            .doc-tabla th.col-precio,
+            .doc-tabla th.col-subtotal { text-align: right; }
+
+            .doc-tabla td.col-num {
+                text-align: center;
+                color: #9ca3af;
+                font-size: 0.68rem;
+                font-weight: 500;
+            }
+            .doc-tabla td.col-unidad,
+            .doc-tabla td.col-cantidad { text-align: center; color: #4b5563; }
+            .doc-tabla td.col-precio { text-align: right; color: #4b5563; }
+            .doc-tabla td.col-subtotal {
+                text-align: right;
+                font-weight: 600;
+                color: #000000;
+            }
+
+            /* TOTAL */
+            .doc-total-wrap {
+                display: flex;
+                justify-content: flex-end;
+                margin-bottom: 30px;
+            }
+            .doc-total {
+                background: #000000;
+                border-radius: 6px;
+                padding: 10px 20px;
+                min-width: 220px;
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+                gap: 20px;
+            }
+            .doc-total-label {
+                color: rgba(255, 255, 255, 0.6);
+                font-size: 0.58rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            .doc-total-valor {
+                color: #ffffff;
+                font-size: 1.25rem;
+                font-weight: 700;
+                letter-spacing: -0.3px;
+                line-height: 1.2;
+                font-variant-numeric: tabular-nums;
+            }
+
+            /* FIRMA */
+            .doc-firma {
+                margin-top: 40px;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+            }
+            .doc-firma-line {
+                width: 180px;
+                height: 1px;
+                background: #111827;
+                margin-bottom: 6px;
+            }
+            .doc-firma-label {
+                font-size: 0.6rem;
+                color: #6b7280;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-weight: 500;
+            }
+
+            @media print {
+                * {
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                    color-adjust: exact !important;
+                }
+                body { padding: 1cm; }
+                .doc-tabla thead { background: #111827 !important; }
+                .doc-tabla th { background: #111827 !important; color: #ffffff !important; }
+                .doc-tabla tbody tr:nth-child(even) { background: #f9fafb !important; }
+                .doc-tabla td { border-bottom: 1px solid #e5e7eb !important; border-right: 1px solid #e5e7eb !important; }
+                .doc-total { background: #000000 !important; }
+                .doc-total-valor { color: #ffffff !important; }
+            }
+        </style>
+    </head>
+    <body>
+        <img src="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
+            style="position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+                   width: 200px; opacity: 0.03; z-index: -1; pointer-events: none;">
+
+        <div id="areaImpresion" style="min-height: 620px;">
+
+            <!-- ENCABEZADO -->
+            <div class="doc-header">
+                <div class="doc-header-left">
+                    <img src="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
+                        alt="Logo" class="doc-logo">
+                    <div>
+                        <div class="doc-eyebrow">Documento comercial</div>
+                        <h2 class="doc-titulo">Cotización</h2>
+                        <div class="doc-folio">Folio <span>#${folio}</span></div>
+                    </div>
+                </div>
+                <div class="doc-header-right">
+                    <div class="doc-empresa">JSEA</div>
+                    <div class="doc-fecha">${fecha}</div>
+                    <div class="doc-estado">Vigente</div>
+                </div>
+            </div>
+
+            <div class="doc-hairline"></div>
+
+            <!-- INFO COMPACTA -->
+            <div class="doc-info">
+                <div class="doc-card">
+                    <div class="doc-label">Vendedor</div>
+                    <div class="doc-valor">${vendedor}</div>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-label">Cliente</div>
+                    <div class="doc-valor">${cliente}</div>
+                </div>
+            </div>
+
+            <!-- TABLA CON BORDES -->
+            <div class="doc-tabla-wrap">
+                <table class="doc-tabla">
+                    <thead>
+                        <tr>
+                            <th class="col-num">#</th>
+                            <th class="col-producto">Producto</th>
+                            <th class="col-unidad">Unidad</th>
+                            <th class="col-cantidad">Cant.</th>
+                            <th class="col-precio">P. Unit.</th>
+                            <th class="col-subtotal">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>${html}</tbody>
+                </table>
+            </div>
+
+            <!-- TOTAL -->
+            <div class="doc-total-wrap">
+                <div class="doc-total">
+                    <div class="doc-total-label">Total</div>
+                    <div class="doc-total-valor">${totalFormateado}</div>
+                </div>
+            </div>
+
+            <!-- FIRMA -->
+            <div class="doc-firma">
+                <div class="doc-firma-line"></div>
+                <div class="doc-firma-label">Firma autorizada · JSEA</div>
+            </div>
+
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const esMovil = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                setTimeout(() => {
+                    if (esMovil) {
+                        const elemento = document.getElementById('areaImpresion');
+                        html2pdf().set({
+                            margin: 1,
+                            filename: 'Cotizacion_${folio}_JSEA.pdf',
+                            image: { type: 'jpeg', quality: 0.98 },
+                            html2canvas: { scale: 2, useCORS: true },
+                            jsPDF: { unit: 'cm', format: 'letter', orientation: 'portrait' }
+                        }).from(elemento).save();
+                    } else {
+                        window.print();
+                    }
+                }, 1000);
+            });
+        <\/script>
+    </body>
+    </html>
     `);
 
         ventana.document.close();
     }
-
 </script>

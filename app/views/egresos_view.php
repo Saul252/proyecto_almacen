@@ -737,15 +737,6 @@ require_once $ruta;
 ?>
 
 
-    <?php require_once __DIR__ . '/egresosComponets/modalCompra.php'; ?>
-   
-    <?php require_once __DIR__ . '/egresosComponets/modalAjuste.php'; ?>
-    <?php require_once __DIR__ . '/egresosComponets/modalDetalles.php'; ?><?php require_once __DIR__ . '/egresosComponets/modalDetalleGasto.php'; ?>
-    <?php require_once __DIR__ . '/egresosComponets/modalGasto.php'; ?>
-    <?php require_once __DIR__ . '/egresosComponets/cuentasPendientes.php'; ?>
-    <?php require_once __DIR__ . '/egresosComponets/historialCuentasPorPagar.php'; ?>
- <?php require_once __DIR__ . '/egresosComponets/modalDetallePago.php'; ?>
-
 
 
 
@@ -755,7 +746,18 @@ require_once $ruta;
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-     <?php require_once __DIR__ . '/solicitudesCompra/ModalSolicitud.php'; ?>
+     <?php require_once __DIR__ . '/egresosComponets/modalSolicitudCompra.php'; ?>
+     
+    <?php require_once __DIR__ . '/egresosComponets/modalCompra.php'; ?>
+   
+    <?php require_once __DIR__ . '/egresosComponets/modalAjuste.php'; ?>
+    <?php require_once __DIR__ . '/egresosComponets/modalDetalles.php'; ?>
+    <?php require_once __DIR__ . '/egresosComponets/modalDetalleGasto.php'; ?>
+    <?php require_once __DIR__ . '/egresosComponets/modalGasto.php'; ?>
+    <?php require_once __DIR__ . '/egresosComponets/cuentasPendientes.php'; ?>
+    <?php require_once __DIR__ . '/egresosComponets/historialCuentasPorPagar.php'; ?>
+ <?php require_once __DIR__ . '/egresosComponets/modalDetallePago.php'; ?>
+
     <script>
     // Forzamos que sea global con window.
     window.DATA_COMPRAS = {

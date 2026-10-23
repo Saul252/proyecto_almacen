@@ -454,254 +454,381 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            recargarProductosEditar();
-            const selectAlmacen = document.getElementById('almacen_id_editar');
+        /* =========================================================
+           CONFIG GLOBAL
+           ========================================================= */
+        const URL_ACCESO = '/myvet/app/controllers/accesoController.php';
+        const URL_VENTAS = '/myvet/app/controllers/ventasController.php';
+        const URL_EDITAR = '/myvet/app/controllers/cotizacionesController.php';
 
-            if (selectAlmacen) {
-                selectAlmacen.addEventListener('change', function (e) {
-                    const almacenId = this.value; // ID del almacén seleccionado
-                    const textoSeleccionado = this.options[this.selectedIndex].text; // Nombre del almacén
-
-                    if (almacenId) {
-                        console.log(`Almacén cambiado a ID: ${almacenId} - ${textoSeleccionado}`);
-                        recargarProductosEditar();
-                        vaciarTablaEditar();
-
-
-
-                        // 🚀 Coloca aquí la función o lógica que deseas ejecutar
-                        // Ejemplo: cargarProductosPorAlmacen(almacenId);
-                    } else {
-                        console.log('Se deseleccionó el almacén');
-                    }
-                });
-            }
-        });
-
+        /* =========================================================
+           ESTADO
+           ========================================================= */
         let totalCalculo = 0;
-        async function recargarProductosEditar() {
-            const id = $('#almacen_id_editar').val();
-            const $select = $('#buscadorProductosEditar');
-
-            if (!id) return;
-
-            const url = `/myvet/app/controllers/accesoController.php?action=obtenerProductosAlmacen&id=${id}`;
-            console.log("Consultando URL:", url);
-
-            // 1. Hacemos la petición
-            const resp = await fetch(url);
-
-            // 2. Leemos la respuesta como TEXTO plano primero para ver si hay errores de PHP
-            const textoServidor = await resp.text();
-            console.log("=== RESPUESTA CRUDA DEL SERVIDOR ===");
-            console.log(textoServidor);
-
-            // 3. Intentamos convertir a JSON
-            let res;
-            try {
-                res = JSON.parse(textoServidor);
-            } catch (errJson) {
-                console.error("❌ EL SERVIDOR NO DEVOLVIÓ JSON VÁLIDO. Mira el texto arriba.");
-                return;
-            }
-
-            console.log("=== JSON DECODIFICADO ===", res);
-
-            if (!res.success) {
-                console.error("❌ El PHP devolvió success: false ->", res.message);
-                return;
-            }
-
-            // 4. Si todo está bien, actualizamos el Select2
-            $select.empty();
-            $select.append(new Option("Escribe SKU o nombre...", "", true, true));
-
-            if (Array.isArray(res.data)) {
-                res.data.forEach(pr => {
-                    const option = new Option(`[${pr.sku}] ${pr.nombre}`, pr.producto_id, false, false);
-
-                    $(option).attr({
-                        'data-nombre': pr.nombre || '',
-                        'data-medidas': JSON.stringify(pr.medidas_adicionales || []),
-                        'data-sku': pr.sku || '',
-                        'data-um': pr.unidad_medida || '',
-                        'data-ur': pr.unidad_reporte || '',
-                        'data-premin': pr.precio_minorista || 0,
-                        'data-premat': pr.precio_mayorista || 0,
-                        'data-predis': pr.precio_distribuidor || 0,
-                        'data-factor': pr.factor_conversion || 1,
-                        'data-stock': (pr.stock) || 1
-                    });
-
-                    $select.append(option);
-                });
-            }
-
-            // Notificar a Select2 del cambio
-            $select.trigger('change.select2');
-            cargarClientes();
-        }
-        const URL_CONTROLADOR_EDITAR = '/myvet/app/controllers/cotizacionesController.php';
-        let total_inicial = 0;
-        let cliente_nombre = '';
-        let dataEdicion = null;
         let recalculandoFilaEditar = false;
 
-        // Inicializar Select2 en la página
-        $('.select2-pagina').select2({
-            theme: 'bootstrap-5'
+        /* =========================================================
+           HELPERS
+           ========================================================= */
+        const $almacen = () => $('#almacen_id_editar');
+        const $cliente = () => $('#cliente_id_editar');
+        const $tabla = () => $('#tablaDetalleEditar tbody');
+        const $buscador = () => $('#buscadorProductosEditar');
+
+        const getAlmacenId = () => $almacen().val();
+
+        function formatMoney(n) {
+            return Number(n || 0).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+        }
+
+        /* =========================================================
+           INICIALIZACIÓN ÚNICA
+           ========================================================= */
+        $(async function init() {
+            // 1. Inicializar Select2 UNA SOLA VEZ
+            $('#buscadorProductosEditar').select2({ theme: 'bootstrap-5' });
+            $('#select-vendedor1').select2({ theme: 'bootstrap-5' });
+
+            $('.select2-pagina').not('#buscadorProductosEditar, #select-vendedor1').each(function () {
+                $(this).select2({ theme: 'bootstrap-5' });
+            });
+
+            // 2. Cargas iniciales (en paralelo)
+            const almacenId = getAlmacenId();
+            await Promise.allSettled([
+                cargarVendedores3(),
+                almacenId ? recargarProductosEditar() : Promise.resolve(),
+                cargarClientes()
+            ]);
+
+            // 3. Enfocar el buscador de productos
+            enfocarBuscadorProducto();
+
+            // 4. Almacén → recargar todo
+            $almacen().on('change', async function () {
+                const id = this.value;
+                if (!id) return;
+
+                vaciarTablaEditar();
+                await Promise.allSettled([
+                    recargarProductosEditar(),
+                    cargarVendedores3(),
+                    cargarClientes()
+                ]);
+                enfocarBuscadorProducto();
+            });
+
+            // 5. Delegación de eventos en la tabla
+            $tabla().on('input', '.precio-unitario-editar', function () {
+                this.dataset.editado = '1';
+                calcularTotalSolEditar(this);
+            });
+
+            $tabla().on('input', '.cantidad-editar', function () {
+                actualizarEquivalencia(this);
+                calcularTotalSolEditar(this);
+            });
+
+            $tabla().on('change', '.unidad-select-editar', function () {
+                actualizarEquivalencia(this);
+                calcularPrecioSugeridoEditar(this);
+            });
+
+            $tabla().on('change', '.tipoPrecio-select-editar', function () {
+                calcularPrecioSugeridoEditar(this);
+            });
+
+            $tabla().on('click', '[data-accion="quitar"]', function () {
+                quitarFilaEditar($(this).data('id'));
+            });
         });
 
-        $(document).ready(async function () {
-            try {
+        /* =========================================================
+           ENFOCAR SELECTOR DE PRODUCTO
+           ========================================================= */
+        function enfocarBuscadorProducto(intentos = 0) {
+            const $b = $buscador();
+            if (!$b.length) return;
 
-                await cargarVendedores3();
-            } catch (error) {
-                console.error("Error en inicialización:", error);
+            if ($b.hasClass('select2-hidden-accessible')) {
+                const $selection = $b.next('.select2-container').find('.select2-selection');
+                if ($selection.length) {
+                    $selection[0].focus();
+                    $selection.css({
+                        'box-shadow': '0 0 0 3px rgba(37, 99, 235, 0.25)',
+                        'border-color': '#2563eb',
+                        'transition': 'all 0.3s'
+                    });
+                    setTimeout(() => $selection.css({
+                        'box-shadow': '',
+                        'border-color': '',
+                        'transition': 'all 0.3s'
+                    }), 1500);
+                    return;
+                }
             }
-        });
 
-        // =====================================================
-        // CARGAR VENDEDORES
-        // =====================================================
+            if (intentos < 40) {
+                setTimeout(() => enfocarBuscadorProducto(intentos + 1), 50);
+            }
+        }
+
+        /* =========================================================
+           CARGAR VENDEDORES
+           ========================================================= */
         async function cargarVendedores3(vendedor_id = null) {
             const select = document.getElementById('select-vendedor1');
             if (!select) return;
-            const almacenId = $('#almacen_id_editar').val();
 
+            const $select = $(select);
+            const almacenId = getAlmacenId();
+            const idSesion = "<?= $_SESSION['usuario_id'] ?? '' ?>";
 
-            // Limpia las opciones directamente con jQuery para mantener sincronizado Select2
-
-
-
-
-            // ID del usuario desde la sesión de PHP
-            const idUsuarioSesion = "<?= $_SESSION['usuario_id'] ?? '' ?>";
+            $select.empty().val(null).trigger('change.select2');
 
             try {
-                const url = `/myvet/app/controllers/accesoController.php?action=obtenerUsuarios&almacen_id=${almacenId}`;
-                const respuesta = await fetch(url);
+                const r = await fetch(`${URL_ACCESO}?action=obtenerUsuarios&almacen_id=${encodeURIComponent(almacenId)}`);
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const data = await r.json();
 
-                if (!respuesta.ok) throw new Error('Error en la respuesta del servidor');
-
-                const resultado = await respuesta.json();
-
-                if (resultado.success && Array.isArray(resultado.data)) {
-                    resultado.data.forEach(usuario => {
-                        const opcion = document.createElement('option');
-                        opcion.value = usuario.id;
-                        opcion.textContent = `${usuario.nombre}`;
-                        select.appendChild(opcion);
+                if (data.success && Array.isArray(data.data)) {
+                    const fragment = document.createDocumentFragment();
+                    data.data.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u.id;
+                        opt.textContent = u.nombre;
+                        fragment.appendChild(opt);
                     });
+                    select.appendChild(fragment);
+                    $select.trigger('change.select2');
 
-                    // Prioridad: 
-                    // 1. vendedor_id (si se recibe explícitamente en la función)
-                    // 2. idUsuarioSesion (ID guardado en la sesión de PHP)
-                    const valorASeleccionar = vendedor_id || idUsuarioSesion;
-
-                    if (valorASeleccionar) {
-                        $('#select-vendedor1').val(valorASeleccionar).trigger('change.select2');
-                    }
+                    const elegido = vendedor_id || idSesion;
+                    if (elegido) $select.val(String(elegido)).trigger('change.select2');
                 } else {
-                    select.innerHTML = '<option value="">No se pudieron cargar los usuarios</option>';
+                    $select.empty().append('<option value="">No se pudieron cargar los usuarios</option>').trigger('change.select2');
                 }
-            } catch (error) {
-                select.innerHTML = '<option value="">Error al cargar la lista</option>';
-                console.error('Error al ejecutar cargarVendedores3:', error);
+            } catch (e) {
+                console.error('[cargarVendedores3]', e);
+                $select.empty().append('<option value="">Error al cargar la lista</option>').trigger('change.select2');
             }
         }
-        async function cargarClientes() {
-            console.log("cargo clientes");
 
-            // Obtenemos el ID del almacén actual
-            const almacenId = $('#almacen_id_editar').val();
+        /* =========================================================
+           CARGAR CLIENTES
+           ========================================================= */
+        async function cargarClientes() {
             const select = document.getElementById('cliente_id_editar');
             if (!select) return;
 
-            // Limpiamos el select antes de poblarlo
-            select.innerHTML = '<option value="">-- Seleccione un cliente --</option>';
+            const almacenId = getAlmacenId();
 
             try {
-                const url = `/myvet/app/controllers/accesoController.php?action=obtenerClientes&almacen_id=${almacenId}`;
-                const respuesta = await fetch(url);
+                const r = await fetch(`${URL_ACCESO}?action=obtenerClientes&almacen_id=${encodeURIComponent(almacenId)}`);
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const data = await r.json();
 
-                if (!respuesta.ok) throw new Error('Error en la respuesta del servidor');
-
-                const resultado = await respuesta.json();
-                console.log(resultado);
-
-                if (resultado.success && Array.isArray(resultado.data)) {
-
-                    // FILTRADO:
-                    // 1. Conserva clientes cuyo nombre NO contenga "público en general".
-                    // 2. Para "público en general", solo conserva el que coincida con el almacenId actual.
-                    const clientesFiltrados = resultado.data.filter(cliente => {
-                        const nombreNorm = cliente.nombre_comercial.toLowerCase().trim();
-                        const esPublicoGeneral = nombreNorm.includes('publico en general') || nombreNorm.includes('público en general');
-
-                        if (esPublicoGeneral) {
-                            return cliente.almacen_id == almacenId;
-                        }
-
-                        return true;
-                    });
-
-                    // Llenamos el select con la lista filtrada
-                    clientesFiltrados.forEach(cliente => {
-                        const opcion = document.createElement('option');
-                        opcion.value = cliente.id;
-                        opcion.textContent = `${cliente.nombre_comercial}`;
-                        select.appendChild(opcion);
-                    });
-
-                    // SELECCIÓN AUTOMÁTICA DEL PRIMER REGISTRO ENCONTRADO
-                    if (clientesFiltrados.length > 0) {
-                        const primerClienteId = clientesFiltrados[0].id;
-
-                        // Soporte nativo y compatibilidad con Select2/jQuery
-                        $('#cliente_id_editar').val(primerClienteId).trigger('change');
-                    }
-
-                } else {
-                    select.innerHTML = '<option value="">No se pudieron cargar los usuarios</option>';
+                if (!data.success || !Array.isArray(data.data)) {
+                    throw new Error(data.message || 'Respuesta inválida');
                 }
-            } catch (error) {
-                select.innerHTML = '<option value="">Error al cargar la lista</option>';
-                console.error('Error al ejecutar cargarClientes:', error);
+
+                const filtrados = data.data.filter(c => {
+                    const nombre = (c.nombre_comercial || '').toLowerCase().trim();
+                    const esPublico = nombre.includes('publico en general') || nombre.includes('público en general');
+                    return esPublico ? String(c.almacen_id) === String(almacenId) : true;
+                });
+
+                const fragment = document.createDocumentFragment();
+                const first = document.createElement('option');
+                first.value = '';
+                first.textContent = '-- Seleccione un cliente --';
+                fragment.appendChild(first);
+
+                filtrados.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = c.nombre_comercial || '';
+                    opt.dataset.nombre = c.nombre_comercial || '';
+                    opt.dataset.razonSocial = c.razon_social || '';
+                    opt.dataset.contacto = c.contacto || '';
+                    fragment.appendChild(opt);
+                });
+
+                select.replaceChildren(fragment);
+
+                // 🔥 Refrescar Select2 SIN destruirlo
+                $(select).trigger('change.select2');
+
+                if (filtrados.length) {
+                    $cliente().val(filtrados[0].id).trigger('change');
+                }
+
+            } catch (e) {
+                console.error('[cargarClientes]', e);
+                select.innerHTML = '<option value="">Error al cargar clientes</option>';
+                $(select).trigger('change.select2');
+            }
+        }
+        /* =========================================================
+           CARGAR PRODUCTOS
+           ========================================================= */
+        async function recargarProductosEditar() {
+            const almacenId = getAlmacenId();
+            if (!almacenId) return;
+
+            const $select = $buscador();
+
+            try {
+                const r = await fetch(`${URL_ACCESO}?action=obtenerProductosAlmacen&id=${encodeURIComponent(almacenId)}`);
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+
+                const texto = await r.text();
+                let data;
+                try {
+                    data = JSON.parse(texto);
+                } catch {
+                    console.error('[recargarProductos] JSON inválido:', texto.slice(0, 500));
+                    return;
+                }
+
+                if (!data.success) {
+                    console.error('[recargarProductos] Error:', data.message);
+                    return;
+                }
+
+                const fragment = document.createDocumentFragment();
+                fragment.appendChild(new Option('Escribe SKU o nombre...', '', true, true));
+
+                if (Array.isArray(data.data)) {
+                    data.data.forEach(pr => {
+                        const opt = new Option(`[${pr.sku}] ${pr.nombre}`, pr.producto_id, false, false);
+                        $(opt).attr({
+                            'data-nombre': pr.nombre || '',
+                            'data-medidas': JSON.stringify(pr.medidas_adicionales || []),
+                            'data-sku': pr.sku || '',
+                            'data-um': pr.unidad_medida || '',
+                            'data-ur': pr.unidad_reporte || '',
+                            'data-premin': pr.precio_minorista || 0,
+                            'data-premat': pr.precio_mayorista || 0,
+                            'data-predis': pr.precio_distribuidor || 0,
+                            'data-factor': pr.factor_conversion || 1,
+                            'data-stock': pr.stock || 0
+                        });
+                        fragment.appendChild(opt);
+                    });
+                }
+
+                $select.empty().append(fragment).trigger('change.select2');
+
+            } catch (e) {
+                console.error('[recargarProductosEditar]', e);
             }
         }
 
-        // =====================================================
-        // CALCULAR TOTAL EDITAR
-        // =====================================================
+        /* =========================================================
+           AGREGAR PRODUCTO
+           ========================================================= */
+        $buscador().on('select2:select', function (e) {
+            const d = e.params.data.element?.dataset;
+            if (!d) return;
+
+            const id = $(this).val();
+            if ($(`#filaEditar-${id}`).length) {
+                Swal.fire('Aviso', 'El producto ya está en la lista', 'info');
+                return;
+            }
+
+            $('#emptyStateEditar').addClass('d-none');
+
+            const medidas = JSON.parse(d.medidas || '[]');
+            const opcionesUnidad = medidas.map(m =>
+                `<option value="${m.id}" data-equivalencia="${m.equivalencia}" data-medida-id="${m.id}">${m.nombre}</option>`
+            ).join('');
+
+            const preMin = parseFloat(d.premin) || 0;
+            const preMat = parseFloat(d.premat) || 0;
+            const preDis = parseFloat(d.predis) || 0;
+            const factor = parseFloat(d.factor) || 1;
+
+            $tabla().append(`
+    <tr id="filaEditar-${id}">
+        <td><b>${d.nombre}</b><br><small class="text-body-secondary">${d.sku}</small></td>
+        <td class="ps-4">
+            <input type="hidden" name="itemsEditar[${id}][exis]" class="cantidad-exis" value="${d.stock}" min="0.01">
+            <span>${d.stock / d.factor}</span> <b>${d.ur}</b>
+        </td>
+        <td>
+            <input type="number" name="itemsEditar[${id}][cant]" class="form-control cantidad-editar"
+                step="0.01" value="1" min="0.01" required>
+            <input type="hidden" name="itemsEditar[${id}][equivalencia]" class="form-control equivalencia" value="1">
+        </td>
+        <td>
+            <select name="itemsEditar[${id}][unidad]" class="form-select unidad-select-editar">${opcionesUnidad}</select>
+        </td>
+        <td>
+            <select name="itemsEditar[${id}][tipoPrecio]" class="form-select tipoPrecio-select-editar">
+                <option value="seleccionar" data-precio="0">Seleccione</option>
+                <option value="minorista" data-precio="${preMin}">Min $${(preMin * factor).toFixed(2)} x ${d.ur}</option>
+                <option value="mayorista" data-precio="${preMat}">May $${(preMat * factor).toFixed(2)} x ${d.ur}</option>
+                <option value="distribuidor" data-precio="${preDis}">Dis $${(preDis * factor).toFixed(2)} x ${d.ur}</option>
+            </select>
+        </td>
+        <td>
+            <input type="number" name="itemsEditar[${id}][precioUnitario]" class="form-control precio-unitario-editar"
+                step="0.01" min="0.01" placeholder="0.00" required
+                onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductosEditar').select2('open'); }">
+        </td>
+        <td style="min-width:140px;">
+            <input type="number" name="itemsEditar[${id}][precio]" class="form-control precio-total-editar fw-bold text-success"
+                step="0.01" min="0" placeholder="0.00"
+                onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductosEditar').select2('open'); }"
+                style="font-size:1.1rem; height:40px;">
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-link text-danger p-0" data-accion="quitar" data-id="${id}">
+                <i class="bi bi-trash fs-5"></i>
+            </button>
+        </td>
+    </tr>`);
+
+            // Enfocar cantidad
+            setTimeout(() => {
+                const $cantidad = $(`#filaEditar-${id}`).find('.cantidad-editar');
+                if ($cantidad.length) {
+                    $cantidad[0].focus();
+                    $cantidad[0].select();
+                    $cantidad.css({ 'box-shadow': '0 0 0 3px rgba(37,99,235,0.25)', 'border-color': '#2563eb', 'transition': 'all 0.3s' });
+                    setTimeout(() => $cantidad.css({ 'box-shadow': '', 'border-color': '', 'transition': 'all 0.3s' }), 1500);
+                }
+            }, 30);
+
+            $(this).val(null).trigger('change');
+        });
+
+        /* =========================================================
+           CÁLCULOS
+           ========================================================= */
         function calcularTotalSolEditar(input) {
             if (recalculandoFilaEditar) return;
             recalculandoFilaEditar = true;
 
             try {
-                const fila = input ? input.closest('tr') : null;
-                if (fila) {
-                    const cantidad = parseFloat(fila.querySelector('.cantidad-editar')?.value) || 0;
-                    const precioUnitarioOriginal = parseFloat(fila.querySelector('.precio-unitario-editar')?.value) || 0;
-
-                    const precioTotal = cantidad * precioUnitarioOriginal;
-                    fila.querySelector('.precio-total-editar').value = precioTotal.toFixed(2);
+                if (input) {
+                    const fila = input.closest('tr');
+                    if (fila) {
+                        const cant = parseFloat(fila.querySelector('.cantidad-editar')?.value) || 0;
+                        const precio = parseFloat(fila.querySelector('.precio-unitario-editar')?.value) || 0;
+                        fila.querySelector('.precio-total-editar').value = (cant * precio).toFixed(2);
+                    }
                 }
 
-                // SUMA GENERAL
-                let totalCompraEditar = 0;
-                document.querySelectorAll('#tablaDetalleEditar .precio-total-editar').forEach(el => {
-                    totalCompraEditar += parseFloat(el.value) || 0;
+                let total = 0;
+                $tabla().find('.precio-total-editar').each(function () {
+                    total += parseFloat(this.value) || 0;
                 });
 
-                document.getElementById('costoTotalCompraEditar').textContent = totalCompraEditar.toLocaleString('es-MX', {
-                    style: 'currency',
-                    currency: 'MXN'
-                });
-
-                document.getElementById('totalCotizacionEditar').value = totalCompraEditar;
-                totalCalculo = totalCompraEditar;
+                document.getElementById('costoTotalCompraEditar').textContent = formatMoney(total);
+                document.getElementById('totalCotizacionEditar').value = total;
+                totalCalculo = total;
                 $('#saldoAFavorInput').val(0);
 
             } finally {
@@ -709,542 +836,161 @@
             }
         }
 
-        // =====================================================
-        // RECARGAR PRODUCTOS
-        // =====================================================
-        // =====================================================
-        // EVENTO SELECT2: AGREGAR PRODUCTO
-        // =====================================================
-        $('#buscadorProductosEditar').on('select2:select', function (e) {
-            const d = e.params.data.element.dataset;
-            const id = $(this).val();
-
-            if ($(`#filaEditar-${id}`).length) {
-                Swal.fire('Aviso', 'El producto ya está en la lista', 'info');
-                return;
-            }
-
-            $('#emptyStateEditar').addClass('d-none');
-            const medidas = JSON.parse(d.medidas || '[]');
-
-            let opcionesUnidad = ``;
-            medidas.forEach(m => {
-                opcionesUnidad += `
-                <option value="${m.id}" data-equivalencia="${m.equivalencia}" data-medida-id="${m.id}">
-                    ${m.nombre}
-                </option>`;
-            });
-
-            const preMin = parseFloat(d.premin) || 0;
-            const preMat = parseFloat(d.premat) || 0;
-            const preDis = parseFloat(d.predis) || 0;
-            const factor = parseFloat(d.factor) || 1;
-
-            $('#tablaDetalleEditar tbody').append(`
-            <tr id="filaEditar-${id}">
-            
-                <td >
-                    <b>${d.nombre}</b><br>
-                    <small class="text-body-secondary">${d.sku}</small>
-                </td>
-<td class="ps-4">
-<input 
-                        type="hidden"
-                        name="itemsEditar[${id}][exis]"
-                        class=" cantidad-exis" 
-                      
-                        value="${d.stock}"
-                        min="0.01"
-                        
-                        >
-<spam   
-                     
-                      
-                       >${d.stock / d.factor}</spam>
-                   <b> ${d.ur}</b>
-                    
-                </td>
-                <td>
-                    <input 
-                        type="number"
-                        name="itemsEditar[${id}][cant]"
-                        class="form-control cantidad-editar"
-                        step="0.01"
-                        value="1"
-                        min="0.01"
-                        required
-                        oninput="actualizarEquivalencia(this);calcularTotalSolEditar(this)">
-                    <input 
-                        type="hidden"
-                        name="itemsEditar[${id}][equivalencia]"
-                        class="form-control equivalencia"
-                        value="1">
-                </td>
-
-                <td>
-                    <select 
-                        name="itemsEditar[${id}][unidad]" 
-                        class="form-select unidad-select-editar"
-                        onchange="actualizarEquivalencia(this);calcularPrecioSugeridoEditar(this)">
-                         ${opcionesUnidad}
-                    </select>
-                </td>
-                
-                <td>
-                    <select 
-                        name="itemsEditar[${id}][tipoPrecio]" 
-                        class="form-select tipoPrecio-select-editar"
-                        onchange="calcularPrecioSugeridoEditar(this)">
-                        <option value="seleccionar" data-precio="0">Seleccione</option>
-                        <option value="minorista" data-precio="${preMin}">Min $${(preMin * factor).toFixed(2)} x ${d.ur}</option>
-                        <option value="mayorista" data-precio="${preMat}">May $${(preMat * factor).toFixed(2)} x ${d.ur}</option>
-                        <option value="distribuidor" data-precio="${preDis}">Dis $${(preDis * factor).toFixed(2)} x ${d.ur}</option>
-                    </select>
-                </td>
-
-                <td>
-                    <input 
-                        type="number"
-                        lang="en-US"
-                        name="itemsEditar[${id}][precioUnitario]"
-                        class="form-control precio-unitario-editar"
-                        step="0.01"
-                        min="0.01"
-                        placeholder="0.00"
-                        required
-                        oninput="calcularTotalSolEditar(this)" required>
-                </td>
-
-                <td style="min-width:140px;">
-                    <input 
-                        type="number"
-                        lang="en-US"
-                        name="itemsEditar[${id}][precio]"
-                        class="form-control precio-total-editar fw-bold text-success "
-                        step="0.01"
-                        min="0"
-                        placeholder="0.00"
-                        oninput="calcularTotalSolEditar(this)"
-                        style="font-size:1.1rem; height:40px;">
-                </td>
-
-                <td class="text-center">
-                    <button type="button" class="btn btn-link text-danger p-0" onclick="quitarFilaEditar('${id}')">
-                        <i class="bi bi-trash fs-5"></i>
-                    </button>
-                </td>
-            </tr>
-            `);
-
-            $(this).val(null).trigger('change');
-        });
-
-        function validarExistencias(fila, cantidad, equivalencia, existencias) {
-
-            const maximoPermitido = existencias / equivalencia;
-            const soli = cantidad * equivalencia;
-            console.log(cantidad, equivalencia, existencias);
-            console.log(soli, maximoPermitido);
-
-            if (soli > existencias) {
-
-                fila.find('.cantidad-editar').val(maximoPermitido.toFixed(4));
-
-                Swal.fire({
-                    icon: 'warning',
-                    title: '¿Deseas continiar Existencias insuficientes?',
-                    text: `Solo hay ${maximoPermitido.toFixed(4)} unidades disponibles.`
-                });
-
-                return cantidad;
-            }
-
-            return cantidad;
-        }
-
         function actualizarEquivalencia(input) {
-
             const fila = $(input).closest('tr');
-
-            const cantidad = parseFloat(fila.find('.cantidad-editar').val()) || 0;
-            const existencias = parseFloat(fila.find('.cantidad-exis').val()) || 0;
-
             const unidad = fila.find('.unidad-select-editar').val();
+            if (!unidad || unidad === '0') return;
 
-            // Todavía no se eligió una unidad
-            if (!unidad || unidad == "0") {
-                return;
-            }
+            let eq = parseFloat(fila.find('.unidad-select-editar option:selected').data('equivalencia'));
+            if (isNaN(eq) || eq <= 0) return;
 
-            let equivalencia = parseFloat(
-                fila.find('.unidad-select-editar option:selected').data('equivalencia')
-            );
+            eq = 1 / eq;
+            if (eq >= 1 && Math.abs(eq - Math.round(eq)) <= 0.00001) eq = Math.round(eq);
 
-            if (isNaN(equivalencia) || equivalencia <= 0) {
-                return;
-            }
-
-            // Obtener la equivalencia inversa
-
-            equivalencia = 1 / equivalencia;
-
-            // Solo redondear si es >= 1 y está muy cerca de un entero
-            if (
-                equivalencia >= 1 &&
-                Math.abs(equivalencia - Math.round(equivalencia)) <= 0.00001
-            ) {
-                equivalencia = Math.round(equivalencia);
-            }
-
-            // Si está prácticamente en un entero, redondearlo
-
-            // Guardar el valor que se enviará
-            fila.find('.equivalencia').val(equivalencia);
-
-
-
+            fila.find('.equivalencia').val(eq);
             calcularTotalSolEditar(input);
         }
 
         function calcularPrecioSugeridoEditar(select) {
             const fila = select.closest('tr');
             const inputPrecio = fila.querySelector('.precio-unitario-editar');
+            if (inputPrecio.dataset.editado === '1') return;
+
             const unidadSelect = fila.querySelector('.unidad-select-editar');
             const tipoSelect = fila.querySelector('.tipoPrecio-select-editar');
-            const inputtotal = fila.querySelector('.precio-total-editar');
 
-            const unidadOption = unidadSelect.options[unidadSelect.selectedIndex];
-            const tipoOption = tipoSelect.options[tipoSelect.selectedIndex];
+            const eq = Number(unidadSelect.options[unidadSelect.selectedIndex]?.dataset.equivalencia || 1);
+            const base = Number(tipoSelect.options[tipoSelect.selectedIndex]?.dataset.precio || 0);
+            const sug = eq > 0 ? base / eq : base;
 
-            const equivalencia = Number(unidadOption?.dataset.equivalencia || 1);
-            const precioBase = Number(tipoOption?.dataset.precio || 0);
-
-            const sugerido = equivalencia > 0 ? (precioBase / equivalencia) : precioBase;
-            inputPrecio.value = sugerido.toFixed(2);
-
-            const cantidad = parseFloat(fila.querySelector('.cantidad-editar')?.value) || 0;
-            inputtotal.value = (sugerido * cantidad).toFixed(2);
-
+            inputPrecio.value = sug.toFixed(2);
+            const cant = parseFloat(fila.querySelector('.cantidad-editar')?.value) || 0;
+            fila.querySelector('.precio-total-editar').value = (sug * cant).toFixed(2);
             calcularTotalSolEditar(null);
         }
 
-        document.addEventListener('input', function (e) {
-            if (e.target.classList.contains('precio-unitario-editar')) {
-                e.target.dataset.editado = "1";
-            }
-        });
-        document.addEventListener('DOMContentLoaded', () => {
-            cargarUsuariosSelect();
-            cargarClientes();
-        });
+        function quitarFilaEditar(id) {
+            $(`#filaEditar-${id}`).remove();
+            if (!$tabla().children('tr').length) $('#emptyStateEditar').removeClass('d-none');
+            calcularTotalSolEditar(null);
+        }
 
+        function vaciarTablaEditar() {
+            $tabla().empty();
+            $('#emptyStateEditar').removeClass('d-none');
+            calcularTotalSolEditar(null);
+        }
 
-
-        // =====================================================
-        // GUARDAR ACTUALIZACIÓN (SUBMIT FORM)
-        // =====================================================
-        // =====================================================
+        /* =========================================================
+           SUBMIT
+           ========================================================= */
         $('#formEditarSolicitud').on('submit', async function (e) {
             e.preventDefault();
 
-            if (!$('#tablaDetalleEditar tbody tr').length) {
+            if (!$tabla().children('tr').length) {
                 Swal.fire('Error', 'Agregue al menos un producto a la venta', 'warning');
                 return;
             }
 
-            const $btnFinalizar = $(this).find('button[type="submit"]');
-            $btnFinalizar.prop('disabled', true);
+            const $btn = $(this).find('button[type="submit"]').prop('disabled', true);
 
             const totalVenta = parseFloat($('#totalCotizacionEditar').val()) || 0;
-            const montoPagado = $('#monto_pagar').val(); // Dinero real recibido
+            const almacenId = getAlmacenId();
 
             const payload = {
                 accion: 'guardar_venta',
-                id_cliente: $('#cliente_id_editar').val(),
+                id_cliente: $cliente().val(),
                 id_vendedor: $('#select-vendedor1').val(),
                 monto_pagado: 0,
                 monto_usado_favor: 0,
                 subtotal: totalVenta,
-                almacen_id: $('#almacen_id_editar').val(),
+                total_venta: totalVenta,
+                almacen_id: almacenId,
                 metodo_pago: 'efectivo',
                 referencia: '',
-                observaciones: $('#obsVenta').val() ?? '   ',
+                observaciones: $('#obsVenta').val() || '',
                 usar_saldo_favor: 0,
                 carrito: []
             };
 
-            $('#tablaDetalleEditar tbody tr').each(function () {
-                const fila = $(this);
-                const id = fila.attr('id').replace('filaEditar-', '');
+            $tabla().children('tr').each(function () {
+                const $f = $(this);
+                const id = this.id.replace('filaEditar-', '');
+                const unidadSel = $f.find('.unidad-select-editar option:selected');
+                const tipoSel = $f.find('.tipoPrecio-select-editar option:selected');
 
-                const unidadSelect = fila.find('.unidad-select-editar option:selected');
-                const tipoPrecioSelect = fila.find('.tipoPrecio-select-editar option:selected');
-                let cantidadInicial = parseFloat(fila.find('.cantidad-editar').val()) || 0;
-                let equivalencia = parseFloat(fila.find('.equivalencia').val()) || 1;
-
-                let cantidadT = (cantidadInicial * equivalencia);
-                let cantidadTotal = (cantidadT % 1 > 0) ? cantidadT.toFixed(2) : cantidadT;
+                const cantIni = parseFloat($f.find('.cantidad-editar').val()) || 0;
+                const eq = parseFloat($f.find('.equivalencia').val()) || 1;
+                const cantT = cantIni * eq;
+                const cantFinal = (cantT % 1 > 0) ? cantT.toFixed(2) : cantT;
 
                 payload.carrito.push({
                     producto_id: id,
-                    almacen_id: $('#almacen_id_editar').val(),
-                    cantidad: cantidadTotal,
-                    unidad_base: unidadSelect.val(),
-
-                    noEliminar: fila.find('.noEliminar').val(),
-                    idunidadMedida: unidadSelect.data('medida-id'),
-                    unidadEquivalencia: unidadSelect.data('equivalencia'),
-                    tipo_precio: tipoPrecioSelect.val(),
-                    precio_unitario: fila.find('.precio-unitario-editar').val(),
-                    subtotal: fila.find('.precio-total-editar').val()
+                    almacen_id: almacenId,
+                    cantidad: cantFinal,
+                    unidad_base: unidadSel.val(),
+                    noEliminar: $f.find('.noEliminar').val(),
+                    idunidadMedida: unidadSel.data('medida-id'),
+                    unidadEquivalencia: unidadSel.data('equivalencia'),
+                    tipo_precio: tipoSel.val(),
+                    precio_unitario: $f.find('.precio-unitario-editar').val(),
+                    subtotal: $f.find('.precio-total-editar').val()
                 });
             });
-            console.log(payload);
 
-            Swal.fire({
-                title: 'Actualizando venta...',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
-            });
+            Swal.fire({ title: 'Actualizando venta...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
             try {
-                const resp = await fetch(`/myvet/app/controllers/ventasController.php`, {
+                const resp = await fetch(URL_VENTAS, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-
                 const res = await resp.json();
 
-                if (res.status === 'success') {
-
-                    const tieneDeuda = payload.monto_pagado < payload.total_venta;
-                    const esEntregaTotal = (res.total_entregado ?? 0) >= (res.total_pedido ?? 0);
-                    const iconoFinal = 'success';
-
-                    // 🎨 Ajustado para modo oscuro: 'bg-body-secondary text-body border-secondary-subtle'
-                    let htmlExtra =
-                        `<p class="mb-2">Folio: <span class="badge bg-body-secondary text-body border border-secondary-subtle">${res.folio || 'N/A'}</span></p>`;
-
-                    if (tieneDeuda) {
-                        // 🎨 Ajustado con utilidades de Bootstrap 5 para soportar temas claros y oscuros
-                        htmlExtra += `
-        <div class="alert bg-danger-subtle text-danger-emphasis py-1 px-2  mb-2 rounded-3" style="font-size:0.75rem;">
-            <i class="bi bi-exclamation-circle-fill me-1"></i> Saldo pendiente registrado en cuenta
-        </div>`;
-                    }
-
-                    Swal.fire({
-                        title: esEntregaTotal ? '¡Venta Exitosa!' : '¡Remision Exitosa!',
-                        html: `
-            <!-- 🎨 Se remueve style="background:#f2f2f7" en favor de 'bg-body-secondary' -->
-            <div class="alert bg-body-secondary text-body  small text-start py-2 mb-3 rounded-3">
-                ${res.message || 'Operación realizada correctamente.'}
-            </div>
-            ${htmlExtra}
-            <p class="text-body-secondary small mb-0">¿Deseas imprimir el comprobante?</p>
-        `,
-                        icon: iconoFinal,
-                        showDenyButton: true,
-                        showCancelButton: true,
-                        confirmButtonText: '<i class="bi bi-receipt"></i> Con Precios',
-                        denyButtonText: '<i class="bi bi-receipt"></i> Ticket Formal',
-                        cancelButtonText: 'Cerrar',
-                        confirmButtonColor: '#34c759',
-                        denyButtonColor: '#5856d6',
-                        customClass: {
-                            popup: 'rounded-4  shadow-lg bg-body text-body'
-                        }
-                    }).then((result) => {
-                        let url = '';
-                        if (result.isConfirmed) {
-                            url = `/myvet/app/backend/ventas/ticket_venta.php?id=${res.id_venta}`;
-                        } else if (result.isDenied) {
-                            url = `/myvet/app/backend/ventas/ticketFormal.php?id=${res.id_venta}`;
-                        }
-
-                        if (url !== '') window.open(url, '_blank');
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'Error',
-                        text: res.message || 'Error desconocido',
-                        icon: 'error',
-                        customClass: {
-                            popup: 'rounded-4 bg-body text-body'
-                        }
-                    });
-                    $btnFinalizar.prop('disabled', false);
+                if (res.status !== 'success') {
+                    throw new Error(res.message || 'Error desconocido');
                 }
 
+                let htmlExtra = `<p class="mb-2">Folio: <span class="badge bg-body-secondary text-body border border-secondary-subtle">${res.folio || 'N/A'}</span></p>`;
+
+                const r = await Swal.fire({
+                    title: '¡Venta Exitosa!',
+                    html: `
+                <div class="alert bg-body-secondary text-body small text-start py-2 mb-3 rounded-3">
+                    ${res.message || 'Operación realizada correctamente.'}
+                </div>
+                ${htmlExtra}
+                <p class="text-body-secondary small mb-0">¿Deseas imprimir el comprobante?</p>
+            `,
+                    icon: 'success',
+                    showDenyButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="bi bi-receipt"></i> Con Precios',
+                    denyButtonText: '<i class="bi bi-receipt"></i> Ticket Formal',
+                    cancelButtonText: 'Cerrar',
+                    confirmButtonColor: '#34c759',
+                    denyButtonColor: '#5856d6',
+                    customClass: { popup: 'rounded-4 shadow-lg bg-body text-body' }
+                });
+
+                let url = '';
+                if (r.isConfirmed) url = `/myvet/app/backend/ventas/ticket_venta.php?id=${res.id_venta}`;
+                if (r.isDenied) url = `/myvet/app/backend/ventas/ticketFormal.php?id=${res.id_venta}`;
+                if (url) window.open(url, '_blank');
+                location.reload();
+
             } catch (e) {
-                console.error(e);
+                console.error('[submit]', e);
                 Swal.fire({
                     title: 'Error',
-                    text: 'Fallo de conexión con el servidor',
+                    text: e.message || 'Fallo de conexión con el servidor',
                     icon: 'error',
-                    customClass: {
-                        popup: 'rounded-4 bg-body text-body'
-                    }
+                    customClass: { popup: 'rounded-4 bg-body text-body' }
                 });
-                $btnFinalizar.prop('disabled', false);
+                $btn.prop('disabled', false);
             }
         });
-        // ELIMINAR FILA
-        // =====================================================
-        function quitarFilaEditar(id) {
-            $(`#filaEditar-${id}`).remove();
-
-            if (!$('#tablaDetalleEditar tbody tr').length) {
-                $('#emptyStateEditar').removeClass('d-none');
-            }
-
-            calcularTotalSolEditar(null);
-        }
-        function vaciarTablaEditar() {
-            // 1. Remueve todas las filas del tbody
-            $('#tablaDetalleEditar tbody').empty();
-
-            // 2. Muestra el estado vacío (empty state)
-            $('#emptyStateEditar').removeClass('d-none');
-
-            // 3. Recalcula el total enviando null
-            calcularTotalSolEditar(null);
-        }
-
-        // =====================================================
-        // GESTIÓN DE SALDOS Y EGRESOS
-        // =====================================================
-
-        // async function guardarComoGastoSalidadeDinero() {
-        //     try {
-        //         const respFolio = await fetch(
-        //             '/myvet/app/controllers/egresosController.php?action=getSiguienteFolioGasto');
-        //         const folioRes = await respFolio.json();
-
-        //         if (!folioRes.success) {
-        //             throw new Error("No fue posible obtener el folio.");
-        //         }
-
-        //         const folio = folioRes.folio;
-        //         const id = $('#editar_venta_id').val();
-        //         const total = parseFloat($('#totalCotizacionEditar').val()) || 0;
-        //         const diferencia = total_inicial - total;
-        //         const observaciones = `SALIDA DE DINERO POR EDICIÓN DE VENTA ${id}`;
-        //         const fecha = new Date().toISOString().split('T')[0];
-
-        //         const fd = new FormData();
-        //         fd.append('folio', folio);
-        //         fd.append('monto', diferencia);
-        //         fd.append('fecha', fecha);
-        //         fd.append('observaciones', observaciones);
-        //         fd.append('venta_id', id);
-
-        //         const resp = await fetch('/myvet/app/controllers/egresosController.php?action=guardarSalidaDinero', {
-        //             method: 'POST',
-        //             body: fd
-        //         });
-
-        //         const res = await resp.json();
-
-        //         if (res.success || res.status === 'success') {
-        //             await Swal.fire('Éxito', 'Salida de dinero registrada correctamente.', 'success');
-        //             window.location.reload();
-        //         } else {
-        //             throw new Error(res.message || 'Error al procesar el egreso');
-        //         }
-
-        //     } catch (e) {
-        //         Swal.fire('Error', e.message, 'error');
-        //     }
-        // }
-        // $('#cliente_id_editar').on('select2:select', function(e) {
-        //     consultarEstatusFinanciero();
-        // });
-
-
-        function consultarEstatusFinanciero() {
-
-            let id = $('#cliente_id_editar').val();
-            console.log(id);
-            fetch(`/myvet/app/controllers/ventasController.php?action=obtenerEstatusCliente&id=${id}`, {
-
-            })
-                .then(r => r.json())
-                .then(data => {
-
-
-                    const res = data;
-                    const saldo = parseFloat(res.saldo_neto || 0);
-                    const condicion = res.estatus_financiero || 'AL DIA';
-                    console.log(res.saldo_a_favor);
-
-                    // --- 1. LÓGICA DEL SWITCH DE SALDO A FAVOR ---
-                    $('#saldoFavorTotal').val(res.saldo_a_favor);
-                    const saldoAFavor = 10;
-                    if (saldoAFavor > 0) {
-                        $('#saldoAFavorSelect').removeClass('d-none');
-                        $('#saldoAFavorInput').removeClass('d-none');
-                    } else {
-                        $('#saldoAFavorSelect').addClass('d-none');
-                        $('#saldoAFavorInput').addClass('d-none');
-                    }
-
-
-
-                })
-                .catch(err => {
-
-                    if (err.name !== 'AbortError') {
-                        console.error("Error:", err);
-
-                    }
-                });
-        }
-
-        $('#saldoAFavorInput').on('input change', function () {
-            // 1. Obtener valores actualizados
-            let saldoIngresado = parseFloat($(this).val()) || 0;
-            let saldoDisponibleMax = parseFloat($('#saldoFavorTotal').val()) || 0;
-
-            // IMPORTANTE: Guarda el precio original de la venta en un atributo data-precio-base
-            // Si no existe, tomamos el valor actual y lo guardamos
-            if (!$('#totalCotizacionEditar').data('precio-base')) {
-                $('#totalCotizacionEditar').data('precio-base', parseFloat($('#totalCotizacionEditar').val()) || 0);
-            }
-
-            // Obtenemos SIEMPRE el precio base original
-            let ventaBase = parseFloat($('#totalCotizacionEditar').data('precio-base')) || 0;
-
-            // 2. Controlar que no ingrese un número negativo
-            if (saldoIngresado < 0) {
-                saldoIngresado = 0;
-                $(this).val(0);
-            }
-
-            // 3. Validar si el saldo ingresado supera el disponible
-            if (saldoIngresado > saldoDisponibleMax) {
-                saldoIngresado = saldoDisponibleMax;
-                $(this).val(saldoDisponibleMax); // Forzar al input a no exceder el máximo disponible
-            }
-
-            // 4. Calcular nuevo total restando el saldo ingresado al precio base original
-            let nuevoTotal = ventaBase - saldoIngresado;
-
-            // Si el total queda negativo (por ejemplo, el saldo a favor es mayor que la venta)
-            if (nuevoTotal < 0) {
-                nuevoTotal = 0;
-            }
-
-            // 5. Actualizar los elementos en pantalla
-            $('#totalCotizacionEditar').val(nuevoTotal.toFixed(2));
-            $('#costoTotalCompraEditar').text(nuevoTotal.toFixed(2));
-        });
-
-
     </script>
 
 </body>

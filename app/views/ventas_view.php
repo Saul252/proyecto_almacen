@@ -451,6 +451,57 @@
     <?php require_once __DIR__ . '/egresosComponets/agregarPoductoModal.php'; ?>
     <?php require_once __DIR__ . '/clientes/clientesModal.php'; ?>
     <script>
+        // =====================================================
+        // ENFOCAR SELECTOR DE PRODUCTOS AL CARGAR
+        // =====================================================
+        function enfocarBuscadorProducto(intentos = 0) {
+            const $buscador = $('#buscadorProductosEditar');
+
+            if (!$buscador.length) return;
+
+            if ($buscador.hasClass('select2-hidden-accessible')) {
+                const $selection = $buscador.next('.select2-container').find('.select2-selection');
+
+                if ($selection.length) {
+                    $selection[0].focus();
+                    console.log('[FOCUS] Foco en .select2-selection:', document.activeElement);
+
+                    // 🔥 Resaltado marcado: borde grueso + glow + pulso
+                    $selection.css({
+                        'border-color': '#2563eb',
+                        'border-width': '2px',
+                        'background-color': 'rgba(37, 99, 235, 0.08)',
+                        'box-shadow': '0 0 0 4px rgba(37, 99, 235, 0.35), 0 0 25px rgba(37, 99, 235, 0.55)',
+                        'transition': 'all 0.3s ease',
+                        'animation': 'focusPulse 1.2s ease-in-out infinite'
+                    });
+
+                    // Quitar el resaltado a los 2s
+                    setTimeout(() => {
+                        $selection.css({
+                            'border-color': '',
+                            'border-width': '',
+                            'background-color': '',
+                            'box-shadow': '',
+                            'transition': 'all 0.3s ease',
+                            'animation': ''
+                        });
+                    }, 2000);
+
+                    return;
+                }
+            }
+
+            if (intentos < 40) {
+                setTimeout(() => enfocarBuscadorProducto(intentos + 1), 50);
+            } else {
+                console.warn('[FOCUS] Select2 no se inicializó después de 2s');
+            }
+        }
+        // Llamar al cargar la página
+        $(document).ready(function () {
+            enfocarBuscadorProducto();
+        });
         /* =========================================================
            CONFIG
            ========================================================= */
@@ -489,7 +540,23 @@
            INICIALIZACIÓN ÚNICA
            ========================================================= */
         $(async function init() {
-            $('.select2-pagina').select2({ theme: 'bootstrap-5' });
+            // Inicializar Select2 en la página
+            // 1. Buscador de productos (sin dropdownParent por el overflow-hidden)
+            $('#buscadorProductosEditar').select2({
+                theme: 'bootstrap-5'
+            });
+
+            // 2. Select de vendedor
+            $('#select-vendedor1').select2({
+                theme: 'bootstrap-5'
+            });
+
+            // 3. Cualquier OTRO .select2-pagina que NO sean los dos anteriores
+            $('.select2-pagina').not('#buscadorProductosEditar, #select-vendedor1').each(function () {
+                $(this).select2({
+                    theme: 'bootstrap-5'
+                });
+            });
 
             const almacenId = getAlmacenId();
 
@@ -611,7 +678,9 @@
                     return esPublico ? String(c.almacen_id) === String(almacenId) : true;
                 });
 
+                // 1. Construir opciones con data-*
                 const fragment = document.createDocumentFragment();
+
                 const first = document.createElement('option');
                 first.value = '';
                 first.textContent = '-- Seleccione un cliente --';
@@ -620,12 +689,62 @@
                 filtrados.forEach(c => {
                     const opt = document.createElement('option');
                     opt.value = c.id;
-                    opt.textContent = c.nombre_comercial;
+                    opt.textContent = c.nombre_comercial || '';
+                    opt.dataset.nombre = c.nombre_comercial || '';
+                    opt.dataset.razonSocial = c.razon_social || '';
+                    opt.dataset.contacto = c.contacto || '';
                     fragment.appendChild(opt);
                 });
 
                 select.replaceChildren(fragment);
 
+                // 2. Destruir Select2 previo si existe
+                if ($(select).hasClass('select2-hidden-accessible')) {
+                    $(select).select2('destroy');
+                }
+
+                // 3. Inicializar Select2 con width: 'resolve' (respeta el input-group)
+                $(select).select2({
+                    theme: 'bootstrap-5',
+                    width: 'resolve',   // 🔥 clave para que no se expanda al 100%
+                    templateResult: function (state) {
+                        if (!state.id) return state.text;
+
+                        const $opt = $(state.element);
+                        const nombre = $opt.data('nombre') || state.text || '';
+                        const razonSocial = $opt.data('razonSocial') || '';
+                        const contacto = $opt.data('contacto') || '';
+
+                        // Si no hay datos extra, solo el nombre
+                        if (!razonSocial && !contacto) {
+                            return $(`<span class="fw-semibold">${nombre}</span>`);
+                        }
+
+                        // Con datos extra: nombre arriba, razón + contacto abajo
+                        return $(`
+                    <div class="d-flex flex-column">
+                        <span class="fw-semibold ">${nombre}</span>
+                        <div class="d-flex justify-content-between align-items-center gap-2 mt-1">
+                            <small class=" text-truncate" style="max-width:65%;">
+                                ${razonSocial || ''}
+                            </small>
+                            <small class=" fw-semibold text-nowrap">
+                                ${contacto ? `👤 ${contacto}` : ''}
+                            </small>
+                        </div>
+                    </div>
+                `);
+                    },
+                    templateSelection: function (state) {
+                        if (!state.id) return state.text;
+
+                        // 🔥 Solo el nombre en el select cerrado
+                        const $opt = $(state.element);
+                        return $opt.data('nombre') || state.text;
+                    }
+                });
+
+                // 4. Autoseleccionar el primero
                 if (filtrados.length) {
                     $cliente().val(filtrados[0].id).trigger('change');
                 }
@@ -634,9 +753,7 @@
                 err('[cargarClientes]', e);
                 select.innerHTML = '<option value="">Error al cargar clientes</option>';
             }
-        }
-
-        /* =========================================================
+        }       /* =========================================================
            PRODUCTOS
            ========================================================= */
         async function recargarProductosEditar() {
@@ -746,14 +863,13 @@
             <td>
                 <select name="itemsEditar[${id}][unidad]"
                     class="form-select unidad-select-editar">
-                    <option value="" data-equivalencia="" data-medida-id="">Seleccione</option>
                     ${opcionesUnidad}
                 </select>
             </td>
             <td>
                 <select name="itemsEditar[${id}][tipoPrecio]"
                     class="form-select tipoPrecio-select-editar">
-                    <option value="seleccionar" data-precio="0">Seleccione</option>
+                     <option value="seleccionar" data-precio="0">Seleccione</option>
                     <option value="minorista"    data-precio="${preMin}">Min $${(preMin * factor).toFixed(2)} x ${d.ur}</option>
                     <option value="mayorista"    data-precio="${preMat}">May $${(preMat * factor).toFixed(2)} x ${d.ur}</option>
                     <option value="distribuidor" data-precio="${preDis}">Dis $${(preDis * factor).toFixed(2)} x ${d.ur}</option>
@@ -763,10 +879,12 @@
                 <input type="number" lang="en-US"
                     name="itemsEditar[${id}][precioUnitario]"
                     class="form-control precio-unitario-editar"
+                    onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductosEditar').select2('open'); }"
                     step="0.01" min="0" placeholder="0.00" required>
             </td>
             <td style="min-width:140px;">
                 <input type="number" lang="en-US"
+                    onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductosEditar').select2('open'); }"
                     name="itemsEditar[${id}][precio]"
                     class="form-control precio-total-editar fw-bold text-success"
                     step="0.01" min="0" placeholder="0.00"
@@ -782,10 +900,37 @@
         </tr>
     `);
 
-            $(this).val(null).trigger('change');
-        });
+            // 🔥 Enfocar el input de cantidad de ESTA fila
+            const $fila = $(`#filaEditar-${id}`);
+            const $cantidad = $fila.find('.cantidad-editar');
 
-        /* =========================================================
+            if ($cantidad.length) {
+                const inputCantidad = $cantidad[0];
+
+                // Enfocar
+                inputCantidad.focus();
+
+                // Seleccionar el contenido para que el usuario escriba directamente
+                inputCantidad.select();
+
+                // Resaltar visualmente para que el usuario sepa dónde está
+                $cantidad.css({
+                    'box-shadow': '0 0 0 3px rgba(37, 99, 235, 0.25)',
+                    'border-color': '#2563eb',
+                    'transition': 'all 0.3s'
+                });
+
+                setTimeout(() => {
+                    $cantidad.css({
+                        'box-shadow': '',
+                        'border-color': '',
+                        'transition': 'all 0.3s'
+                    });
+                }, 1500);
+            }
+
+            $(this).val(null).trigger('change');
+        });  /* =========================================================
            CÁLCULOS
            ========================================================= */
         function calcularTotalSolEditar(input) {

@@ -10,7 +10,8 @@
                         </div>
                         <div>
                             <h4 class="fw-bold mb-0">Nueva Solicitud de Compra</h4>
-                            <p class="text-body-secondary small mb-0">Complete los datos para requerir materiales al almacén</p>
+                            <p class="text-body-secondary small mb-0">Complete los datos para requerir materiales al
+                                almacén</p>
                         </div>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -22,48 +23,53 @@
 
                         <!-- 1. Almacén de Cargo -->
                         <div class="col-md-6 col-lg-4 min-w-0">
-                            <label for="almacen_id" class="form-label form-label-custom mb-1 text-uppercase tracking-wider">
+                            <label for="almacen_id"
+                                class="form-label form-label-custom mb-1 text-uppercase tracking-wider">
                                 <i class="bi bi-box-seam me-1 text-primary"></i> Almacén de Cargo
                             </label>
 
                             <?php $es_admin = ($_SESSION['rol_id'] == 1); ?>
 
                             <div class="input-group input-group-fixed flex-nowrap w-100">
-                                <select id="almacen_id" name="<?= $es_admin ? 'almacen_id' : 'almacen_id_cabecera_visual' ?>"
+                                <select id="almacen_id" onchange="recargarProductos()"
+                                    name="<?= $es_admin ? 'almacen_id' : 'almacen_id_cabecera_visual' ?>"
                                     class="form-select border-slate-200 control-fixed-height <?= !$es_admin ? '' : '' ?>"
                                     <?= !$es_admin ? 'disabled' : '' ?> required>
 
-                                    
 
-                                    <?php foreach($almacenes as $a): ?>
-                                        <option value="<?= $a['id'] ?>"
-                                            <?= ($a['id'] == $_SESSION['almacen_id']) ? 'selected' : '' ?>>
+
+                                    <?php foreach ($almacenes as $a): ?>
+                                        <option value="<?= $a['id'] ?>" <?= ($a['id'] == $_SESSION['almacen_id']) ? 'selected' : '' ?>>
                                             <?= $a['nombre'] ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
 
                                 <?php if (!$es_admin): ?>
-                                    <span class="input-group-text  text-body-secondary border-slate-200 control-fixed-height flex-shrink-0">
+                                    <span
+                                        class="input-group-text  text-body-secondary border-slate-200 control-fixed-height flex-shrink-0">
                                         <i class="bi bi-lock-fill"></i>
                                     </span>
                                 <?php endif; ?>
                             </div>
 
-                          
+
                         </div>
 
                         <!-- 2. Proveedor Sugerido -->
                         <div class="col-md-6 col-lg-4 min-w-0">
-                            <label for="proveedor_id" class="form-label form-label-custom mb-1 text-uppercase tracking-wider">
+                            <label for="proveedor_id"
+                                class="form-label form-label-custom mb-1 text-uppercase tracking-wider">
                                 <i class="bi bi-truck me-1 text-primary"></i> Proveedor Sugerido
                             </label>
                             <div class="input-group input-group-fixed flex-nowrap w-100">
-                                <select name="proveedor_id" id="proveedor_id" class="form-select select2-modal border-slate-200" required>
+                                <select name="proveedor_id" id="proveedor_id"
+                                    class="form-select select2-modal border-slate-200" required>
                                     <option value="">Seleccionar proveedor...</option>
-                                    
+
                                 </select>
-                                <button class="btn btn-outline-success px-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                                <button
+                                    class="btn btn-outline-success px-3 d-flex align-items-center justify-content-center flex-shrink-0"
                                     type="button" onclick="abrirModalNuevoProveedor()" title="Nuevo Proveedor">
                                     <i class="bi bi-plus-lg"></i>
                                 </button>
@@ -72,15 +78,17 @@
 
                         <!-- 3. Añadir Producto -->
                         <div class="col-md-12 col-lg-4 min-w-0">
-                            <label for="buscadorProductos" class="form-label form-label-custom mb-1 text-uppercase tracking-wider">
+                            <label for="buscadorProductos"
+                                class="form-label form-label-custom mb-1 text-uppercase tracking-wider">
                                 <i class="bi bi-search me-1 text-primary"></i> Añadir Producto
                             </label>
                             <div class="input-group input-group-fixed flex-nowrap w-100">
                                 <select id="buscadorProductos" class="form-select select2-modal border-slate-200">
                                     <option value="">Escribe SKU o nombre...</option>
-                                   
+
                                 </select>
-                                <button type="button" class="btn btn-primary d-flex align-items-center justify-content-center px-3 flex-shrink-0"
+                                <button type="button"
+                                    class="btn btn-primary d-flex align-items-center justify-content-center px-3 flex-shrink-0"
                                     onclick="abrirModalProducto()" title="Agregar nuevo producto">
                                     <i class="bi bi-plus-lg me-1"></i>
                                     <span class="fw-medium">Nuevo</span>
@@ -91,7 +99,7 @@
                     </div>
 
                     <!-- Tabla de Detalle -->
-                     <div class="table-responsive border rounded-4 ">
+                    <div class="table-responsive border rounded-4 ">
                         <table class="table align-middle mb-0" id="tablaDetalle">
                             <thead class="">
                                 <tr class="text-body-secondary small uppercase">
@@ -120,10 +128,12 @@
                     <!-- Resumen del Total -->
                     <div class="d-flex justify-content-end align-items-center mt-4">
                         <div class="bg-dark bg-gradient text-white p-3 rounded-4 shadow-sm text-end px-4 min-w-200">
-                            <small class="d-block text-white-50 fw-bold text-uppercase tracking-wider mb-1" style="font-size: 0.65rem; letter-spacing: 0.8px;">
+                            <small class="d-block text-white-50 fw-bold text-uppercase tracking-wider mb-1"
+                                style="font-size: 0.65rem; letter-spacing: 0.8px;">
                                 Costo Total de Compra
                             </small>
-                            <div id="costoTotalCompra" class="fw-bolder text-success" style="font-size: 2rem; line-height: 1;">
+                            <div id="costoTotalCompra" class="fw-bolder text-success"
+                                style="font-size: 2rem; line-height: 1;">
                                 $0.00
                             </div>
                         </div>
@@ -132,10 +142,12 @@
 
                 <!-- Footer -->
                 <div class="modal-footer  p-4  d-flex justify-content-between align-items-center">
-                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold"
+                        data-bs-dismiss="modal">
                         Cancelar
                     </button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-5 py-2.5 fw-bold shadow-sm d-flex align-items-center">
+                    <button type="submit"
+                        class="btn btn-primary rounded-pill px-5 py-2.5 fw-bold shadow-sm d-flex align-items-center">
                         <i class="bi bi-check2-circle fs-5 me-2"></i> Confirmar Solicitud
                     </button>
                 </div>
@@ -145,285 +157,285 @@
 </div>
 
 <style>
-/* Ampliación del Modal */
-@media (min-width: 1200px) {
-    .modal-dialog-custom {
-        max-width: 92% !important;
+    /* Ampliación del Modal */
+    @media (min-width: 1200px) {
+        .modal-dialog-custom {
+            max-width: 92% !important;
+        }
     }
-}
 
-:root {
-    --control-height: 42px;
-    --border-color: #dee2e6;
-    --bg-input: #ffffff;
-}
+    :root {
+        --control-height: 42px;
+        --border-color: #dee2e6;
+        --bg-input: #ffffff;
+    }
 
-.min-w-0 {
-    min-width: 0 !important;
-}
+    .min-w-0 {
+        min-width: 0 !important;
+    }
 
-.min-w-200 {
-    min-width: 200px;
-}
+    .min-w-200 {
+        min-width: 200px;
+    }
 
-.form-label-custom {
-    font-size: 0.72rem !important;
-    font-weight: 600 !important;
-    color: #6c757d !important;
-    letter-spacing: 0.5px !important;
-}
+    .form-label-custom {
+        font-size: 0.72rem !important;
+        font-weight: 600 !important;
+        color: #6c757d !important;
+        letter-spacing: 0.5px !important;
+    }
 
-/* Forzar límites en Input Groups */
-.input-group-fixed {
-    width: 100% !important;
-    max-width: 100% !important;
-}
+    /* Forzar límites en Input Groups */
+    .input-group-fixed {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
 
-.input-group-fixed .select2-container {
-    flex: 1 1 auto !important;
-    width: 1% !important;
-    min-width: 0 !important;
-}
+    .input-group-fixed .select2-container {
+        flex: 1 1 auto !important;
+        width: 1% !important;
+        min-width: 0 !important;
+    }
 
-/* Alturas homogéneas */
-.control-fixed-height,
-.modal-body .form-select,
-.modal-body .input-group-fixed .btn {
-    height: var(--control-height) !important;
-}
+    /* Alturas homogéneas */
+    .control-fixed-height,
+    .modal-body .form-select,
+    .modal-body .input-group-fixed .btn {
+        height: var(--control-height) !important;
+    }
 
-/* Reglas estrictas Select2 */
-.modal-body .select2-container--bootstrap-5 .select2-selection,
-.modal-body .select2-container .select2-selection--single {
-    height: var(--control-height) !important;
-   
-    border-color: var(--border-color) !important;
-    border-radius: 0.375rem !important;
-    display: flex !important;
-    align-items: center !important;
-    font-size: 0.875rem !important;
-    width: 100% !important;
-    max-width: 100% !important;
-}
+    /* Reglas estrictas Select2 */
+    .modal-body .select2-container--bootstrap-5 .select2-selection,
+    .modal-body .select2-container .select2-selection--single {
+        height: var(--control-height) !important;
 
-.modal-body .select2-container .select2-selection--single .select2-selection__rendered {
-    line-height: calc(var(--control-height) - 2px) !important;
-    color: #212529 !important;
-    padding-left: 0.75rem !important;
-    padding-right: 1.75rem !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    width: 100% !important;
-}
+        border-color: var(--border-color) !important;
+        border-radius: 0.375rem !important;
+        display: flex !important;
+        align-items: center !important;
+        font-size: 0.875rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
 
-/* Tabla Fija */
-.table-fixed {
-    table-layout: fixed !important;
-    width: 100% !important;
-}
+    .modal-body .select2-container .select2-selection--single .select2-selection__rendered {
+        line-height: calc(var(--control-height) - 2px) !important;
+        color: #212529 !important;
+        padding-left: 0.75rem !important;
+        padding-right: 1.75rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        width: 100% !important;
+    }
+
+    /* Tabla Fija */
+    .table-fixed {
+        table-layout: fixed !important;
+        width: 100% !important;
+    }
 </style>
 
 <script>
-const URL_CONTROLADOR = '/myvet/app/controllers/solicitudesCompraController.php';
+    const URL_CONTROLADOR = '/myvet/app/controllers/solicitudesCompraController.php';
 
-// =====================================================
-// SELECT2
-// =====================================================
+    // =====================================================
+    // SELECT2
+    // =====================================================
 
-$('.select2-modal').select2({
-    theme: 'bootstrap-5',
-    dropdownParent: $('#modalSolicitud')
-});
-
-// =====================================================
-// CALCULAR TOTAL
-// =====================================================
-
-function refrescarListaProveedores() {
-    let almacen = $('#almacen_id').val();
-    let $proveedorSelect = $('#proveedor_id'); // Referencia al elemento jQuery
-    
-    if (!almacen) return;
-
-    $.get(`/myvet/app/controllers/egresosController.php?action=getProveedoresJSONAlmacen&almacen=${almacen}`, function(data) {
-        
-        // 1. Extraer correctamente el array de proveedores
-        let proveedores = [];
-        if (Array.isArray(data)) {
-            proveedores = data;
-        } else if (data && typeof data === 'object' && Array.isArray(data.data)) {
-            proveedores = data.data; // Si el JSON viene dentro de la propiedad data
-        }
-
-        // 2. Actualizar la variable global si existe
-     
-
-        // 3. Construir la lista de opciones
-        let htmlOptions = '<option value="">Seleccione un proveedor</option>';
-        
-        if (proveedores.length > 0) {
-            proveedores.forEach(p => {
-                htmlOptions += `<option value="${p.id}" >${p.nombre_comercial}</option>`;
-            });
-        } else {
-            console.warn("No se encontraron proveedores para este almacén.");
-        }
-
-        // 4. INYECTAR EL HTML EN EL SELECT EN EL DOM
-        $proveedorSelect.html(htmlOptions);
-
-    }, 'json').fail(function(e) {
-        console.error("Error al obtener proveedores:", e.responseText);
+    $('.select2-modal').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#modalSolicitud')
     });
-}
-// 🔥 EVITAR LOOPS
-let recalculandoFila = false;
-let totaLCompra;
 
-function calcularTotalSol(input) {
+    // =====================================================
+    // CALCULAR TOTAL
+    // =====================================================
 
-    if (recalculandoFila) return;
+    function refrescarListaProveedores() {
+        let almacen = $('#almacen_id').val();
+        let $proveedorSelect = $('#proveedor_id'); // Referencia al elemento jQuery
 
-    recalculandoFila = true;
+        if (!almacen) return;
 
-    try {
+        $.get(`/myvet/app/controllers/egresosController.php?action=getProveedoresJSONAlmacen&almacen=${almacen}`, function (data) {
 
-        const fila = input.closest('tr');
+            // 1. Extraer correctamente el array de proveedores
+            let proveedores = [];
+            if (Array.isArray(data)) {
+                proveedores = data;
+            } else if (data && typeof data === 'object' && Array.isArray(data.data)) {
+                proveedores = data.data; // Si el JSON viene dentro de la propiedad data
+            }
 
-        const cantidad = parseFloat(
-            fila.querySelector('.cantidad').value
-        ) || 0;
+            // 2. Actualizar la variable global si existe
 
-        const precioUnitario = parseFloat(
-            fila.querySelector('.precio-unitario').value
-        ) || 0;
 
-        // =====================================
-        // CALCULAR TOTAL
-        // =====================================
+            // 3. Construir la lista de opciones
+            let htmlOptions = '<option value="">Seleccione un proveedor</option>';
 
-        const precioTotal =
-            cantidad * precioUnitario;
-        console.log(precioTotal);
+            if (proveedores.length > 0) {
+                proveedores.forEach(p => {
+                    htmlOptions += `<option value="${p.id}" >${p.nombre_comercial}</option>`;
+                });
+            } else {
+                console.warn("No se encontraron proveedores para este almacén.");
+            }
 
-        fila.querySelector('.precio-total').value =
-            precioTotal.toFixed(2);
+            // 4. INYECTAR EL HTML EN EL SELECT EN EL DOM
+            $proveedorSelect.html(htmlOptions);
 
-        // =====================================
-        // SUMAR TODO
-        // =====================================
-
-        totaLCompra = 0;
-        console.log('hola');
-
-        document.querySelectorAll('.precio-total')
-            .forEach(el => {
-
-                totaLCompra +=
-                    parseFloat(el.value) || 0;
-            });
-        const cT = document.getElementById('costoTotalCompra');
-        console.log(cT);
-
-        cT.textContent = totaLCompra.toLocaleString('es-MX', {
-            style: 'currency',
-            currency: 'MXN'
+        }, 'json').fail(function (e) {
+            console.error("Error al obtener proveedores:", e.responseText);
         });
-
-        console.log(totaLCompra);
-        console.log(totaLCompra);
-
-    } finally {
-
-        recalculandoFila = false;
     }
-}
-// =====================================================
-// AGREGAR PRODUCTO
-// =====================================================
-async function recargarProductos() {
+    // 🔥 EVITAR LOOPS
+    let recalculandoFila = false;
+    let totaLCompra;
 
-    try {
-        const id = document.getElementById('almacen_id').value;
-       
+    function calcularTotalSol(input) {
 
-        if (!id) return;
+        if (recalculandoFila) return;
 
-        const resp = await fetch(
-            `/myvet/app/controllers/accesoController.php?action=obtenerProductosAlmacen&id=${id}`
-        );
+        recalculandoFila = true;
 
-        const res = await resp.json();
-        console.log(res);
+        try {
 
-        if (!res.success) {
-            throw new Error(res.message);
+            const fila = input.closest('tr');
+
+            const cantidad = parseFloat(
+                fila.querySelector('.cantidad').value
+            ) || 0;
+
+            const precioUnitario = parseFloat(
+                fila.querySelector('.precio-unitario').value
+            ) || 0;
+
+            // =====================================
+            // CALCULAR TOTAL
+            // =====================================
+
+            const precioTotal =
+                cantidad * precioUnitario;
+            console.log(precioTotal);
+
+            fila.querySelector('.precio-total').value =
+                precioTotal.toFixed(2);
+
+            // =====================================
+            // SUMAR TODO
+            // =====================================
+
+            totaLCompra = 0;
+            console.log('hola');
+
+            document.querySelectorAll('.precio-total')
+                .forEach(el => {
+
+                    totaLCompra +=
+                        parseFloat(el.value) || 0;
+                });
+            const cT = document.getElementById('costoTotalCompra');
+            console.log(cT);
+
+            cT.textContent = totaLCompra.toLocaleString('es-MX', {
+                style: 'currency',
+                currency: 'MXN'
+            });
+
+            console.log(totaLCompra);
+            console.log(totaLCompra);
+
+        } finally {
+
+            recalculandoFila = false;
         }
+    }
+    // =====================================================
+    // AGREGAR PRODUCTO
+    // =====================================================
+    async function recargarProductos() {
 
-        const select = document.getElementById('buscadorProductos');
+        try {
+            const id = document.getElementById('almacen_id').value;
 
-        // 🔥 limpiar opciones
-        select.innerHTML = `
+
+            if (!id) return;
+
+            const resp = await fetch(
+                `/myvet/app/controllers/accesoController.php?action=obtenerProductosAlmacen&id=${id}`
+            );
+
+            const res = await resp.json();
+            console.log(res);
+
+            if (!res.success) {
+                throw new Error(res.message);
+            }
+
+            const select = document.getElementById('buscadorProductos');
+
+            // 🔥 limpiar opciones
+            select.innerHTML = `
             <option value="">
                 Escribe para buscar...
             </option>
         `;
 
-        // 🔥 volver a llenar
-        res.data.forEach(pr => {
+            // 🔥 volver a llenar
+            res.data.forEach(pr => {
 
-            const option = document.createElement('option');
+                const option = document.createElement('option');
 
-            option.value = pr.producto_id;
+                option.value = pr.producto_id;
 
-            option.dataset.nombre = pr.nombre;
-            option.dataset.sku = pr.sku;
-            option.dataset.um = pr.unidad_medida;
-            option.dataset.ur = pr.unidad_reporte;
-            option.dataset.factor = pr.factor_conversion || 1;
+                option.dataset.nombre = pr.nombre;
+                option.dataset.sku = pr.sku;
+                option.dataset.um = pr.unidad_medida;
+                option.dataset.ur = pr.unidad_reporte;
+                option.dataset.factor = pr.factor_conversion || 1;
 
-            option.textContent =
-                `[${pr.sku}] ${pr.nombre}`;
+                option.textContent =
+                    `[${pr.sku}] ${pr.nombre}`;
 
-            select.appendChild(option);
+                select.appendChild(option);
 
-        });
+            });
 
-    } catch (e) {
+        } catch (e) {
 
-        console.error(e);
+            console.error(e);
 
-        Swal.fire(
-            'Error',
-            'No se pudo actualizar la lista de productos',
-            'error'
-        );
+            Swal.fire(
+                'Error',
+                'No se pudo actualizar la lista de productos',
+                'error'
+            );
+        }
+        $('#buscadorProductos').trigger('change.select2');
     }
-    $('#buscadorProductos').trigger('change.select2');
-}
-$('#buscadorProductos').on('select2:select', function(e) {
+    $('#buscadorProductos').on('select2:select', function (e) {
 
-    const d = e.params.data.element.dataset;
+        const d = e.params.data.element.dataset;
 
-    const id = $(this).val();
+        const id = $(this).val();
 
-    // VALIDAR DUPLICADO
-    if ($(`#fila-${id}`).length) {
+        // VALIDAR DUPLICADO
+        if ($(`#fila-${id}`).length) {
 
-        Swal.fire(
-            'Aviso',
-            'El producto ya está en la lista',
-            'info'
-        );
+            Swal.fire(
+                'Aviso',
+                'El producto ya está en la lista',
+                'info'
+            );
 
-        return;
-    }
+            return;
+        }
 
-    $('#emptyState').addClass('d-none');
+        $('#emptyState').addClass('d-none');
 
-    // AGREGAR FILA
-    $('#tablaDetalle tbody').append(`
+        // AGREGAR FILA
+        $('#tablaDetalle tbody').append(`
 
         <tr id="fila-${id}">
 
@@ -473,6 +485,7 @@ $('#buscadorProductos').on('select2:select', function(e) {
         min="0"
         placeholder="0.00"
         required
+         onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductos').select2('open'); }"
         oninput="calcularTotalSol(this, 'unitario')"
     >
 </td>
@@ -489,6 +502,7 @@ $('#buscadorProductos').on('select2:select', function(e) {
         min="0"
         placeholder="0.00"
         oninput="calcularTotalSol(this, 'total')"
+         onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductos').select2('open'); }"
         style="
             font-size:1.1rem;
             height:45px;
@@ -511,186 +525,186 @@ $('#buscadorProductos').on('select2:select', function(e) {
         </tr>
     `);
 
-    // LIMPIAR SELECT
-    $(this).val(null).trigger('change');
-});
-
-// =====================================================
-// GUARDAR SOLICITUD
-// =====================================================
-
-$('#formSolicitud').on('submit', async function(e) {
-
-    e.preventDefault();
-
-    if (!$('#tablaDetalle tbody tr').length) {
-
-        Swal.fire(
-            'Error',
-            'Agregue productos',
-            'warning'
-        );
-
-        return;
-    }
-
-    Swal.fire({
-        title: 'Guardando...',
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading()
+        // LIMPIAR SELECT
+        $(this).val(null).trigger('change');
     });
 
-    try {
+    // =====================================================
+    // GUARDAR SOLICITUD
+    // =====================================================
 
-        const resp = await fetch(
-            `${URL_CONTROLADOR}?action=guardar`, {
-                method: 'POST',
-                body: new FormData(this)
-            }
-        );
+    $('#formSolicitud').on('submit', async function (e) {
 
-        const res = await resp.json();
+        e.preventDefault();
 
-        if (res.status === 'success') {
-    await Swal.fire({
-        icon: 'success',
-        title: '¡Éxito!',
-        text: res.message,
-        // 1. Eliminamos 'timer' para que la alerta no se cierre sola
-        showDenyButton: true,
-        showCancelButton: true,
-        confirmButtonText: 'IMPRIMIR',
-        denyButtonText: 'SALIR',
-        cancelButtonText: 'Cerrar',
-        confirmButtonColor: '#34c759',
-        denyButtonColor: '#5856d6',
-        customClass: {
-            popup: 'rounded-4  shadow-lg'
-        }
-    }).then((result) => {
-        let url = '';
-        
-        if (result.isConfirmed) {
-            $('#modalSolicitud').modal('hide');
-            prepararImpresion(res.id);
-
-    setTimeout(() => {
-        ejecutarImpresion();
-        cargarSolicitudes();
-    }, 500);
-        } else if (result.isDenied) {
-            url = `/myvet/app/controllers/solicitudesCompraController.php`;
-        }
-
-        // Si se seleccionó una opción válida, abre la pestaña
-        if (url !== '') {
-            window.open(url, '_blank');
-        }
-        
-        // Finalmente recarga la página actual
-      
-    });
-} else {
+        if (!$('#tablaDetalle tbody tr').length) {
 
             Swal.fire(
                 'Error',
-                res.message,
-                'error'
+                'Agregue productos',
+                'warning'
             );
+
+            return;
         }
 
-    } catch (e) {
+        Swal.fire({
+            title: 'Guardando...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
 
-        Swal.fire(
-            'Error',
-            'Fallo de conexión',
-            'error'
-        );
-    }
-});
+        try {
 
-// =====================================================
-// CONVERTIR A COMPRA
-// =====================================================
-
-$('#formConvertirCompra').on('submit', async function(e) {
-
-    e.preventDefault();
-
-    Swal.fire({
-        title: 'Procesando ingreso...',
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading()
-    });
-
-    try {
-
-        const resp = await fetch(
-            `${URL_CONTROLADOR}?action=convertirACompra`, {
+            const resp = await fetch(
+                `${URL_CONTROLADOR}?action=guardar`, {
                 method: 'POST',
                 body: new FormData(this)
             }
-        );
+            );
 
-        const res = await resp.json();
+            const res = await resp.json();
 
-        if (res.status === 'success') {
+            if (res.status === 'success') {
+                await Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: res.message,
+                    // 1. Eliminamos 'timer' para que la alerta no se cierre sola
+                    showDenyButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: 'IMPRIMIR',
+                    denyButtonText: 'SALIR',
+                    cancelButtonText: 'Cerrar',
+                    confirmButtonColor: '#34c759',
+                    denyButtonColor: '#5856d6',
+                    customClass: {
+                        popup: 'rounded-4  shadow-lg'
+                    }
+                }).then((result) => {
+                    let url = '';
 
-            await Swal.fire({
-                icon: 'success',
-                title: 'Ingresado',
-                text: res.message
-            });
+                    if (result.isConfirmed) {
+                        $('#modalSolicitud').modal('hide');
+                        prepararImpresion(res.id);
 
-            location.reload();
+                        setTimeout(() => {
+                            ejecutarImpresion();
+                            cargarSolicitudes();
+                        }, 500);
+                    } else if (result.isDenied) {
+                        url = `/myvet/app/controllers/solicitudesCompraController.php`;
+                    }
 
-        } else {
+                    // Si se seleccionó una opción válida, abre la pestaña
+                    if (url !== '') {
+                        window.open(url, '_blank');
+                    }
+
+                    // Finalmente recarga la página actual
+
+                });
+            } else {
+
+                Swal.fire(
+                    'Error',
+                    res.message,
+                    'error'
+                );
+            }
+
+        } catch (e) {
 
             Swal.fire(
                 'Error',
-                res.message,
+                'Fallo de conexión',
                 'error'
             );
         }
+    });
 
-    } catch (e) {
+    // =====================================================
+    // CONVERTIR A COMPRA
+    // =====================================================
 
-        Swal.fire(
-            'Error',
-            'Fallo de conexión',
-            'error'
-        );
+    $('#formConvertirCompra').on('submit', async function (e) {
+
+        e.preventDefault();
+
+        Swal.fire({
+            title: 'Procesando ingreso...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        try {
+
+            const resp = await fetch(
+                `${URL_CONTROLADOR}?action=convertirACompra`, {
+                method: 'POST',
+                body: new FormData(this)
+            }
+            );
+
+            const res = await resp.json();
+
+            if (res.status === 'success') {
+
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Ingresado',
+                    text: res.message
+                });
+
+                location.reload();
+
+            } else {
+
+                Swal.fire(
+                    'Error',
+                    res.message,
+                    'error'
+                );
+            }
+
+        } catch (e) {
+
+            Swal.fire(
+                'Error',
+                'Fallo de conexión',
+                'error'
+            );
+        }
+    });
+
+    // =====================================================
+    // ELIMINAR FILA
+    // =====================================================
+
+    function quitarFila(id) {
+
+        $(`#fila-${id}`).remove();
+
+        if (!$('#tablaDetalle tbody tr').length) {
+
+            $('#emptyState').removeClass('d-none');
+        }
     }
-});
 
-// =====================================================
-// ELIMINAR FILA
-// =====================================================
+    // =====================================================
+    // NUEVA SOLICITUD
+    // =====================================================
 
-function quitarFila(id) {
+    function nuevaSolicitud() {
 
-    $(`#fila-${id}`).remove();
+        $('#formSolicitud')[0].reset();
 
-    if (!$('#tablaDetalle tbody tr').length) {
+        $('#tablaDetalle tbody').empty();
 
         $('#emptyState').removeClass('d-none');
+
+        $('#modalSolicitud').modal('show');
+        recargarProductos();
+        refrescarListaProveedores();
     }
-}
-
-// =====================================================
-// NUEVA SOLICITUD
-// =====================================================
-
-function nuevaSolicitud() {
-
-    $('#formSolicitud')[0].reset();
-
-    $('#tablaDetalle tbody').empty();
-
-    $('#emptyState').removeClass('d-none');
-
-    $('#modalSolicitud').modal('show');
-    recargarProductos();
-    refrescarListaProveedores();
-}
 </script>
