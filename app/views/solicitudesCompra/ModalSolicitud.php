@@ -236,475 +236,344 @@
     }
 </style>
 
+
 <script>
-    const URL_CONTROLADOR = '/myvet/app/controllers/solicitudesCompraController.php';
+    (function () {
+        'use strict';
 
-    // =====================================================
-    // SELECT2
-    // =====================================================
+        const URL_CONTROLADOR = '/myvet/app/controllers/solicitudesCompraController.php';
+        const URL_ACCESO = '/myvet/app/controllers/accesoController.php';
+        const URL_EGRESOS = '/myvet/app/controllers/egresosController.php';
 
-    $('.select2-modal').select2({
-        theme: 'bootstrap-5',
-        dropdownParent: $('#modalSolicitud')
-    });
+        let recalculandoFila = false;
 
-    // =====================================================
-    // CALCULAR TOTAL
-    // =====================================================
+        function log(...args) {
+            console.log('[SOL-COMPRA]', ...args);
+        }
 
-    function refrescarListaProveedores() {
-        let almacen = $('#almacen_id').val();
-        let $proveedorSelect = $('#proveedor_id'); // Referencia al elemento jQuery
+        // =====================================================
+        // SELECT2 (inicialización única en shown.bs.modal)
+        // =====================================================
+        $(document).on('shown.bs.modal', '#modalSolicitud', function () {
 
-        if (!almacen) return;
-
-        $.get(`/myvet/app/controllers/egresosController.php?action=getProveedoresJSONAlmacen&almacen=${almacen}`, function (data) {
-
-            // 1. Extraer correctamente el array de proveedores
-            let proveedores = [];
-            if (Array.isArray(data)) {
-                proveedores = data;
-            } else if (data && typeof data === 'object' && Array.isArray(data.data)) {
-                proveedores = data.data; // Si el JSON viene dentro de la propiedad data
-            }
-
-            // 2. Actualizar la variable global si existe
-
-
-            // 3. Construir la lista de opciones
-            let htmlOptions = '<option value="">Seleccione un proveedor</option>';
-
-            if (proveedores.length > 0) {
-                proveedores.forEach(p => {
-                    htmlOptions += `<option value="${p.id}" >${p.nombre_comercial}</option>`;
-                });
-            } else {
-                console.warn("No se encontraron proveedores para este almacén.");
-            }
-
-            // 4. INYECTAR EL HTML EN EL SELECT EN EL DOM
-            $proveedorSelect.html(htmlOptions);
-
-        }, 'json').fail(function (e) {
-            console.error("Error al obtener proveedores:", e.responseText);
-        });
-    }
-    // 🔥 EVITAR LOOPS
-    let recalculandoFila = false;
-    let totaLCompra;
-
-    function calcularTotalSol(input) {
-
-        if (recalculandoFila) return;
-
-        recalculandoFila = true;
-
-        try {
-
-            const fila = input.closest('tr');
-
-            const cantidad = parseFloat(
-                fila.querySelector('.cantidad').value
-            ) || 0;
-
-            const precioUnitario = parseFloat(
-                fila.querySelector('.precio-unitario').value
-            ) || 0;
-
-            // =====================================
-            // CALCULAR TOTAL
-            // =====================================
-
-            const precioTotal =
-                cantidad * precioUnitario;
-            console.log(precioTotal);
-
-            fila.querySelector('.precio-total').value =
-                precioTotal.toFixed(2);
-
-            // =====================================
-            // SUMAR TODO
-            // =====================================
-
-            totaLCompra = 0;
-            console.log('hola');
-
-            document.querySelectorAll('.precio-total')
-                .forEach(el => {
-
-                    totaLCompra +=
-                        parseFloat(el.value) || 0;
-                });
-            const cT = document.getElementById('costoTotalCompra');
-            console.log(cT);
-
-            cT.textContent = totaLCompra.toLocaleString('es-MX', {
-                style: 'currency',
-                currency: 'MXN'
+            // Destruir Select2 previo si existe
+            ['#proveedor_id', '#buscadorProductos'].forEach(sel => {
+                if ($(sel).hasClass('select2-hidden-accessible')) {
+                    $(sel).select2('destroy');
+                }
             });
 
-            console.log(totaLCompra);
-            console.log(totaLCompra);
+            $('#proveedor_id').select2({
+                theme: 'bootstrap-5',
+                dropdownParent: $('#modalSolicitud')
+            });
 
-        } finally {
+            $('#buscadorProductos').select2({
+                theme: 'bootstrap-5',
+                dropdownParent: $('#modalSolicitud')
+            });
 
-            recalculandoFila = false;
+            log('Select2 inicializado');
+        });
+
+        // =====================================================
+        // CARGAR PROVEEDORES
+        // =====================================================
+        function refrescarListaProveedores() {
+            const almacen = $('#almacen_id').val();
+            const $proveedorSelect = $('#proveedor_id');
+
+            if (!almacen) return;
+
+            $.get(`${URL_EGRESOS}?action=getProveedoresJSONAlmacen&almacen=${almacen}`, function (data) {
+                const proveedores = Array.isArray(data) ? data : (data.data || []);
+
+                const fragment = document.createDocumentFragment();
+                fragment.appendChild(new Option('Seleccione un proveedor', '', true, true));
+
+                proveedores.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = p.nombre_comercial;
+                    fragment.appendChild(opt);
+                });
+
+                $proveedorSelect.empty().append(fragment).trigger('change.select2');
+                log('Proveedores cargados:', proveedores.length);
+            }, 'json').fail(function (e) {
+                console.error('[SOL-COMPRA] Error proveedores:', e.responseText);
+            });
         }
-    }
-    // =====================================================
-    // AGREGAR PRODUCTO
-    // =====================================================
-    async function recargarProductos() {
 
-        try {
-            const id = document.getElementById('almacen_id').value;
+        // =====================================================
+        // CALCULAR TOTAL
+        // =====================================================
+        function calcularTotalSol(input) {
+            if (recalculandoFila) return;
+            recalculandoFila = true;
 
+            try {
+                const fila = input.closest('tr');
+                const cantidad = parseFloat(fila.querySelector('.cantidad')?.value) || 0;
+                const precioUnitario = parseFloat(fila.querySelector('.precio-unitario')?.value) || 0;
 
+                fila.querySelector('.precio-total').value = (cantidad * precioUnitario).toFixed(2);
+
+                let totalCompra = 0;
+                document.querySelectorAll('#tablaDetalle .precio-total').forEach(el => {
+                    totalCompra += parseFloat(el.value) || 0;
+                });
+
+                const cT = document.getElementById('costoTotalCompra');
+                if (cT) {
+                    cT.textContent = totalCompra.toLocaleString('es-MX', {
+                        style: 'currency',
+                        currency: 'MXN'
+                    });
+                }
+            } finally {
+                recalculandoFila = false;
+            }
+        }
+
+        // =====================================================
+        // CARGAR PRODUCTOS
+        // =====================================================
+        async function recargarProductos() {
+            const id = document.getElementById('almacen_id')?.value;
             if (!id) return;
 
-            const resp = await fetch(
-                `/myvet/app/controllers/accesoController.php?action=obtenerProductosAlmacen&id=${id}`
-            );
+            try {
+                const resp = await fetch(`${URL_ACCESO}?action=obtenerProductosAlmacen&id=${id}`);
+                const res = await resp.json();
 
-            const res = await resp.json();
-            console.log(res);
+                if (!res.success) throw new Error(res.message);
 
-            if (!res.success) {
-                throw new Error(res.message);
+                const select = document.getElementById('buscadorProductos');
+
+                const fragment = document.createDocumentFragment();
+                fragment.appendChild(new Option('Escribe para buscar...', '', true, true));
+
+                (res.data || []).forEach(pr => {
+                    const option = document.createElement('option');
+                    option.value = pr.producto_id;
+                    option.dataset.nombre = String(pr.nombre || '');
+                    option.dataset.sku = String(pr.sku || '');
+                    option.dataset.um = String(pr.unidad_medida || '');
+                    option.dataset.ur = String(pr.unidad_reporte || '');
+                    option.dataset.factor = pr.factor_conversion || 1;
+                    option.textContent = `[${pr.sku}] ${pr.nombre}`;
+                    fragment.appendChild(option);
+                });
+
+                select.replaceChildren(fragment);
+                $('#buscadorProductos').trigger('change.select2');
+
+                log('Productos cargados:', (res.data || []).length);
+
+            } catch (e) {
+                console.error('[SOL-COMPRA] Error productos:', e);
+                Swal.fire('Error', 'No se pudo actualizar la lista de productos', 'error');
+            }
+        }
+
+        // =====================================================
+        // AGREGAR PRODUCTO A LA TABLA
+        // =====================================================
+        $(document).on('select2:select', '#buscadorProductos', function (e) {
+            const d = e.params.data.element.dataset;
+            const id = $(this).val();
+
+            if ($(`#fila-${id}`).length) {
+                Swal.fire('Aviso', 'El producto ya está en la lista', 'info');
+                return;
             }
 
-            const select = document.getElementById('buscadorProductos');
+            $('#emptyState').addClass('d-none');
 
-            // 🔥 limpiar opciones
-            select.innerHTML = `
-            <option value="">
-                Escribe para buscar...
-            </option>
-        `;
+            $('#tablaDetalle tbody').append(`
+                <tr id="fila-${id}">
+                    <td class="ps-4">
+                        <b>${d.nombre}</b><br>
+                        <small class="text-body-secondary">${d.sku}</small>
+                    </td>
+                    <td>
+                        <input type="number" name="items[${id}][cant]" class="form-control cantidad"
+                            step="0.01" value="1" min="0.01" required oninput="calcularTotalSol(this)">
+                    </td>
+                    <td>
+                        <select name="items[${id}][unidad]" class="form-select unidad-select" onchange="calcularTotalSol(this)">
+                            <option value="1">(${d.ur})</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" lang="en-US" name="items[${id}][precioUnitario]"
+                            class="form-control precio-unitario"
+                            step="0.01" min="0" placeholder="0.00" required
+                            onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductos').select2('open'); }"
+                            oninput="calcularTotalSol(this)">
+                    </td>
+                    <td style="min-width:160px;">
+                        <input type="number" lang="en-US" name="items[${id}][precio]"
+                            class="form-control precio-total fw-bold text-success"
+                            step="0.01" min="0" placeholder="0.00"
+                            oninput="calcularTotalSol(this)"
+                            onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductos').select2('open'); }"
+                            style="font-size:1.1rem; height:45px; min-width:140px;">
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-link text-danger" onclick="quitarFila(${id})">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `);
 
-            // 🔥 volver a llenar
-            res.data.forEach(pr => {
+            // 🔥 Enfocar y seleccionar el input de cantidad de la nueva fila
+            setTimeout(() => {
+                const $fila = $(`#fila-${id}`);
+                const $cantidad = $fila.find('.cantidad');
 
-                const option = document.createElement('option');
+                if ($cantidad.length) {
+                    const inputCantidad = $cantidad[0];
+                    inputCantidad.focus();
+                    inputCantidad.select();
 
-                option.value = pr.producto_id;
+                    $cantidad.css({
+                        'box-shadow': '0 0 0 3px rgba(37, 99, 235, 0.25)',
+                        'border-color': '#2563eb',
+                        'transition': 'all 0.3s'
+                    });
 
-                option.dataset.nombre = pr.nombre;
-                option.dataset.sku = pr.sku;
-                option.dataset.um = pr.unidad_medida;
-                option.dataset.ur = pr.unidad_reporte;
-                option.dataset.factor = pr.factor_conversion || 1;
+                    setTimeout(() => {
+                        $cantidad.css({
+                            'box-shadow': '',
+                            'border-color': '',
+                            'transition': 'all 0.3s'
+                        });
+                    }, 1500);
+                }
+            }, 30);
 
-                option.textContent =
-                    `[${pr.sku}] ${pr.nombre}`;
+            $(this).val(null).trigger('change');
+        });
 
-                select.appendChild(option);
+        // =====================================================
+        // QUITAR FILA
+        // =====================================================
+        function quitarFila(id) {
+            $(`#fila-${id}`).remove();
 
+            if (!$('#tablaDetalle tbody tr').length) {
+                $('#emptyState').removeClass('d-none');
+            }
+
+            // Recalcular total
+            let totalCompra = 0;
+            document.querySelectorAll('#tablaDetalle .precio-total').forEach(el => {
+                totalCompra += parseFloat(el.value) || 0;
             });
 
-        } catch (e) {
-
-            console.error(e);
-
-            Swal.fire(
-                'Error',
-                'No se pudo actualizar la lista de productos',
-                'error'
-            );
-        }
-        $('#buscadorProductos').trigger('change.select2');
-    }
-    $('#buscadorProductos').on('select2:select', function (e) {
-
-        const d = e.params.data.element.dataset;
-
-        const id = $(this).val();
-
-        // VALIDAR DUPLICADO
-        if ($(`#fila-${id}`).length) {
-
-            Swal.fire(
-                'Aviso',
-                'El producto ya está en la lista',
-                'info'
-            );
-
-            return;
-        }
-
-        $('#emptyState').addClass('d-none');
-
-        // AGREGAR FILA
-        $('#tablaDetalle tbody').append(`
-
-        <tr id="fila-${id}">
-
-            <!-- PRODUCTO -->
-            <td class="ps-4">
-                <b>${d.nombre}</b><br>
-                <small class="text-body-secondary">${d.sku}</small>
-            </td>
-
-            <!-- CANTIDAD -->
-            <td>
-                <input 
-                    type="number"
-                    name="items[${id}][cant]"
-                    class="form-control cantidad"
-                    step="0.01"
-                    value="1"
-                    min="0.01"
-                    required
-                    oninput="calcularTotalSol(this)"
-                >
-            </td>
-
-            <!-- UNIDAD -->
-            <td>
-                <select 
-                    name="items[${id}][unidad]" 
-                    class="form-select unidad-select"
-                    onchange="calcularTotalSol(this)"
-                >
-                   
-
-                    <option value="1">
-                        (${d.ur})
-                    </option>
-                </select>
-            </td>
-
-            <!-- COSTO UNITARIO -->
-<td>
-    <input 
-        type="number"
-        lang="en-US"
-        name="items[${id}][precioUnitario]"
-        class="form-control precio-unitario"
-        step="0.01"
-        min="0"
-        placeholder="0.00"
-        required
-         onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductos').select2('open'); }"
-        oninput="calcularTotalSol(this, 'unitario')"
-    >
-</td>
-
-<!-- COSTO TOTAL -->
-<td style="min-width:160px;">
-
-    <input 
-        type="number"
-        lang="en-US"
-        name="items[${id}][precio]"
-        class="form-control precio-total fw-bold text-success "
-        step="0.01"
-        min="0"
-        placeholder="0.00"
-        oninput="calcularTotalSol(this, 'total')"
-         onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductos').select2('open'); }"
-        style="
-            font-size:1.1rem;
-            height:45px;
-            min-width:140px;
-        "
-    >
-
-</td>
-            <!-- ELIMINAR -->
-            <td>
-                <button 
-                    type="button"
-                    class="btn btn-link text-danger"
-                    onclick="quitarFila(${id})"
-                >
-                    <i class="bi bi-trash"></i>
-                </button>
-            </td>
-
-        </tr>
-    `);
-
-        // LIMPIAR SELECT
-        $(this).val(null).trigger('change');
-    });
-
-    // =====================================================
-    // GUARDAR SOLICITUD
-    // =====================================================
-
-    $('#formSolicitud').on('submit', async function (e) {
-
-        e.preventDefault();
-
-        if (!$('#tablaDetalle tbody tr').length) {
-
-            Swal.fire(
-                'Error',
-                'Agregue productos',
-                'warning'
-            );
-
-            return;
-        }
-
-        Swal.fire({
-            title: 'Guardando...',
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading()
-        });
-
-        try {
-
-            const resp = await fetch(
-                `${URL_CONTROLADOR}?action=guardar`, {
-                method: 'POST',
-                body: new FormData(this)
-            }
-            );
-
-            const res = await resp.json();
-
-            if (res.status === 'success') {
-                await Swal.fire({
-                    icon: 'success',
-                    title: '¡Éxito!',
-                    text: res.message,
-                    // 1. Eliminamos 'timer' para que la alerta no se cierre sola
-                    showDenyButton: true,
-                    showCancelButton: true,
-                    confirmButtonText: 'IMPRIMIR',
-                    denyButtonText: 'SALIR',
-                    cancelButtonText: 'Cerrar',
-                    confirmButtonColor: '#34c759',
-                    denyButtonColor: '#5856d6',
-                    customClass: {
-                        popup: 'rounded-4  shadow-lg'
-                    }
-                }).then((result) => {
-                    let url = '';
-
-                    if (result.isConfirmed) {
-                        $('#modalSolicitud').modal('hide');
-                        prepararImpresion(res.id);
-
-                        setTimeout(() => {
-                            ejecutarImpresion();
-                            cargarSolicitudes();
-                        }, 500);
-                    } else if (result.isDenied) {
-                        url = `/myvet/app/controllers/solicitudesCompraController.php`;
-                    }
-
-                    // Si se seleccionó una opción válida, abre la pestaña
-                    if (url !== '') {
-                        window.open(url, '_blank');
-                    }
-
-                    // Finalmente recarga la página actual
-
+            const cT = document.getElementById('costoTotalCompra');
+            if (cT) {
+                cT.textContent = totalCompra.toLocaleString('es-MX', {
+                    style: 'currency',
+                    currency: 'MXN'
                 });
-            } else {
-
-                Swal.fire(
-                    'Error',
-                    res.message,
-                    'error'
-                );
             }
-
-        } catch (e) {
-
-            Swal.fire(
-                'Error',
-                'Fallo de conexión',
-                'error'
-            );
         }
-    });
 
-    // =====================================================
-    // CONVERTIR A COMPRA
-    // =====================================================
+        // =====================================================
+        // GUARDAR SOLICITUD
+        // =====================================================
+        $(document).on('submit', '#formSolicitud', async function (e) {
+            e.preventDefault();
 
-    $('#formConvertirCompra').on('submit', async function (e) {
-
-        e.preventDefault();
-
-        Swal.fire({
-            title: 'Procesando ingreso...',
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading()
-        });
-
-        try {
-
-            const resp = await fetch(
-                `${URL_CONTROLADOR}?action=convertirACompra`, {
-                method: 'POST',
-                body: new FormData(this)
+            if (!$('#tablaDetalle tbody tr').length) {
+                Swal.fire('Error', 'Agregue productos', 'warning');
+                return;
             }
-            );
 
-            const res = await resp.json();
+            Swal.fire({
+                title: 'Guardando...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
 
-            if (res.status === 'success') {
-
-                await Swal.fire({
-                    icon: 'success',
-                    title: 'Ingresado',
-                    text: res.message
+            try {
+                const resp = await fetch(`${URL_CONTROLADOR}?action=guardar`, {
+                    method: 'POST',
+                    body: new FormData(this)
                 });
 
-                location.reload();
+                const res = await resp.json();
 
-            } else {
+                if (res.status === 'success') {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: res.message,
+                        showDenyButton: true,
+                        showCancelButton: true,
+                        confirmButtonText: 'IMPRIMIR',
+                        denyButtonText: 'SALIR',
+                        cancelButtonText: 'Cerrar',
+                        confirmButtonColor: '#34c759',
+                        denyButtonColor: '#5856d6',
+                        customClass: { popup: 'rounded-4 shadow-lg' }
+                    }).then((result) => {
+                        let url = '';
 
-                Swal.fire(
-                    'Error',
-                    res.message,
-                    'error'
-                );
+                        if (result.isConfirmed) {
+                            $('#modalSolicitud').modal('hide');
+                            if (typeof prepararImpresion === 'function') prepararImpresion(res.id);
+
+                            setTimeout(() => {
+                                if (typeof ejecutarImpresion === 'function') ejecutarImpresion();
+                                if (typeof cargarSolicitudes === 'function') cargarSolicitudes();
+                            }, 500);
+                        } else if (result.isDenied) {
+                            url = `/myvet/app/controllers/solicitudesCompraController.php`;
+                        }
+
+                        if (url !== '') window.open(url, '_blank');
+                    });
+                } else {
+                    Swal.fire('Error', res.message, 'error');
+                }
+
+            } catch (e) {
+                console.error('[SOL-COMPRA] Error guardar:', e);
+                Swal.fire('Error', 'Fallo de conexión', 'error');
             }
+        });
 
-        } catch (e) {
-
-            Swal.fire(
-                'Error',
-                'Fallo de conexión',
-                'error'
-            );
-        }
-    });
-
-    // =====================================================
-    // ELIMINAR FILA
-    // =====================================================
-
-    function quitarFila(id) {
-
-        $(`#fila-${id}`).remove();
-
-        if (!$('#tablaDetalle tbody tr').length) {
-
+        // =====================================================
+        // NUEVA SOLICITUD
+        // =====================================================
+        function nuevaSolicitud() {
+            $('#formSolicitud')[0].reset();
+            $('#tablaDetalle tbody').empty();
             $('#emptyState').removeClass('d-none');
+            $('#costoTotalCompra').text('$0.00');
+
+            $('#modalSolicitud').modal('show');
+
+            // Cargar datos después de que el modal se abra
+            $('#modalSolicitud').one('shown.bs.modal', function () {
+                recargarProductos();
+                refrescarListaProveedores();
+            });
         }
-    }
 
-    // =====================================================
-    // NUEVA SOLICITUD
-    // =====================================================
+        // =====================================================
+        // EXPONER FUNCIONES
+        // =====================================================
+        window.refrescarListaProveedores = refrescarListaProveedores;
+        window.calcularTotalSol = calcularTotalSol;
+        window.recargarProductos = recargarProductos;
+        window.quitarFila = quitarFila;
+        window.nuevaSolicitud = nuevaSolicitud;
 
-    function nuevaSolicitud() {
-
-        $('#formSolicitud')[0].reset();
-
-        $('#tablaDetalle tbody').empty();
-
-        $('#emptyState').removeClass('d-none');
-
-        $('#modalSolicitud').modal('show');
-        recargarProductos();
-        refrescarListaProveedores();
-    }
+    })();
 </script>

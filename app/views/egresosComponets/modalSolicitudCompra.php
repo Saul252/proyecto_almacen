@@ -436,11 +436,41 @@
                 </button>
             </td>
         </tr>
-        `);
+    `);
+
+            // 🔥 Enfocar y seleccionar el input de cantidad de la nueva fila
+            setTimeout(() => {
+                const $fila = $(`#sol_fila-${id}`);
+                const $cantidad = $fila.find('.sol-cantidad');
+
+                if ($cantidad.length) {
+                    const inputCantidad = $cantidad[0];
+
+                    // Enfocar
+                    inputCantidad.focus();
+
+                    // Seleccionar el contenido (el "1") para que el usuario escriba directo
+                    inputCantidad.select();
+
+                    // Resaltar visualmente por 1.5s
+                    $cantidad.css({
+                        'box-shadow': '0 0 0 3px rgba(37, 99, 235, 0.25)',
+                        'border-color': '#2563eb',
+                        'transition': 'all 0.3s'
+                    });
+
+                    setTimeout(() => {
+                        $cantidad.css({
+                            'box-shadow': '',
+                            'border-color': '',
+                            'transition': 'all 0.3s'
+                        });
+                    }, 1500);
+                }
+            }, 30);
 
             $(this).val(null).trigger('change');
         });
-
         // =====================================================
         // GUARDAR SOLICITUD
         // =====================================================

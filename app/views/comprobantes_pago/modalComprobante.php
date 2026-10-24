@@ -12,7 +12,8 @@
                         </div>
                         <div>
                             <h4 class="fw-bold mb-0 ">Nuevo Comprobante / Depósito</h4>
-                            <p class="text-body-secondary small mb-0">Complete los datos para registrar el movimiento en el
+                            <p class="text-body-secondary small mb-0">Complete los datos para registrar el movimiento en
+                                el
                                 sistema</p>
                         </div>
                     </div>
@@ -31,11 +32,11 @@
                                         class="bi bi-geo-alt"></i></span>
                                 <select name="almacen_id" id="almacen_id" class="form-select border-start-0 ps-0"
                                     required>
-                                  
-                                    <?php foreach($almacenes as $a): ?>
-                                    <option value="<?= $a['id'] ?>">
-                                        <?= htmlspecialchars($a['nombre']) ?>
-                                    </option>
+
+                                    <?php foreach ($almacenes as $a): ?>
+                                        <option value="<?= $a['id'] ?>">
+                                            <?= htmlspecialchars($a['nombre']) ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -47,9 +48,9 @@
                             </label>
                             <div class="input-group">
                                 <select name="cliente_id" id="cliente_id" class="form-select select2-modal" required>
-                                   
-                                   
-                                    
+
+
+
                                 </select>
                                 <button class="btn btn-primary" type="button" onclick="abrirModalNuevoCliente()"
                                     title="Registrar nuevo cliente">
@@ -57,23 +58,23 @@
                                 </button>
                             </div>
                         </div>
-                           <div class="col-md-8 mt-3">
+                        <div class="col-md-8 mt-3">
                             <label class="form-label small fw-bold text-secondary mb-2">
                                 <i class="bi bi-bookmark me-1"></i> Numero(s) de ordenes
                             </label>
-                            <input type="text" placeholder="Ej. Pago compra orden #123...." 
-                                 id="numero_venta"
+                            <input type="text" placeholder="Ej. Pago compra orden #123...." id="numero_venta"
                                 name="numero_venta" class="form-control">
                         </div>
 
-<?php if ($rolAct==1): ?>
-                        <div class="col-md-4">
-                            <label class="form-label small fw-bold text-secondary mb-2">
-                                <i class="bi bi-calendar3 me-1"></i> Fecha de Depósito
-                            </label>
-                            <input type="date" id="fecha_deposito" value="<?=date('Y-m-d')?>" name="fecha_deposito" class="form-control" required>
-                        </div>
-<?php endif; ?>
+                        <?php if ($rolAct == 1): ?>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-secondary mb-2">
+                                    <i class="bi bi-calendar3 me-1"></i> Fecha de Depósito
+                                </label>
+                                <input type="date" id="fecha_deposito" value="<?= date('Y-m-d') ?>" name="fecha_deposito"
+                                    class="form-control" required>
+                            </div>
+                        <?php endif; ?>
                         <div class="col-md-4 mt-3">
                             <label class="form-label small fw-bold text-secondary mb-2">
                                 <i class="bi bi-currency-dollar me-1"></i> Monto
@@ -97,7 +98,7 @@
                             <label class="form-label small fw-bold text-secondary mb-2">
                                 <i class="bi bi-bookmark me-1"></i> Referencia / Concepto
                             </label>
-                            <input type="text" placeholder="Ej. Pago compra orden #123...."id="referencia"
+                            <input type="text" placeholder="Ej. Pago compra orden #123...." id="referencia"
                                 name="referencia" class="form-control">
                         </div>
 
@@ -119,252 +120,254 @@
     </div>
 </div>
 <script>
-const URL_CONTROLADOR = '/myvet/app/controllers/comprobantesPagoController.php';
+    (function () {
+        'use strict';
 
-// =====================================================
-// SELECT2
-// =====================================================
+        const URL_CONTROLADOR = '/myvet/app/controllers/comprobantesPagoController.php';
+        const URL_ACCESO = '/myvet/app/controllers/accesoController.php';
 
-$('.select2-modal').select2({
-    theme: 'bootstrap-5',
-    dropdownParent: $('#modalCotizacion')
-});
- document.addEventListener('DOMContentLoaded', function() {
-        const selectAlmacen = document.getElementById('almacen_id');
+        function log(...args) {
+            console.log('[COMPROBANTE]', ...args);
+        }
 
-        if (selectAlmacen) {
-            selectAlmacen.addEventListener('change', function(e) {
-                const almacenId = this.value; // ID del almacén seleccionado
-                const textoSeleccionado = this.options[this.selectedIndex].text; // Nombre del almacén
+        // =====================================================
+        // CARGAR CLIENTES (solo llena <option>, NO toca Select2)
+        // =====================================================
+        async function cargarClientes() {
+            log("cargando clientes");
 
-                if (almacenId) {
-                    console.log(`Almacén cambiado a ID: ${almacenId} - ${textoSeleccionado}`);
-                   
-                    const id = $('#almacen_id').val();
-                   
+            const almacenId = $('#almacen_id').val();
+            const select = document.getElementById('cliente_id');
+            if (!select) return;
 
-                    cargarClientes();
+            try {
+                const url = `${URL_ACCESO}?action=obtenerClientes`;
+                const respuesta = await fetch(url);
 
-                    // 🚀 Coloca aquí la función o lógica que deseas ejecutar
-                    // Ejemplo: cargarProductosPorAlmacen(almacenId);
+                if (!respuesta.ok) throw new Error('Error en la respuesta del servidor');
+
+                const resultado = await respuesta.json();
+                log(resultado);
+
+                if (resultado.success && Array.isArray(resultado.data)) {
+
+                    // FILTRADO
+                    const clientesFiltrados = resultado.data.filter(cliente => {
+                        const nombreNorm = String(cliente.nombre_comercial || '').toLowerCase().trim();
+                        const esPublicoGeneral = nombreNorm.includes('publico en general') || nombreNorm.includes('público en general');
+
+                        if (esPublicoGeneral) {
+                            return cliente.almacen_id == almacenId;
+                        }
+
+                        return true;
+                    });
+
+                    // 🔥 Construir opciones con data-* forzados a string
+                    const fragment = document.createDocumentFragment();
+
+                    const first = document.createElement('option');
+                    first.value = '';
+                    first.textContent = '-- Seleccione un cliente --';
+                    fragment.appendChild(first);
+
+                    clientesFiltrados.forEach(cliente => {
+                        const opcion = document.createElement('option');
+                        opcion.value = cliente.id;
+                        opcion.textContent = String(cliente.nombre_comercial || '');
+
+                        opcion.dataset.nombre = String(cliente.nombre_comercial || '');
+                        opcion.dataset.razonSocial = String(cliente.razon_social || '');
+                        opcion.dataset.contacto = String(cliente.contacto || '');
+
+                        fragment.appendChild(opcion);
+                    });
+
+                    select.replaceChildren(fragment);
+
+                    // 🔥 SOLO refrescar Select2 (NO destruir, NO re-inicializar)
+                    $(select).trigger('change.select2');
+
+                    // Autoselección del primer cliente
+                    if (clientesFiltrados.length > 0) {
+                        $('#cliente_id').val(clientesFiltrados[0].id).trigger('change');
+                    } else {
+                        $('#cliente_id').val(null).trigger('change');
+                    }
+
+                    log('Clientes cargados:', clientesFiltrados.length);
+
                 } else {
-                    console.log('Se deseleccionó el almacén');
-                     cargarClientes();
+                    select.innerHTML = '<option value="">No se pudieron cargar los usuarios</option>';
+                    $(select).trigger('change.select2');
+                }
+            } catch (error) {
+                select.innerHTML = '<option value="">Error al cargar la lista</option>';
+                $(select).trigger('change.select2');
+                console.error('[COMPROBANTE] Error cargarClientes:', error);
+            }
+        }
+
+        // =====================================================
+        // INICIALIZACIÓN ÚNICA
+        // =====================================================
+        $(function () {
+
+            // 1. Al abrir el modal, inicializar Select2 con templates + dropdownParent
+            $('#modalCotizacion').on('shown.bs.modal', function () {
+
+                // Destruir Select2 previo si existe
+                ['#cliente_id', '#metodo_pago_m'].forEach(sel => {
+                    if ($(sel).hasClass('select2-hidden-accessible')) {
+                        $(sel).select2('destroy');
+                    }
+                });
+
+                // 🔥 Cliente con templates + matcher + dropdownParent
+                $('#cliente_id').select2({
+                    theme: 'bootstrap-5',
+                    width: 'resolve',
+                    dropdownParent: $('#modalCotizacion'),
+                    matcher: function (params, data) {
+                        if (!params.term || params.term.trim() === '') return data;
+
+                        const term = String(params.term).toLowerCase().trim();
+                        const text = String(data.text || '').toLowerCase();
+
+                        const $el = $(data.element);
+                        const razonSocial = String($el.data('razonSocial') || '').toLowerCase();
+                        const contacto = String($el.data('contacto') || '').toLowerCase();
+
+                        if (text.includes(term) || razonSocial.includes(term) || contacto.includes(term)) {
+                            return data;
+                        }
+
+                        return null;
+                    },
+                    templateResult: function (state) {
+                        if (!state.id) return state.text;
+
+                        const $opt = $(state.element);
+                        const nombre = String($opt.data('nombre') || state.text || '');
+                        const razonSocial = String($opt.data('razonSocial') || '');
+                        const contacto = String($opt.data('contacto') || '');
+
+                        if (!razonSocial && !contacto) {
+                            return $(`<span class="fw-semibold">${nombre.toUpperCase()}</span>`);
+                        }
+
+                        return $(`
+                            <div class="d-flex flex-column">
+                                <span class="fw-semibold">${nombre.toUpperCase()}</span>
+                                <div class="d-flex justify-content-between align-items-center gap-2 mt-1">
+                                    <small class="text-truncate" style="max-width:65%;">${razonSocial.toUpperCase()}</small>
+                                    <small class="fw-semibold text-nowrap">${contacto ? `👤 ${contacto.toUpperCase()}` : ''}</small>
+                                </div>
+                            </div>
+                        `);
+                    },
+                    templateSelection: function (state) {
+                        if (!state.id) return state.text;
+                        const nombre = String($(state.element).data('nombre') || state.text || '');
+                        return nombre.toUpperCase();
+                    }
+                });
+
+                // Otros .select2-modal (excluyendo #cliente_id)
+                $('.select2-modal').not('#cliente_id').each(function () {
+                    $(this).select2({
+                        theme: 'bootstrap-5',
+                        dropdownParent: $('#modalCotizacion')
+                    });
+                });
+
+                log('Select2 inicializado');
+            });
+
+            // 2. Cambio de almacén → recargar clientes
+            $('#almacen_id').on('change', function () {
+                const almacenId = this.value;
+                if (!almacenId) {
+                    log('Se deseleccionó el almacén');
+                } else {
+                    log(`Almacén cambiado a ID: ${almacenId} - ${this.options[this.selectedIndex].text}`);
+                }
+                cargarClientes();
+            });
+
+            // 3. Carga inicial de clientes (sin tocar Select2)
+            cargarClientes();
+
+            // 4. Submit
+            $('#formSolicitud').on('submit', async function (e) {
+                e.preventDefault();
+
+                const payload = {
+                    almacen_id: $('#almacen_id').val(),
+                    cliente_id: $('#cliente_id').val(),
+                    monto_depositado: $('#monto_depositado').val(),
+                    referencia: $('#referencia').val(),
+                    fecha: $('#fecha_deposito').val(),
+                    metodo: $('#metodo_pago_m').val(),
+                    numeroventa: $('#numero_venta').val()
+                };
+
+                log('JSON ENVIADO:', payload);
+
+                Swal.fire({
+                    title: 'Guardando...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                try {
+                    const resp = await fetch(`${URL_CONTROLADOR}?action=guardar`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const res = await resp.json();
+                    log('RESPUESTA:', res);
+
+                    if (res.status === 'success') {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: '¡Éxito!',
+                            text: res.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        location.reload();
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+
+                } catch (e) {
+                    console.error('[COMPROBANTE] Error submit:', e);
+                    Swal.fire('Error', 'Fallo de conexión o error en el servidor', 'error');
                 }
             });
-        }
-    });
- 
-    
-async function cargarClientes() {
-    console.log("cargo clientes");
-    
-    // Obtenemos el ID del almacén actual
-    const almacenId = $('#almacen_id').val();
-    const select = document.getElementById('cliente_id');
-    console.log('almacen',almacenId);
-    if (!select) return;
 
-    // Limpiamos el select antes de poblarlo
-    select.innerHTML = '<option value="">-- Seleccione un cliente --</option>';
+            // 5. Nueva cotización → abrir modal y cargar clientes
+            window.nuevaCotizacion = function () {
+                $('#formSolicitud')[0].reset();
+                $('#modalCotizacion').modal('show');
 
-    try {
-        const url = '/myvet/app/controllers/accesoController.php?action=obtenerClientes';
-        const respuesta = await fetch(url);
+                // Cargar clientes después de que el modal se abra
+                $('#modalCotizacion').one('shown.bs.modal', function () {
+                    cargarClientes();
+                });
+            };
 
-        if (!respuesta.ok) throw new Error('Error en la respuesta del servidor');
-
-        const resultado = await respuesta.json();
-        console.log(resultado);
-
-        if (resultado.success && Array.isArray(resultado.data)) {
-            
-            // FILTRADO: 
-            // 1. Conserva clientes cuyo nombre NO contenga "público en general" (clientes normales).
-            // 2. Para "público en general", solo conserva el que coincida con el almacenId actual.
-            const clientesFiltrados = resultado.data.filter(cliente => {
-                const nombreNorm = cliente.nombre_comercial.toLowerCase().trim();
-                const esPublicoGeneral = nombreNorm.includes('publico en general') || nombreNorm.includes('público en general');
-
-                if (esPublicoGeneral) {
-                    // Revisa que coincida el ID del almacén (compara tanto número como string)
-                    return cliente.almacen_id == almacenId;
+            // 6. Exponer funciones globales
+            window.cargarClientes = cargarClientes;
+            window.quitarFila = function (id) {
+                $(`#fila-${id}`).remove();
+                if (!$('#tablaDetalle tbody tr').length) {
+                    $('#emptyState').removeClass('d-none');
                 }
-
-                // Si es un cliente regular, se muestra siempre
-                return true;
-            });
-
-            // Llenamos el select únicamente con la lista filtrada
-            (resultado.data).forEach(cliente => {
-                const opcion = document.createElement('option');
-                opcion.value = cliente.id;
-                opcion.textContent = `${cliente.nombre_comercial}`;
-                select.appendChild(opcion);
-            });
-
-        } else {
-            select.innerHTML = '<option value="">No se pudieron cargar los usuarios</option>';
-        }
-    } catch (error) {
-        select.innerHTML = '<option value="">Error al cargar la lista</option>';
-        console.error('Error al ejecutar cargarClientes:', error);
-    }
-}
- document.addEventListener('DOMContentLoaded', () => {
-       
-        cargarClientes();
-    });
-
-// =====================================================
-// CALCULAR TOTAL
-// =====================================================
-
-// 🔥 EVITAR LOOPS
-let recalculandoFila = false;
-let totaLCompra;
-
-
-// =====================================================
-// AGREGAR PRODUCTO
-// =====================================================
-
-// =====================================================
-// GUARDAR SOLICITUD
-// =====================================================
-// // =====================================================
-// CONVERTIR A COMPRA
-// =====================================================
-$('#formSolicitud').on('submit', async function(e) {
-    e.preventDefault();
-
-    const payload = {
-        almacen_id: $('#almacen_id').val(),
-        cliente_id: $('#cliente_id').val(),
-        monto_depositado: $('#monto_depositado').val(),
-        referencia: $('#referencia').val(),
-        fecha: $('#fecha_deposito').val(),
-        metodo: $('#metodo_pago_m').val(),
-        numeroventa: $('#numero_venta').val(),
-
-
-    };
-
-    console.log('JSON ENVIADO:', payload);
-
-    Swal.fire({
-        title: 'Guardando...',
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading()
-    });
-
-    try {
-        const resp = await fetch(`${URL_CONTROLADOR}?action=guardar`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
+            };
         });
-
-        const res = await resp.json();
-        console.log('RESPUESTA:', res);
-
-        if (res.status === 'success') {
-            await Swal.fire({
-                icon: 'success',
-                title: '¡Éxito!',
-                text: res.message,
-                timer: 1500,
-                showConfirmButton: false
-            });
-            location.reload();
-        } else {
-            Swal.fire('Error', res.message, 'error');
-        }
-
-    } catch (e) {
-        console.error(e);
-        Swal.fire('Error', 'Fallo de conexión o error en el servidor', 'error');
-    }
-});
-// $('#formConvertirCompra').on('submit', async function(e) {
-
-//     e.preventDefault();
-
-//     Swal.fire({
-//         title: 'Procesando ingreso...',
-//         allowOutsideClick: false,
-//         didOpen: () => Swal.showLoading()
-//     });
-
-//     try {
-
-//         const resp = await fetch(
-//             `${URL_CONTROLADOR}?action=convertirACompra`, {
-//                 method: 'POST',
-//                 body: new FormData(this)
-//             }
-//         );
-
-//         const res = await resp.json();
-
-//         if (res.status === 'success') {
-
-//             await Swal.fire({
-//                 icon: 'success',
-//                 title: 'Ingresado',
-//                 text: res.message
-//             });
-
-//             location.reload();
-
-//         } else {
-
-//             Swal.fire(
-//                 'Error',
-//                 res.message,
-//                 'error'
-//             );
-//         }
-
-//     } catch (e) {
-
-//         Swal.fire(
-//             'Error',
-//             'Fallo de conexión',
-//             'error'
-//         );
-//     }
-// });
-
-// =====================================================
-// ELIMINAR FILA
-// =====================================================
-
-function quitarFila(id) {
-
-    $(`#fila-${id}`).remove();
-
-    if (!$('#tablaDetalle tbody tr').length) {
-
-        $('#emptyState').removeClass('d-none');
-    }
-}
-
-// =====================================================
-// NUEVA SOLICITUD
-// =====================================================
-
-function nuevaCotizacion() {
-
-    $('#formSolicitud')[0].reset();
-
-    $('#tablaDetalle tbody').empty();
-
-    $('#emptyState').removeClass('d-none');
-
-    $('#modalCotizacion').modal('show');
-
-}
+    })();
 </script>
