@@ -872,6 +872,8 @@
                 <input type="number"
                     name="itemsEditar[${id}][cant]"
                     class="form-control cantidad-editar"
+                    onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductosEditar').select2('open'); }"
+                   
                     step="0.01" value="1" min="0.01" required>
                 <input type="hidden"
                     name="itemsEditar[${id}][equivalencia]"

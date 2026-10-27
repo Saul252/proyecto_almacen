@@ -8,12 +8,16 @@ date_default_timezone_set('America/Mexico_City');
 //     ['id' => 'inicio', 'url' => '/myvet/inicio', 'icon' => 'bi-house-heart-fill', 'label' => 'Inicio', 'active' => ($archivoActual == 'inicio.php')],
 //]
 //],
+
+date_default_timezone_set('America/Mexico_City');
+
 $modulos = [
 
     [
         'id_grupo' => 'ventas_clientes',
         'titulo' => 'Ventas',
         'icono' => 'bi-bag-heart-fill',
+        'color' => 'text-success',   // 👈 NUEVO
         'submodulos' => [
             ['id' => 'ventas', 'url' => '/myvet/ventas', 'icon' => 'bi-cash-coin', 'label' => 'Ventas', 'active' => ($archivoActual == 'ventasController.php')],
             ['id' => 'remisiones', 'url' => '/myvet/remisiones', 'icon' => 'bi-file-earmark-diff-fill', 'label' => 'Remisiones', 'active' => ($archivoActual == 'requisicionesController.php')],
@@ -32,6 +36,7 @@ $modulos = [
         'id_grupo' => 'compras_proveedores',
         'titulo' => 'Egresos',
         'icono' => 'bi-cart-dash-fill',
+        'color' => 'text-danger',   // 👈 NUEVO
         'submodulos' => [
             ['id' => 'compras', 'url' => '/myvet/compras', 'icon' => 'bi-credit-card-fill', 'label' => 'Compras y Gastos', 'active' => ($archivoActual == 'egresosController.php' || $archivoActual == 'gastos.php')],
             ['id' => 'proveedores', 'url' => '/myvet/proveedores', 'icon' => 'bi-building-up', 'label' => 'Proveedores', 'active' => ($archivoActual == 'proveedoresController.php')],
@@ -42,6 +47,7 @@ $modulos = [
         'id_grupo' => 'inventario_almacen',
         'titulo' => 'Inventarios',
         'icono' => 'bi-archive-fill',
+        'color' => 'text-warning',   // 👈 NUEVO
         'submodulos' => [
             ['id' => 'almacenes', 'url' => '/myvet/almacenes', 'icon' => 'bi-building-fill', 'label' => 'Almacén', 'active' => ($archivoActual == 'almacenes.php' || $archivoActual == 'almacen.php')],
             ['id' => 'movimientos', 'url' => '/myvet/movimientos', 'icon' => 'bi-shuffle', 'label' => 'Movimientos', 'active' => ($archivoActual == 'movimientosController.php')],
@@ -55,6 +61,7 @@ $modulos = [
         'id_grupo' => 'finanzas_tesoreria',
         'titulo' => 'Finanzas',
         'icono' => 'bi-coin',
+        'color' => 'text-info',   // 👈 NUEVO
         'submodulos' => [
             ['id' => 'finanzas', 'url' => '/myvet/finanzas', 'icon' => 'bi-activity', 'label' => 'Finanzas', 'active' => ($archivoActual == 'finanzasController.php')],
             ['id' => 'finanzas_admin', 'url' => '/myvet/finanzas_admin', 'icon' => 'bi-kanban-fill', 'label' => 'Finanzas Admin', 'active' => ($archivoActual == 'finanzasAdmController.php')],
@@ -66,6 +73,7 @@ $modulos = [
         'id_grupo' => 'logistica_distribucion',
         'titulo' => 'Logística',
         'icono' => 'bi-pin-map-fill',
+        'color' => 'text-primary',   // 👈 NUEVO
         'submodulos' => [
             ['id' => 'entregas', 'url' => '/myvet/entregas', 'icon' => 'bi-send-check-fill', 'label' => 'Despachos', 'active' => ($archivoActual == 'entregasController.php')],
             ['id' => 'vehiculos', 'url' => '/myvet/vehiculos', 'icon' => 'bi-car-front-fill', 'label' => 'Vehículos', 'active' => ($archivoActual == 'vehiculosController.php')],
@@ -76,23 +84,27 @@ $modulos = [
             ['id' => 'verificaciones', 'url' => '/myvet/verificaciones', 'icon' => 'bi-check-all', 'label' => 'Verificaciones', 'active' => ($archivoActual == 'verificacionesController.php')],
         ]
     ],
+    // ============================================
+    // 🦷 ODONTOLOGÍA (Dentista)
+    // ============================================
     [
-        'id_grupo' => 'pacientes_consultas',
-        'titulo' => 'Atención Médica',
-        'icono' => 'bi-heart-pulse-fill',
+        'id_grupo' => 'odontologia',
+        'titulo' => 'Odontología',
+        'icono' => 'bi-emoji-smile-fill',
+        'color' => 'text-info',   // 👈 Cyan
         'submodulos' => [
             [
                 'id' => 'clientesPacientes',
                 'url' => '/myvet/misPacientesDental',
-                'class' => 'text-primary',
-                'icon' => 'bi-heart-pulse-fill',
+                'class' => 'text-info',
+                'icon' => 'bi-person-vcard-fill',
                 'label' => 'Pacientes Dentales',
                 'active' => ($archivoActual == 'clientesPacientesDentales.php')
             ],
             [
                 'id' => 'citasDentales',
                 'url' => '/myvet/citasDental',
-                'class' => 'text-warning',
+                'class' => 'text-info',
                 'icon' => 'bi-calendar-check-fill',
                 'label' => 'Citas Dentales',
                 'active' => ($archivoActual == 'citasController.php')
@@ -100,24 +112,35 @@ $modulos = [
             [
                 'id' => 'consultaDental',
                 'url' => '/myvet/consultaDental',
-                'class' => 'text-warning',
-                'icon' => 'bi-emoji-smile-fill',
+                'class' => 'text-info',
+                'icon' => 'bi-clipboard2-pulse-fill',
                 'label' => 'Consulta Dental',
                 'active' => ($archivoActual == 'consultaDental')
             ],
+        ]
+    ],
 
+    // ============================================
+    // 🩺 MEDICINA
+    // ============================================
+    [
+        'id_grupo' => 'medicina',
+        'titulo' => 'Medicina',
+        'icono' => 'bi-heart-pulse-fill',
+        'color' => 'text-danger',   // 👈 Rojo
+        'submodulos' => [
             [
                 'id' => 'misPacientesMedicina',
                 'url' => '/myvet/misPacientesMedicina',
-                'class' => 'text-info',
-                'icon' => 'bi-file-medical-fill',
+                'class' => 'text-danger',
+                'icon' => 'bi-person-vcard-fill',
                 'label' => 'Pacientes Medicina',
                 'active' => ($archivoActual == 'clientesPacientesMedicina.php')
             ],
             [
                 'id' => 'citasMedicas',
                 'url' => '/myvet/citasMedicas',
-                'class' => 'text-success',
+                'class' => 'text-danger',
                 'icon' => 'bi-calendar-plus-fill',
                 'label' => 'Citas Médicas',
                 'active' => ($archivoActual == 'citasMedicasController.php')
@@ -125,9 +148,9 @@ $modulos = [
             [
                 'id' => 'consultaMedica',
                 'url' => '/myvet/consultaMedica',
-                'class' => 'text-info',
-                'icon' => 'bi-clipboard2-pulse-fill',
-                'label' => 'Consulta Medica',
+                'class' => 'text-danger',
+                'icon' => 'bi-file-medical-fill',
+                'label' => 'Consulta Médica',
                 'active' => ($archivoActual == 'consultaMedica')
             ]
         ]
@@ -135,7 +158,8 @@ $modulos = [
     [
         'id_grupo' => 'atencion_veterinaria',
         'titulo' => 'Atención Veterinaria',
-        'icono' => 'bi-hospital-fill', // Cruz de hospital / clínica veterinaria
+        'icono' => 'bi-hospital-fill',
+        'color' => 'text-success',   // 👈 NUEVO
         'submodulos' => [
             ['id' => 'pacientes', 'url' => '/myvet/pacientes', 'icon' => 'bi-paw-fill', 'label' => 'Mascotas / Pacientes', 'active' => ($archivoActual == 'mascotasController.php' || $archivoActual == 'pacientesController.php')],
             ['id' => 'expedientes', 'url' => '/myvet/expedientes', 'icon' => 'bi-folder2-open', 'label' => 'Expedientes Médicos', 'active' => ($archivoActual == 'historialExpedienteController.php')],
@@ -146,6 +170,7 @@ $modulos = [
         'id_grupo' => 'recursos_humanos',
         'titulo' => 'RH',
         'icono' => 'bi-person-vcard',
+        'color' => 'text-warning',   // 👈 NUEVO
         'submodulos' => [
             ['id' => 'trabajadores', 'url' => '/myvet/trabajadores', 'icon' => 'bi-person-badge', 'label' => 'Trabajadores', 'active' => ($archivoActual == 'trabajadoresController.php')],
             ['id' => 'nomina', 'url' => '/myvet/nomina', 'icon' => 'bi-currency-dollar', 'label' => 'Nómina', 'active' => ($archivoActual == 'nominaController.php')],
@@ -159,6 +184,7 @@ $modulos = [
         'id_grupo' => 'administracion',
         'titulo' => 'Administración',
         'icono' => 'bi-shield-lock-fill',
+        'color' => 'text-info',   // 👈 NUEVO
         'submodulos' => [
             ['id' => 'usuarios', 'url' => '/myvet/usuarios', 'icon' => 'bi-people-fill', 'label' => 'Usuarios', 'active' => ($archivoActual == 'usuariosController.php')],
             ['id' => 'miAcceso', 'url' => '/myvet/miAcceso', 'icon' => 'bi-person-circle', 'label' => 'Mi Cuenta', 'active' => ($archivoActual == 'miAccesoController.php')],
@@ -166,6 +192,7 @@ $modulos = [
         ]
     ]
 ];
+
 ?>
 
 
@@ -204,11 +231,17 @@ $modulos = [
         }
     }
 
+    .dropdown-item {
+        color: #fff !important;
+
+    }
+
     /* Estilos adaptativos para móvil */
     @media (max-width: 991.98px) {
         .navbar-collapse {
             background: var(--navbar-dark) !important;
             padding: 1rem;
+            color: #ffffff !important;
             border-radius: 0 0 12px 12px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
             max-height: 80vh;
@@ -273,7 +306,7 @@ $modulos = [
 
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
-<nav class="navbar fixed-top navbar-expand-lg navbar-dark navbar-premium shadow-sm">
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark navbar-premium shadow-sm rounded-bottom-5">
     <div class="container-fluid px-2 px-md-4">
 
         <!-- BRAND / LOGO Y BOTÓN MÓVIL -->
@@ -291,7 +324,7 @@ $modulos = [
                 <li class="nav-item  modulo-item" data-titulo="">
                     <a class="nav-link  d-flex align-items-center gap-2 px-3 py-2 rounded-3  <?= $grupoActivo ? 'active-nav-item fw-bold' : '' ?>"
                         href="/myvet/inicio">
-                        <i class="bi-house-heart-fill fs-5 icono"></i>
+                        <i class="bi-house-heart-fill fs-5 icono text-info"></i>
                         <span class="text-nowrap acceso">INICIO</span>
                     </a>
 
@@ -316,7 +349,7 @@ $modulos = [
                     <li class="nav-item dropdown modulo-item" data-titulo="<?= htmlspecialchars($grupo['titulo']) ?>">
                         <a class="nav-link dropdown-toggle no-arrow d-flex align-items-center gap-2 px-3 py-2 rounded-3 text-white <?= $grupoActivo ? 'active-nav-item fw-bold' : '' ?>"
                             href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="<?= $grupo['icono'] ?> fs-5 icono"></i>
+                            <i class="<?= $grupo['icono'] ?> fs-5 icono <?= $grupo['color'] ?? 'text-white' ?>"></i>
                             <span class="text-nowrap acceso"><?= $grupo['titulo'] ?></span>
 
                             <!-- Flechita discreta -->
@@ -329,7 +362,7 @@ $modulos = [
                                 <li>
                                     <a class="dropdown-item d-flex align-items-center gap-2 rounded-2 py-2 px-3 <?= $m['active'] ? 'active shadow-sm' : '' ?>"
                                         href="<?= $m['url'] ?>">
-                                        <i class="<?= $m['icon'] ?> fs-6"></i>
+                                        <i class="<?= $m['icon'] ?> fs-6 <?= $m['class'] ?? $grupo['color'] ?? '' ?>"></i>
                                         <span><?= $m['label'] ?></span>
                                     </a>
                                 </li>
@@ -355,38 +388,44 @@ $modulos = [
         <!-- CONTROLES DERECHOS -->
         <div class="d-flex align-items-center gap-2 gap-md-3">
 
-            <!-- MODO OSCURO -->
-            <!-- CONTENEDOR FLOTANTE UNIFICADO -->
-            <div class="d-flex align-items-center  bg-opacity-10 border border-opacity-10 rounded-pill p-1 shadow-sm">
+            <!-- CONTENEDOR FLOTANTE UNIFICADO (glassmorphism) -->
+            <div
+                class="d-flex align-items-center bg-white bg-opacity-10 border border-white border-opacity-25 rounded-pill p-1 shadow-sm">
+
+                <!-- SOPORTE / AYUDA -->
                 <a href="https://wa.me/525523789029?text=Hola,%20necesito%20ayuda%20o%20reportar%20un%20problema%20con%20el%20sistema."
                     target="_blank"
-                    class="btn btn-sm btn-link text-success d-flex align-items-center gap-2 px-3 py-1 rounded-pill transition-all ">
-                    <i class="bi bi-phone fs-6"></i>
+                    class="btn btn-sm btn-link d-flex align-items-center gap-2 px-3 py-1 rounded-pill transition-all shadow-none border-0 bg-transparent"
+                    style="color:#25D366 !important; --bs-btn-color:#25D366; --bs-btn-hover-color:#4ade80; --bs-btn-active-color:#4ade80; --bs-btn-focus-shadow-rgb:37,211,102;">
+                    <i class="bi bi-whatsapp fs-6"></i>
                     <span class="small d-none d-lg-inline">Soporte / Ayuda</span>
                 </a>
-                <div class="vr  opacity-25 mx-1" style="height: 18px; width: 1px;"></div>
+
+                <div class="vr opacity-25 mx-1" style="height: 18px; width: 1px;"></div>
 
                 <!-- BOTÓN TEMA -->
                 <button type="button"
-                    class="btn btn-sm btn-link  text-decoration-none d-flex align-items-center gap-2 px-3 py-1 rounded-pill transition-all"
-                    id="btnThemeToggle" onclick="alternarModoOscuro()">
+                    class="btn btn-sm btn-link text-decoration-none d-flex align-items-center gap-2 px-3 py-1 rounded-pill transition-all shadow-none border-0 bg-transparent"
+                    id="btnThemeToggle" onclick="alternarModoOscuro()"
+                    style="--bs-btn-color:#fff; --bs-btn-hover-color:#fde68a; --bs-btn-active-color:#fde68a; --bs-btn-focus-shadow-rgb:255,255,255;">
                     <i class="bi bi-moon-stars-fill fs-6" id="themeIcon"></i>
                     <span class="small d-none d-lg-inline" id="themeLabel">Tema</span>
                 </button>
 
+                <div class="vr opacity-25 mx-1" style="height: 18px; width: 1px;"></div>
 
-                <!-- SEPARADOR SUTIL -->
-                <div class="vr  opacity-25 mx-1" style="height: 18px; width: 1px;"></div>
                 <!-- NOTIFICACIONES -->
                 <div class="dropdown">
-                    <button class="btn btn-sm btn-link  text-decoration-none position-relative px-3 py-1 rounded-pill"
-                        type="button" id="btnNotif" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button
+                        class="btn btn-sm btn-link text-decoration-none position-relative px-3 py-1 rounded-pill shadow-none border-0 bg-transparent"
+                        type="button" id="btnNotif" data-bs-toggle="dropdown" aria-expanded="false"
+                        style="--bs-btn-color:#fff; --bs-btn-hover-color:#fde68a; --bs-btn-active-color:#fde68a; --bs-btn-focus-shadow-rgb:255,255,255;">
                         <i class="bi bi-bell fs-6"></i>
                         <span id="notif-badge"
                             class="position-absolute top-25 start-75 translate-middle badge rounded-pill bg-danger d-none"
                             style="font-size: 0.6rem;">0</span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-lg  mt-2 rounded-4 p-0 overflow-hidden"
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg mt-2 rounded-4 p-0 overflow-hidden"
                         id="menuNotif" style="width: 320px; max-width: 90vw; max-height: 400px; overflow-y: auto;">
                         <li
                             class="p-3 border-bottom bg-body-tertiary d-flex justify-content-between align-items-center">
@@ -401,28 +440,31 @@ $modulos = [
                     </ul>
                 </div>
 
-                <div class="vr  opacity-25 mx-1" style="height: 18px; width: 1px;"></div>
+                <div class="vr opacity-25 mx-1" style="height: 18px; width: 1px;"></div>
+
+                <!-- USUARIO -->
                 <div class="dropdown">
                     <button
-                        class="btn user-dropdown-btn d-flex align-items-center gap-2 p-1 pe-3 rounded-pill shadow-sm"
-                        type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
+                        class="btn user-dropdown-btn d-flex align-items-center gap-2 p-1 pe-3 rounded-pill shadow-sm border-0"
+                        type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false"
+                        style="--bs-btn-color:#fff; --bs-btn-hover-color:#fff; --bs-btn-active-color:#fff; --bs-btn-focus-shadow-rgb:255,255,255;">
 
-                        <!-- Avatar (flex-shrink-0 evita que se aplaste) -->
+                        <!-- Avatar -->
                         <div
-                            class=" user-avatar-circle d-flex align-items-center justify-content-center rounded-circle flex-shrink-0">
+                            class="user-avatar-circle d-flex align-items-center justify-content-center rounded-circle flex-shrink-0 text-white">
                             <i class="bi bi-person-fill"></i>
                         </div>
 
-                        <!-- Nombre de usuario CENTRADO (flex-grow-1 toma el espacio libre y text-center lo alinea) -->
+                        <!-- Nombre -->
                         <div class="text-center flex-grow-1 d-none d-md-block me-1">
-                            <span class="d-block lh-1 small fw-semibold user-name-text text-truncate"
+                            <span class="d-block lh-1 small fw-semibold user-name-text text-truncate text-white"
                                 style="max-width: 120px;">
                                 <?= htmlspecialchars($_SESSION['nombre'] ?? 'Usuario') ?>
                             </span>
                         </div>
 
-                        <!-- Flecha (flex-shrink-0) -->
-                        <i class="bi bi-chevron-down user-chevron  flex-shrink-0"></i>
+                        <!-- Flecha -->
+                        <i class="bi bi-chevron-down user-chevron flex-shrink-0 text-white"></i>
                     </button>
 
                     <ul class="dropdown-menu dropdown-menu-end shadow-lg mt-2 rounded-3" style="min-width: 200px;">
@@ -441,14 +483,14 @@ $modulos = [
                         </li>
                     </ul>
                 </div>
+
             </div>
-            <!-- MENÚ DESPLEGABLE DE USUARIO -->
+            <!-- FIN CONTENEDOR DERECHO -->
 
         </div>
 
     </div>
 </nav>
-
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
 <?php

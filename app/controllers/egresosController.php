@@ -24,7 +24,7 @@ require_once __DIR__ . '/../models/productosModel.php';
 
 $productosModel = new ProductosModel($conexion);
 
-protegerPagina('compras'); 
+protegerPagina('compras');
 $almacenMo = new AlmacenModel($conexion);
 $egresoModel = new EgresoModel($conexion);
 $comprasModel = new CompraModel($conexion);
@@ -43,7 +43,8 @@ $paginaActual = 'compras';
 // =========================================================================
 
 if ($action === 'get_categorias_egresos') {
-    if (ob_get_level()) ob_clean();
+    if (ob_get_level())
+        ob_clean();
     header('Content-Type: application/json');
     try {
         $res = $gastosCategorias->listarTodas();
@@ -55,14 +56,16 @@ if ($action === 'get_categorias_egresos') {
 }
 
 if ($action === 'guardar_categoria_gasto') {
-    if (ob_get_level()) ob_clean();
+    if (ob_get_level())
+        ob_clean();
     header('Content-Type: application/json');
     try {
         $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
         $nombre = trim($_POST['nombre'] ?? '');
         $descripcion = trim($_POST['descripcion'] ?? '');
 
-        if (empty($nombre)) throw new Exception("El nombre de la categoría es obligatorio.");
+        if (empty($nombre))
+            throw new Exception("El nombre de la categoría es obligatorio.");
 
         if ($id > 0) {
             $resultado = $gastosCategorias->actualizar($id, $nombre, $descripcion);
@@ -80,9 +83,10 @@ if ($action === 'guardar_categoria_gasto') {
     exit;
 }
 if ($action === 'guardar_nuevo_insumo') {
-    if (ob_get_level()) ob_clean();
+    if (ob_get_level())
+        ob_clean();
     header('Content-Type: application/json');
-    
+
     try {
         $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
         $nombre = trim($_POST['nombre'] ?? '');
@@ -96,7 +100,7 @@ if ($action === 'guardar_nuevo_insumo') {
         // Determinar si es edición o inserción nueva
         if ($id > 0) {
             // ✅ Usa el modelo correcto para insumos si manejas edición aquí
-            $resultado = $gastosCategorias->actualizar($id, $nombre, $descripcion); 
+            $resultado = $gastosCategorias->actualizar($id, $nombre, $descripcion);
             $mensaje = "Insumo actualizado correctamente";
             $id_final = $id;
         } else {
@@ -105,27 +109,29 @@ if ($action === 'guardar_nuevo_insumo') {
             $resultado = $id_final ? true : false;
             $mensaje = "Insumo creado correctamente";
         }
-        
+
         echo json_encode([
-            "success" => $resultado, 
-            "message" => $mensaje, 
+            "success" => $resultado,
+            "message" => $mensaje,
             "id_insertado" => $id_final
         ]);
 
     } catch (Exception $e) {
         echo json_encode([
-            "success" => false, 
+            "success" => false,
             "message" => $e->getMessage()
         ]);
     }
     exit;
 }
 if ($action === 'eliminar_categoria') {
-    if (ob_get_level()) ob_clean();
+    if (ob_get_level())
+        ob_clean();
     header('Content-Type: application/json');
     try {
         $id = intval($_POST['id'] ?? 0);
-        if ($id <= 0) throw new Exception("ID no válido.");
+        if ($id <= 0)
+            throw new Exception("ID no válido.");
         $resultado = $gastosCategorias->eliminar($id);
         echo json_encode(["success" => $resultado]);
     } catch (Exception $e) {
@@ -139,58 +145,65 @@ if ($action === 'eliminar_categoria') {
 // =========================================================================
 
 if ($action === 'guardarCompraInventario') {
-    if (ob_get_length()) ob_clean(); 
+    if (ob_get_length())
+        ob_clean();
     header('Content-Type: application/json');
 
     try {
         $user_id = $_SESSION['usuario_id'] ?? 1;
-        $rol_id  = $_SESSION['rol_id'] ?? 0;
+        $rol_id = $_SESSION['rol_id'] ?? 0;
 
         // 1. Determinar Almacén
-        $almacen_principal = ($rol_id == 1 && isset($_POST['almacen_id_cabecera'])) 
-            ? intval($_POST['almacen_id_cabecera']) 
+        $almacen_principal = ($rol_id == 1 && isset($_POST['almacen_id_cabecera']))
+            ? intval($_POST['almacen_id_cabecera'])
             : ($_SESSION['almacen_id'] ?? null);
 
-        if (!$almacen_principal) throw new Exception("No se pudo determinar el almacén de cargo.");
+        if (!$almacen_principal)
+            throw new Exception("No se pudo determinar el almacén de cargo.");
 
         // 2. Guardar Compra Principal
         $resultado = $comprasModel->guardarCompraCompleta(
             $_POST['items'] ?? [],
             $_POST['folio'] ?? 'S/F',
             $_POST['proveedor'] ?? 'Sin Proveedor',
-            
+
             (isset($_FILES['evidencia_compra']) && $_FILES['evidencia_compra']['error'] === UPLOAD_ERR_OK) ? $_FILES['evidencia_compra'] : null,
             $almacen_principal,
             $user_id,
             $_POST['metodo_pago'] ?? 'Efectivo'
         );
 
-        if (!$resultado['success']) throw new Exception($resultado['message']);
+        if (!$resultado['success'])
+            throw new Exception($resultado['message']);
 
         // 3. Procesar Saldo / Pago de Deuda
         $saldo = floatval($_POST['saldo_a_pagar'] ?? 0);
         if ($saldo > 0) {
             $proveedor_id = intval($_POST['proveedor'] ?? 0);
-            if ($proveedor_id <= 0) throw new Exception("Proveedor inválido para pago de deuda");
+            if ($proveedor_id <= 0)
+                throw new Exception("Proveedor inválido para pago de deuda");
 
             $deudas = $proveedorModel->ProveedorYDeuda($proveedor_id);
-            if (empty($deudas)) throw new Exception("El proveedor no tiene deudas pendientes");
+            if (empty($deudas))
+                throw new Exception("El proveedor no tiene deudas pendientes");
 
             foreach ($deudas as $deuda) {
-                if ($saldo <= 0) break;
+                if ($saldo <= 0)
+                    break;
 
                 $cuenta_id = intval($deuda['compra_id']);
                 $pendiente = floatval($deuda['pendiente']);
                 $metodoPago = $_POST['metodo_pago'] ?? 'Efectivo';
 
-                if ($cuenta_id <= 0 || $pendiente <= 0) continue;
+                if ($cuenta_id <= 0 || $pendiente <= 0)
+                    continue;
 
                 $pago_aplicado = min($saldo, $pendiente);
 
                 // A. Actualizar saldo en la tabla de deuda
                 $res = $egresoModel->pagarDeudaCompra($cuenta_id, $pago_aplicado);
-                $proveedorNombre=$proveedorModel->obtenerPorId($proveedor_id);
-                
+                $proveedorNombre = $proveedorModel->obtenerPorId($proveedor_id);
+
                 // B. Registrar en historial de pagos
                 $desc = 'Pago de deuda (Compra #' . $cuenta_id . ') por $' . number_format($pago_aplicado, 2);
                 $ref = "PC-" . $cuenta_id; // Evitar string vacío
@@ -209,7 +222,7 @@ if ($action === 'guardarCompraInventario') {
                 if (!$res || (isset($res['success']) && !$res['success'])) {
                     throw new Exception("Error al descontar saldo de la deuda ID: $cuenta_id");
                 }
-                
+
                 $saldo -= $pago_aplicado;
             }
         }
@@ -231,13 +244,14 @@ if ($action === 'guardarCompraInventario') {
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_GET['action'] ?? '') === 'subirDocumento') {
 
-    if (ob_get_level()) ob_clean();
+    if (ob_get_level())
+        ob_clean();
     header('Content-Type: application/json');
 
     try {
 
-        
-        
+
+
         $id = intval($_POST['compra_id'] ?? 0);
         $folio = $_POST['folio'] ?? '';
         $tipo = $_POST['tipo'] ?? '';
@@ -254,7 +268,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_GET['action'] ?? '') === 'subirD
 
         // 🔥 SUBIDA
         $ruta_carpeta = $_SERVER['DOCUMENT_ROOT'] . "/myvet/uploads/compras/";
-        if (!is_dir($ruta_carpeta)) mkdir($ruta_carpeta, 0777, true);
+        if (!is_dir($ruta_carpeta))
+            mkdir($ruta_carpeta, 0777, true);
 
         $ext = pathinfo($documento['name'], PATHINFO_EXTENSION);
         $nombre = $tipo . preg_replace('/[^a-zA-Z0-9]/', '_', $folio) . "_" . time() . "." . $ext;
@@ -269,7 +284,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_GET['action'] ?? '') === 'subirD
         $documento_url = "uploads/compras/" . $nombre;
 
         // 🔥 GUARDAR EN BD
-        $ok = $comprasModel->subirDocumentoCompra($tipo,$id,$nombre, $documento_url);
+        $ok = $comprasModel->subirDocumentoCompra($tipo, $id, $nombre, $documento_url);
 
         if (!$ok) {
             throw new Exception("Error al guardar en BD");
@@ -292,21 +307,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_GET['action'] ?? '') === 'subirD
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_GET['action'] ?? '') === 'eliminarDocumento') {
 
-    if (ob_get_level()) ob_clean();
+    if (ob_get_level())
+        ob_clean();
     header('Content-Type: application/json');
 
     try {
 
-        
-        
+
+
         $id = intval($_POST['id'] ?? 0);
-        
+
 
         if ($id <= 0) {
             throw new Exception("Elemento inválida");
         }
 
-       
+
 
         // 🔥 ELIMINAR EN BD
         $ok = $comprasModel->eliminarDocumento($id);
@@ -334,39 +350,40 @@ if ($action === 'guardarGasto') {
     try {
         $rol_id = $_SESSION['rol_id'] ?? 0;
         $almacen_final = ($rol_id == 1) ? intval($_POST['almacen_id'] ?? 0) : intval($_SESSION['almacen_id'] ?? 0);
-        if ($almacen_final <= 0) throw new Exception("Almacén no válido.");
+        if ($almacen_final <= 0)
+            throw new Exception("Almacén no válido.");
 
         $urlDocumento = '';
-    
+
         $cabecera = [
-            'folio'        => $_POST['folio'] ?? 'S/F',
-            'fecha'        => $_POST['fecha'] ?? date('Y-m-d'),
-            'almacen_id'   => $almacen_final,
-            'categoria_id' => $_POST['categoria_id'] ?? null, 
-            'usuario_id'   => $_SESSION['usuario_id'] ?? 1,
+            'folio' => $_POST['folio'] ?? 'S/F',
+            'fecha' => $_POST['fecha'] ?? date('Y-m-d'),
+            'almacen_id' => $almacen_final,
+            'categoria_id' => $_POST['categoria_id'] ?? null,
+            'usuario_id' => $_SESSION['usuario_id'] ?? 1,
             'beneficiario' => $_POST['beneficiario'] ?? '',
-            'metodo_pago'  => $_POST['metodo_pago'] ?? 'Efectivo',
-            'total'        => $_POST['total_final'] ?? 0,
-            'documento_url'=> $urlDocumento,
-            'observaciones'=> $_POST['observaciones'] ?? ''
+            'metodo_pago' => $_POST['metodo_pago'] ?? 'Efectivo',
+            'total' => $_POST['total_final'] ?? 0,
+            'documento_url' => $urlDocumento,
+            'observaciones' => $_POST['observaciones'] ?? ''
         ];
 
         // 1. Registrar el gasto en la BD
         $res = $egresoModel->registrarGasto($cabecera, $_POST['desc'] ?? [], $_POST['cant'] ?? [], $_POST['precio'] ?? []);
-        
+
         // Validar que se haya obtenido un ID correcto
         $id = $res['id'] ?? 0;
         if ($id <= 0) {
             throw new Exception("No se pudo registrar el gasto en la base de datos.");
         }
-            
+
         $folio = $_POST['folio'] ?? 'SF';
         $tipo = $_POST['gasto'] ?? 'gasto'; // Asegúrate de recibir este valor o por defecto 'gasto'
         $documento = $_FILES['documento'] ?? null;
 
         // 2. Procesar el archivo SOLO si el usuario realmente subió uno
         if ($documento && $documento['error'] === UPLOAD_ERR_OK) {
-            
+
             $ruta_carpeta = $_SERVER['DOCUMENT_ROOT'] . "/myvet/uploads/compras/";
             if (!is_dir($ruta_carpeta)) {
                 mkdir($ruta_carpeta, 0777, true);
@@ -390,60 +407,62 @@ if ($action === 'guardarGasto') {
             if (!$ok) {
                 throw new Exception("Gasto registrado, pero falló al vincular el documento en la base de datos.");
             }
-        } 
+        }
         // Descomenta las siguientes líneas si para ti subir el archivo es OBLIGATORIO:
         // else {
         //     throw new Exception("El documento digital es obligatorio.");
         // }
 
         // 4. RESPUESTA ÚNICA DE ÉXITO (Al final del flujo)
-        echo json_encode(['success' => true, 'message' => 'Gasto guardado correctamente','id'=>$id]);
-        
+        echo json_encode(['success' => true, 'message' => 'Gasto guardado correctamente', 'id' => $id]);
+
     } catch (Exception $e) {
         // Si algo falla, el catch se encarga de mandar la respuesta limpia de error
         echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     }
     exit;
-}if ($action === 'guardarGastoInsumo') {
+}
+if ($action === 'guardarGastoInsumo') {
     header('Content-Type: application/json');
     try {
         $rol_id = $_SESSION['rol_id'] ?? 0;
         $almacen_final = ($rol_id == 1) ? intval($_POST['almacen_id'] ?? 0) : intval($_SESSION['almacen_id'] ?? 0);
-        if ($almacen_final <= 0) throw new Exception("Almacén no válido.");
+        if ($almacen_final <= 0)
+            throw new Exception("Almacén no válido.");
 
         $urlDocumento = '';
-        $desc=$_POST['precio'];
-       
-      
+        $desc = $_POST['precio'];
+
+
         $cabecera = [
-            'folio'        => $_POST['folio'] ?? 'S/F',
-            'fecha'        => $_POST['fecha'] ?? date('Y-m-d'),
-            'almacen_id'   => $almacen_final,
-            'categoria_id' => $_POST['categoria_id'] ?? null, 
-            'usuario_id'   => $_SESSION['usuario_id'] ?? 1,
+            'folio' => $_POST['folio'] ?? 'S/F',
+            'fecha' => $_POST['fecha'] ?? date('Y-m-d'),
+            'almacen_id' => $almacen_final,
+            'categoria_id' => $_POST['categoria_id'] ?? null,
+            'usuario_id' => $_SESSION['usuario_id'] ?? 1,
             'beneficiario' => $_POST['beneficiario'] ?? '',
-            'metodo_pago'  => $_POST['metodo_pago'] ?? 'Efectivo',
-            'total'        => $_POST['total_final'] ?? 0,
-            'documento_url'=> $urlDocumento,
-            'observaciones'=> $_POST['observaciones'] ?? ''
+            'metodo_pago' => $_POST['metodo_pago'] ?? 'Efectivo',
+            'total' => $_POST['total_final'] ?? 0,
+            'documento_url' => $urlDocumento,
+            'observaciones' => $_POST['observaciones'] ?? ''
         ];
         // 1. Registrar el gasto en la BD
-        $res = $egresoModel->registrarGastoInsumo($cabecera, $_POST['desc'] ?? [], $_POST['cant'] ?? [], $_POST['precio'] ?? [],$_POST['items'] ?? []);
-        
+        $res = $egresoModel->registrarGastoInsumo($cabecera, $_POST['desc'] ?? [], $_POST['cant'] ?? [], $_POST['precio'] ?? [], $_POST['items'] ?? []);
+
         // Validar que se haya obtenido un ID correcto
 
         $id = $res['id'] ?? 0;
         if ($id <= 0) {
             throw new Exception("No se pudo registrar el gasto en la base de datos.");
         }
-            
+
         $folio = $_POST['folio'] ?? 'SF';
         $tipo = $_POST['gasto'] ?? 'gasto'; // Asegúrate de recibir este valor o por defecto 'gasto'
         $documento = $_FILES['documento'] ?? null;
 
         // 2. Procesar el archivo SOLO si el usuario realmente subió uno
         if ($documento && $documento['error'] === UPLOAD_ERR_OK) {
-            
+
             $ruta_carpeta = $_SERVER['DOCUMENT_ROOT'] . "/myvet/uploads/compras/";
             if (!is_dir($ruta_carpeta)) {
                 mkdir($ruta_carpeta, 0777, true);
@@ -467,7 +486,7 @@ if ($action === 'guardarGasto') {
             if (!$ok) {
                 throw new Exception("Gasto registrado, pero falló al vincular el documento en la base de datos.");
             }
-        } 
+        }
         // Descomenta las siguientes líneas si para ti subir el archivo es OBLIGATORIO:
         // else {
         //     throw new Exception("El documento digital es obligatorio.");
@@ -475,7 +494,7 @@ if ($action === 'guardarGasto') {
 
         // 4. RESPUESTA ÚNICA DE ÉXITO (Al final del flujo)
         echo json_encode(['success' => true, 'message' => 'Gasto guardado correctamente']);
-        
+
     } catch (Exception $e) {
         // Si algo falla, el catch se encarga de mandar la respuesta limpia de error
         echo json_encode(['success' => false, 'message' => $e->getMessage()]);
@@ -507,16 +526,17 @@ if ($action === 'aplicarFaltantesCompras') {
 }
 if ($action === 'actualizarExcedente') {
 
-    if (ob_get_level()) ob_clean();
+    if (ob_get_level())
+        ob_clean();
     header('Content-Type: application/json');
 
     try {
         $user_id = $_SESSION['usuario_id'] ?? 1;
 
         // ✅ Cambiar $_GET por $_POST
-        $compra_id   = intval($_POST['compra_id'] ?? 0);
+        $compra_id = intval($_POST['compra_id'] ?? 0);
         $producto_id = intval($_POST['producto_id'] ?? 0);
-        $excedente   = floatval($_POST['excedente'] ?? 0);
+        $excedente = floatval($_POST['excedente'] ?? 0);
 
         if ($compra_id <= 0 || $producto_id <= 0) {
             throw new Exception("Datos de compra o producto inválidos.");
@@ -552,7 +572,8 @@ if ($action === 'procesarAjusteFaltante') {
         $compra_id = intval($_POST['compra_id'] ?? 0);
         $distribucion = $_POST['distribucion'] ?? [];
         $user_id = $_SESSION['usuario_id'] ?? 1;
-        if ($compra_id <= 0 || empty($distribucion)) throw new Exception("Datos no válidos.");
+        if ($compra_id <= 0 || empty($distribucion))
+            throw new Exception("Datos no válidos.");
         $res = $comprasModel->procesarAjusteFaltante($compra_id, $distribucion, $user_id);
         echo json_encode($res);
     } catch (Exception $e) {
@@ -562,10 +583,11 @@ if ($action === 'procesarAjusteFaltante') {
 }
 
 if ($action === 'getSiguienteFolioGasto') {
-    if (ob_get_length()) ob_clean();
+    if (ob_get_length())
+        ob_clean();
     header('Content-Type: application/json');
     try {
-        $almacen=$_GET['almacen'] ??  $_SESSION['almacen_id'];
+        $almacen = $_GET['almacen'] ?? $_SESSION['almacen_id'];
         $siguiente = $gastosModel->generarSiguienteFolioGasto($almacen);
         echo json_encode(['success' => true, 'folio' => $siguiente]);
     } catch (Exception $e) {
@@ -576,14 +598,15 @@ if ($action === 'getSiguienteFolioGasto') {
 
 if ($action === 'getSiguienteFolio') {
     header('Content-Type: application/json');
-     $almacen=$_GET['almacen_id'] ??  $_SESSION['almacen_id'];
+    $almacen = $_GET['almacen_id'] ?? $_SESSION['almacen_id'];
     $siguiente = $comprasModel->generarSiguienteFolio($almacen);
     echo json_encode(['success' => true, 'folio' => $siguiente]);
     exit;
 }
 
 if ($action === 'obtenerDetalleMovimiento') {
-    while (ob_get_level()) ob_end_clean(); 
+    while (ob_get_level())
+        ob_end_clean();
     header('Content-Type: application/json');
     $tipo = $_GET['tipo'] ?? '';
     $id = intval($_GET['id'] ?? 0);
@@ -600,7 +623,8 @@ if ($action === 'obtenerDetalleMovimiento') {
     exit;
 }
 if ($action === 'obtenerDistribucionProducto') {
-    while (ob_get_level()) ob_end_clean(); 
+    while (ob_get_level())
+        ob_end_clean();
     header('Content-Type: application/json');
     $producto = $_GET['tipo'] ?? '';
     $id = intval($_GET['id'] ?? 0);
@@ -617,7 +641,8 @@ if ($action === 'obtenerDistribucionProducto') {
     exit;
 }
 if ($action === 'obtenerDetallePago') {
-    while (ob_get_level()) ob_end_clean(); 
+    while (ob_get_level())
+        ob_end_clean();
     header('Content-Type: application/json');
 
     $id = intval($_GET['id'] ?? 0);
@@ -647,7 +672,8 @@ if ($action === 'obtenerDetallePago') {
     exit;
 }
 if ($action === 'obtenerDetalleMovimientoConProveedores') {
-    while (ob_get_level()) ob_end_clean(); 
+    while (ob_get_level())
+        ob_end_clean();
     header('Content-Type: application/json');
     $tipo = $_GET['tipo'] ?? '';
     $id = intval($_GET['id'] ?? 0);
@@ -665,7 +691,8 @@ if ($action === 'obtenerDetalleMovimientoConProveedores') {
 }
 
 if ($action === 'getProveedoresJSON') {
-    while (ob_get_level()) ob_end_clean(); 
+    while (ob_get_level())
+        ob_end_clean();
     header('Content-Type: application/json; charset=utf-8');
     try {
         $lista = $proveedorModel->listarTodos();
@@ -676,10 +703,11 @@ if ($action === 'getProveedoresJSON') {
     exit;
 }
 if ($action === 'getProveedoresJSONAlmacen') {
-    while (ob_get_level()) ob_end_clean(); 
+    while (ob_get_level())
+        ob_end_clean();
     header('Content-Type: application/json; charset=utf-8');
     try {
-        $almacen_actual=$_GET['almacen']?? $_SESSION['almacen_id'];
+        $almacen_actual = $_GET['almacen'] ?? $_SESSION['almacen_id'];
         $lista = $proveedorModel->listarTodosProveedorsYDeuda($almacen_actual);
         echo json_encode($lista ?: []);
     } catch (Exception $e) {
@@ -689,7 +717,8 @@ if ($action === 'getProveedoresJSONAlmacen') {
 }
 if ($action === 'guardarProveedor') {
 
-    while (ob_get_level()) ob_end_clean();
+    while (ob_get_level())
+        ob_end_clean();
 
     header('Content-Type: application/json; charset=utf-8');
 
@@ -697,19 +726,19 @@ if ($action === 'guardarProveedor') {
 
         $datos = [
             'nombre_comercial' => trim($_POST['nombre_comercial'] ?? ''),
-            'razon_social'     => trim($_POST['razon_social'] ?? ''),
-            'rfc'              => trim($_POST['rfc'] ?? 'XAXX010101000'),
-            'correo'           => trim($_POST['correo'] ?? ''),
-            'contacto'         => trim($_POST['contacto'] ?? ''),
-            'telefono'         => trim($_POST['telefono'] ?? '0'),
-            'telefono2'        => trim($_POST['telefono2'] ?? '0'),
-            'extencion'        => trim($_POST['extencion'] ?? '0'),
-            'almacen_id'       => trim($_POST['almacen_id'] ?? ''),
-            'direccion'        => trim($_POST['direccion'] ?? ''),
-            'numeroExt'        => trim($_POST['numeroext'] ?? '0'),
-            'numeroInt'        => trim($_POST['numeroint'] ?? '0'),
-            'colonia'          => trim($_POST['colonia'] ?? ''),
-            'ciudad'           => trim($_POST['ciudad'] ?? '')
+            'razon_social' => trim($_POST['razon_social'] ?? ''),
+            'rfc' => trim($_POST['rfc'] ?? 'XAXX010101000'),
+            'correo' => trim($_POST['correo'] ?? ''),
+            'contacto' => trim($_POST['contacto'] ?? ''),
+            'telefono' => trim($_POST['telefono'] ?? '0'),
+            'telefono2' => trim($_POST['telefono2'] ?? '0'),
+            'extencion' => trim($_POST['extencion'] ?? '0'),
+            'almacen_id' => trim($_POST['almacen_id'] ?? ''),
+            'direccion' => trim($_POST['direccion'] ?? ''),
+            'numeroExt' => trim($_POST['numeroext'] ?? '0'),
+            'numeroInt' => trim($_POST['numeroint'] ?? '0'),
+            'colonia' => trim($_POST['colonia'] ?? ''),
+            'ciudad' => trim($_POST['ciudad'] ?? '')
         ];
 
         if (empty($datos['nombre_comercial'])) {
@@ -723,10 +752,10 @@ if ($action === 'guardarProveedor') {
         if ($respuesta['success']) {
 
             echo json_encode([
-                'success'       => true,
-                'message'       => 'Proveedor guardado',
-                'nuevo_nombre'  => $datos['nombre_comercial'],
-                'id'            => $respuesta['id']
+                'success' => true,
+                'message' => 'Proveedor guardado',
+                'nuevo_nombre' => $datos['nombre_comercial'],
+                'id' => $respuesta['id']
             ]);
 
         } else {
@@ -747,13 +776,16 @@ if ($action === 'guardarProveedor') {
     exit;
 }
 if ($action === 'cancelarCompra') {
-    if (ob_get_level()) ob_end_clean(); 
+    if (ob_get_level())
+        ob_end_clean();
     header('Content-Type: application/json; charset=utf-8');
     try {
-        if (!isset($_SESSION['usuario_id'])) throw new Exception("Sesión expirada.");
+        if (!isset($_SESSION['usuario_id']))
+            throw new Exception("Sesión expirada.");
         $id_compra = intval($_POST['id'] ?? 0);
         $id_usuario = $_SESSION['usuario_id'];
-        if ($id_compra <= 0) throw new Exception("ID de compra inválido.");
+        if ($id_compra <= 0)
+            throw new Exception("ID de compra inválido.");
         $resultado = $comprasModel->cancelarCompra($id_compra, $id_usuario);
         $cancelarCuentaPorPagar = $egresoModel->cancelarDeuda($id_compra);
 
@@ -765,15 +797,19 @@ if ($action === 'cancelarCompra') {
 }
 
 if ($action === 'cancelarGasto') {
-    if (ob_get_level()) ob_end_clean(); 
+    if (ob_get_level())
+        ob_end_clean();
     header('Content-Type: application/json; charset=utf-8');
     try {
-        if (!isset($_SESSION['usuario_id'])) throw new Exception("Sesión expirada.");
+        if (!isset($_SESSION['usuario_id']))
+            throw new Exception("Sesión expirada.");
         $id_gasto = intval($_POST['id'] ?? 0);
         $id_usuario = $_SESSION['usuario_id'];
         $razon = trim($_POST['razon'] ?? '');
-        if ($id_gasto <= 0) throw new Exception("ID de gasto inválido.");
-        if (empty($razon)) throw new Exception("Es obligatorio proporcionar una razón.");
+        if ($id_gasto <= 0)
+            throw new Exception("ID de gasto inválido.");
+        if (empty($razon))
+            throw new Exception("Es obligatorio proporcionar una razón.");
         $resultado = $gastosModel->cancelarGastoConRazon($id_gasto, $id_usuario, $razon);
         echo json_encode($resultado);
     } catch (Exception $e) {
@@ -787,25 +823,26 @@ $action = $_GET['action'] ?? $_POST['action'] ?? $_POST['ajax'] ?? '';
 
 if ($action === 'guardar_categoria_egreso') {
     // 1. Limpieza total de búfer para que no haya ni un espacio en blanco antes del {
-    while (ob_get_level()) ob_end_clean(); 
-    
+    while (ob_get_level())
+        ob_end_clean();
+
     header('Content-Type: application/json; charset=utf-8');
 
     try {
         $nombre = trim($_POST['nombre'] ?? '');
-        
+
         if (empty($nombre)) {
             throw new Exception("El nombre de la categoría es obligatorio.");
         }
 
         // Usamos la instancia que ya definiste al inicio de tu controller
         // Si tu modelo devuelve el ID insertado:
-        $id_final = $gastosCategorias->guardar($nombre, ''); 
+        $id_final = $gastosCategorias->guardar($nombre, '');
 
         if ($id_final) {
             echo json_encode([
-                "success" => true, 
-                "id_insertado" => $id_final, 
+                "success" => true,
+                "id_insertado" => $id_final,
                 "message" => "Categoría creada correctamente"
             ]);
         } else {
@@ -813,38 +850,40 @@ if ($action === 'guardar_categoria_egreso') {
         }
     } catch (Exception $e) {
         echo json_encode([
-            "success" => false, 
+            "success" => false,
             "message" => $e->getMessage()
         ]);
     }
     // 2. OBLIGATORIO: Detener el script aquí
-    exit; 
+    exit;
 }
 if ($action === 'guardar_insumo') {
     // 1. Limpieza total de búfer para que no haya ni un espacio en blanco antes del {
-    while (ob_get_level()) ob_end_clean(); 
-    
+    while (ob_get_level())
+        ob_end_clean();
+
     header('Content-Type: application/json; charset=utf-8');
 
     try {
         $nombre = trim($_POST['nombre'] ?? '');
         $descripcion = trim($_POST['descripcion'] ?? '');
-        $uma=trim($_POST['uma'] ?? '');
-        $umi=trim($_POST['umi'] ?? '');
-        $factor=($_POST['factor'] ?? 1);
-        
+        $uma = trim($_POST['uma'] ?? '');
+        $umi = trim($_POST['umi'] ?? '');
+        $factor = ($_POST['factor'] ?? 1);
+        $almacen_id = $_SESSION['almacen_id'];
+
         if (empty($nombre)) {
             throw new Exception("El nombre de la categoría es obligatorio.");
         }
 
         // Usamos la instancia que ya definiste al inicio de tu controller
         // Si tu modelo devuelve el ID insertado:
-        $id_final = $gastosCategorias->guardarInsumo($nombre, $descripcion,$uma,$umi,$factor); 
+        $id_final = $gastosCategorias->guardarInsumo($nombre, $descripcion, $uma, $umi, $factor, $almacen_id);
 
         if ($id_final) {
             echo json_encode([
-                "success" => true, 
-                "id_insertado" => $id_final, 
+                "success" => true,
+                "id_insertado" => $id_final,
                 "message" => "Categoría creada correctamente"
             ]);
         } else {
@@ -852,34 +891,85 @@ if ($action === 'guardar_insumo') {
         }
     } catch (Exception $e) {
         echo json_encode([
-            "success" => false, 
+            "success" => false,
             "message" => $e->getMessage()
         ]);
     }
     // 2. OBLIGATORIO: Detener el script aquí
-    exit; 
+    exit;
+}
+if ($action === 'editar_insumo') {
+    // 1. Limpieza total de búfer
+    while (ob_get_level())
+        ob_end_clean();
+
+    header('Content-Type: application/json; charset=utf-8');
+
+    try {
+        // 1. Validar ID
+        $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+        if ($id <= 0) {
+            throw new Exception("ID de insumo inválido.");
+        }
+
+        // 2. Limpieza de datos
+        $nombre = trim($_POST['nombre'] ?? '');
+        $descripcion = trim($_POST['descripcion'] ?? '');
+        $uma = trim($_POST['uma'] ?? '');
+        $umi = trim($_POST['umi'] ?? '');
+        $factor = floatval($_POST['factor'] ?? 1);
+
+        // 3. Validaciones
+        if (empty($nombre)) {
+            throw new Exception("El nombre del insumo es obligatorio.");
+        }
+        if ($factor <= 0) {
+            throw new Exception("El factor debe ser mayor a 0.");
+        }
+
+        // 4. Actualizar (el id solo va en el WHERE, no se modifica)
+        $resultado = $gastosCategorias->actualizarInsumo($id, $nombre, $descripcion, $uma, $umi, $factor);
+
+        if (!$resultado) {
+            throw new Exception("Error al actualizar en la base de datos.");
+        }
+
+        echo json_encode([
+            "success" => true,
+            "id" => $id,
+            "message" => "Insumo actualizado correctamente"
+        ]);
+
+    } catch (Exception $e) {
+        echo json_encode([
+            "success" => false,
+            "message" => $e->getMessage()
+        ]);
+    }
+    exit;
 }
 // Acción para registrar la deuda nacida de un exceso en compras o gastos
 if ($action === 'registrarDeudaPorExceso') {
     // Limpiamos el buffer para evitar que espacios en blanco rompan el JSON de salida
-    while (ob_get_level()) ob_end_clean(); 
-    
+    while (ob_get_level())
+        ob_end_clean();
+
     // Definimos cabecera para respuesta JSON
     header('Content-Type: application/json; charset=utf-8');
-    
+
     try {
         // 1. Recolección de datos desde el Formulario y Sesión
         $datos = [
             // Priorizamos el almacén de la operación original enviado desde el modal
-            'id_almacen'           => !empty($_POST['id_almacen']) ? intval($_POST['id_almacen']) : ($_SESSION['id_almacen'] ?? null),
-            'id_proveedor'         => !empty($_POST['id_proveedor']) ? intval($_POST['id_proveedor']) : null,
-            'beneficiario'         => trim($_POST['beneficiario'] ?? ''),
+            'id_almacen' => !empty($_POST['id_almacen']) ? intval($_POST['id_almacen']) : ($_SESSION['id_almacen'] ?? null),
+            'id_proveedor' => !empty($_POST['id_proveedor']) ? intval($_POST['id_proveedor']) : null,
+            'beneficiario' => trim($_POST['beneficiario'] ?? ''),
             'id_referencia_origen' => trim($_POST['id_referencia_origen'] ?? ''),
-            'origen_tipo'          => trim($_POST['origen_tipo'] ?? 'compra'),
-            'monto_total'          => floatval($_POST['monto_total'] ?? 0),
-            'montopagado'          => 0,
-            'tipo_deuda'           => 'excedente_material', // Categoría fija para este proceso
-            'notas'                => "Ajuste generado por exceso en " . ($_POST['origen_tipo'] ?? 'operación') . " #" . ($_POST['id_referencia_origen'] ?? 'S/N')
+            'origen_tipo' => trim($_POST['origen_tipo'] ?? 'compra'),
+            'monto_total' => floatval($_POST['monto_total'] ?? 0),
+            'montopagado' => 0,
+            'tipo_deuda' => 'excedente_material', // Categoría fija para este proceso
+            'notas' => "Ajuste generado por exceso en " . ($_POST['origen_tipo'] ?? 'operación') . " #" . ($_POST['id_referencia_origen'] ?? 'S/N')
         ];
 
         // 2. Validaciones Críticas
@@ -903,7 +993,7 @@ if ($action === 'registrarDeudaPorExceso') {
         if ($resultado['success']) {
             // Respuesta exitosa para el SweetAlert del JS
             echo json_encode([
-                'success' => true, 
+                'success' => true,
                 'message' => 'Cuenta por pagar registrada correctamente.',
                 'id_deuda' => $resultado['id']
             ]);
@@ -915,7 +1005,7 @@ if ($action === 'registrarDeudaPorExceso') {
     } catch (Exception $e) {
         // Respuesta en caso de error o excepción
         echo json_encode([
-            'success' => false, 
+            'success' => false,
             'message' => $e->getMessage()
         ]);
     }
@@ -990,7 +1080,7 @@ if ($action === 'pagarDeudaCompra') {
     header('Content-Type: application/json');
 
     $cuenta_id = intval($_POST['cuenta_id'] ?? 0);
-    $monto     = floatval($_POST['monto'] ?? 0);
+    $monto = floatval($_POST['monto'] ?? 0);
 
     if ($cuenta_id <= 0 || $monto <= 0) {
         echo json_encode([
@@ -1001,7 +1091,7 @@ if ($action === 'pagarDeudaCompra') {
     }
 
 
-   
+
 
     $result = $egresoModel->pagarDeudaCompra($cuenta_id, $monto);
 
@@ -1010,16 +1100,17 @@ if ($action === 'pagarDeudaCompra') {
 }
 
 if (isset($_GET['action']) && $_GET['action'] === 'obtenerProveedores') {
-    if (ob_get_level()) ob_clean();
+    if (ob_get_level())
+        ob_clean();
     header('Content-Type: application/json');
-    
+
     try {
-       
-       
-            $proveedores = $proveedorModel->listarTodosProveedores(0); 
-        
-        
-        
+
+
+        $proveedores = $proveedorModel->listarTodosProveedores(0);
+
+
+
         if ($proveedores) {
             echo json_encode(['success' => true, 'data' => $proveedores]);
         } else {
@@ -1036,7 +1127,7 @@ if ($action === 'obtenerProductosSelect') {
 
     try {
 
-        $listaProductos= $productosModel->listarTodo();
+        $listaProductos = $productosModel->listarTodo();
 
         echo json_encode([
             'success' => true,
@@ -1054,20 +1145,26 @@ if ($action === 'obtenerProductosSelect') {
     exit;
 }
 if ($action === 'obtenerInsumosSelect') {
+    while (ob_get_level())
+        ob_end_clean();
 
-    header('Content-Type: application/json');
+    header('Content-Type: application/json; charset=utf-8');
 
     try {
+        // 🔥 Prioridad: id por GET → sesión → 0 (todos)
+        $almacen_id = isset($_GET['id']) && $_GET['id'] !== ''
+            ? (int) $_GET['id']
+            : (int) ($_SESSION['almacen_id'] ?? 0);
 
-      $insumos= $insumosModel-> listarTodo();
+        $insumos = $insumosModel->listarTodo($almacen_id);
 
         echo json_encode([
             'success' => true,
+            'almacen_id' => $almacen_id,  // útil para debug
             'data' => $insumos
         ]);
 
     } catch (Throwable $e) {
-
         echo json_encode([
             'success' => false,
             'message' => $e->getMessage()
@@ -1079,7 +1176,8 @@ if ($action === 'obtenerInsumosSelect') {
 if ($action === 'guardarCategoria') {
 
     // 🔥 LIMPIAR CUALQUIER SALIDA (evita romper JSON)
-    while (ob_get_level()) ob_end_clean();
+    while (ob_get_level())
+        ob_end_clean();
 
     header('Content-Type: application/json; charset=utf-8');
 
@@ -1092,20 +1190,20 @@ if ($action === 'guardarCategoria') {
 
         // 🔥 OBTENER Y LIMPIAR DATO
         $nombre = trim($_POST['nombre'] ?? '');
-        
-         $almacen = ($_POST['almacen'] ?? 10);
+
+        $almacen = ($_POST['almacen'] ?? 10);
 
         if ($nombre === '') {
             throw new Exception("El nombre es obligatorio");
         }
 
         // 🔥 VALIDAR DUPLICADO
-        if ($categoriasModel->existe($nombre,$almacen)) {
+        if ($categoriasModel->existe($nombre, $almacen)) {
             throw new Exception("Esta categoría ya existe");
         }
 
         // 🔥 GUARDAR
-        $id = $categoriasModel->guardar($nombre,$almacen);
+        $id = $categoriasModel->guardar($nombre, $almacen);
 
         if (!$id) {
             throw new Exception("No se pudo guardar la categoría");
@@ -1161,7 +1259,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && empty($action)) {
     }
 
     // 2. Filtros de Categoría y Tipo
-    $tipo_filtro = $_GET['tipo_filtro'] ?? 'todos'; 
+    $tipo_filtro = $_GET['tipo_filtro'] ?? 'todos';
     $categoria_gasto_id = isset($_GET['categoria_gasto_filtro']) ? intval($_GET['categoria_gasto_filtro']) : 0;
 
     // 3. Seguridad por Almacén y Rol
@@ -1173,7 +1271,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && empty($action)) {
         : $mi_almacen_id;
 
     // 4. Filtros Financieros
-    $deuda_filtro  = $_GET['deuda_filtro'] ?? 'todos';
+    $deuda_filtro = $_GET['deuda_filtro'] ?? 'todos';
     $metodo_filtro = $_GET['metodo_filtro'] ?? 'todos';
 
     // 5. Consulta al Modelo
@@ -1200,22 +1298,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && empty($action)) {
     }
 
     $granTotalEgresos = $totalSumCompras + $totalSumGastos;
-$almacen_actual= $_SESSION['almacen_id'];
+    $almacen_actual = $_SESSION['almacen_id'];
     // 7. Carga de Catálogos para la Vista
     $listaCategoriasGastos = $gastosCategorias->listarTodas();
     $almacenes = $egresoModel->obtenerAlmacenesActivos();
-    $almacenUsuario= $almacenMo->getAlmacenes($almacen_actual);
+    $almacenUsuario = $almacenMo->getAlmacenes($almacen_actual);
     $productos = $comprasModel->obtenerProductosAlmacen(1);
-   $insumos= $insumosModel-> listarTodo();
-    $listaProductos= $productosModel->listarTodoAlmacen($almacen_actual);
-    $proveedores = $proveedorModel->listarTodosProveedorsYDeuda($almacen_actual); 
-$unidadesMedida= $almacenMo->getUnidadesMedida();
+    $insumos = $insumosModel->listarTodo();
+    $listaProductos = $productosModel->listarTodoAlmacen($almacen_actual);
+    $proveedores = $proveedorModel->listarTodosProveedorsYDeuda($almacen_actual);
+    $unidadesMedida = $almacenMo->getUnidadesMedida();
 
     $tituloPagina = "Gestión de Egresos";
 
     // Pasar variables adicionales a la vista para mantener el estado de los inputs
     // $periodo_sel, $fecha_desde, $fecha_hasta ya están listas
-    
+
     require_once __DIR__ . '/../views/egresos_view.php';
     exit;
 }
