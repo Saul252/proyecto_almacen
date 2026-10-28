@@ -457,7 +457,7 @@ $modulos = [
 
                         <!-- Nombre -->
                         <div class="text-center flex-grow-1 d-none d-md-block me-1">
-                            <span class="d-block lh-1 small fw-semibold user-name-text text-truncate text-white"
+                            <span class="d-block lh-1 small fw-semibold user-name-text text-truncate  text-white"
                                 style="max-width: 120px;">
                                 <?= htmlspecialchars($_SESSION['nombre'] ?? 'Usuario') ?>
                             </span>
@@ -469,14 +469,15 @@ $modulos = [
 
                     <ul class="dropdown-menu dropdown-menu-end shadow-lg mt-2 rounded-3" style="min-width: 200px;">
                         <li class="px-3 py-2 border-bottom">
-                            <p class="mb-0 small text-muted">Sesión activa</p>
-                            <p class="mb-0 fw-bold text-truncate" style="max-width: 170px;">
+                            <p class="mb-0 small text-white">Sesión activa</p>
+                            <p class="mb-0 fw-bold text-white text-truncate" style="max-width: 170px;">
                                 <?= $_SESSION['nombre'] ?? 'Usuario' ?>
                             </p>
                         </li>
                         <li>
-                            <a class="dropdown-item text-danger d-flex align-items-center gap-2 py-2 mt-1"
-                                href="/myvet/logout.php">
+                            <a class="dropdown-item text-danger d-flex align-items-center gap-2 py-2 mt-1 rounded-2"
+                                href="/myvet/logout.php" onmouseover="this.classList.add('bg-danger-subtle')"
+                                onmouseout="this.classList.remove('bg-danger-subtle')">
                                 <i class="bi bi-box-arrow-right"></i>
                                 <span>Cerrar Sesión</span>
                             </a>

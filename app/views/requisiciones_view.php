@@ -635,7 +635,8 @@
                     </td>
                     <td>
                         <input type="number" name="itemsEditar[${id}][cant]" class="form-control cantidad-editar"
-                            step="0.01" value="1" min="0.01" required>
+                            step="0.01" value="1" min="0.01"  onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductosEditar').select2('open'); }"
+                   required>
                         <input type="hidden" name="itemsEditar[${id}][equivalencia]" class="form-control equivalencia" value="1">
                     </td>
                     <td>

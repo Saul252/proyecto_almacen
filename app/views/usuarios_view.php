@@ -196,9 +196,13 @@
                 <h2 class="fw-bold m-0">Personal del Sistema</h2>
                 <p class="text-body-secondary">Gestión de cuentas, roles y sucursales asignadas</p>
             </div>
-            <button class="btn btn-primary rounded-pill px-4 shadow-sm" onclick="nuevoUsuario()">
-                <i class="bi bi-person-plus-fill me-2"></i> Nuevo Usuario
-            </button>
+
+
+            <?php if ($almacen_usuario == 0): ?>
+                <button class="btn btn-primary rounded-pill px-4 shadow-sm" onclick="nuevoUsuario()">
+                    <i class="bi bi-person-plus-fill me-2"></i> Nuevo Usuario
+                </button>
+            <?php endif; ?>
         </div>
 
         <div class="card card-table p-4">

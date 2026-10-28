@@ -338,22 +338,34 @@
             #3A2A3F 82%,
             #141824 100%);
     --bg-app: (--bg-light-morning:);
-    --card-bg: #ffffff;
-    --card-glass: rgba(255, 255, 255, 0.85);
-    --card-border: rgba(226, 232, 240, 0.8);
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --shadow-soft: 0 10px 25px rgba(0, 0, 0, 0.04);
 
+    --card-bg: rgba(180, 210, 240, 0.45);
+    /* azul claro translúcido */
+    --card-glass: rgba(180, 210, 240, 0.40);
+    /* un poco más transparente para el blur */
+    --card-border: rgba(120, 160, 200, 0.5);
+    /* borde azul-grisáceo */
+
+    /* ===== Píldoras / Chips ===== */
+    --pill-bg: rgba(255, 255, 255, 0.5);
+    --pill-hover-bg: #4361ee;
+    --pill-hover-text: #ffffff;
+    --pill-border: rgba(120, 160, 200, 0.5);
+
+    /* ===== Texto ===== */
+    --text-primary: #0f172a;
+    /* negro azulado, legible sobre azul claro */
+    --text-secondary: #334155;
+    /* gris azulado oscuro */
+
+    /* ===== Sombra ===== */
+    --shadow-soft: 0 8px 24px rgba(31, 56, 88, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7);
     /* Banner Clock */
     --clock-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     --clock-text: #ffffff;
 
-    /* Píldoras / Chips */
-    --pill-bg: #f8fafc;
-    --pill-hover-bg: #4361ee;
-    --pill-hover-text: #ffffff;
-    --pill-border: rgba(226, 232, 240, 0.9);
+
 }
 
 [data-bs-theme="dark"] {

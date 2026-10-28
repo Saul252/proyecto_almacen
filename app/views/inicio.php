@@ -166,6 +166,10 @@ $abrirTodos = ($totalGruposVisibles <= 2);
 
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png"
+        href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
+    <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
+        type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bienvenido - Sistema JSEA</title>
 

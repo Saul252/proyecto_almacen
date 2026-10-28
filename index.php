@@ -35,8 +35,7 @@ if (empty($images)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSEA SISTEM | Acceso</title>
     <link rel="icon" type="image/png" href="/myvet/public/assets/logo.png">
-    <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
-        type="image/x-icon">
+    <link rel="shortcut icon" href="/myvet/public/assets/logo.ico" type="image/x-icon">
 
     <!-- Frameworks & Fonts -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">

@@ -141,7 +141,7 @@
             if (!select) return;
 
             try {
-                const url = `${URL_ACCESO}?action=obtenerClientes`;
+                const url = `/myvet/app/controllers/accesoController.php?action=obtenerClientes`;
                 const respuesta = await fetch(url);
 
                 if (!respuesta.ok) throw new Error('Error en la respuesta del servidor');

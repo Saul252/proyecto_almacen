@@ -1058,6 +1058,8 @@
                     value="1"
                     min="0.01"
                     required
+                     onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductosEditar').select2('open'); }"
+                   
                     oninput="actualizarEquivalencia(this);calcularTotalSolEditar(this)">
                 <input
                     type="hidden"
