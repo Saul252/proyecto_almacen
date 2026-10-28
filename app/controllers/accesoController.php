@@ -221,6 +221,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'getAlmacenesUsuario') {
 
 if (isset($_GET['action']) && $_GET['action'] === 'obtenerProductos') {
     header('Content-Type: application/json');
+    $almacen = $session_almacen_id == 0 ? 1 : $session_almacen_id;
 
     $productos = $productosModel->obtenerTodosProductos($session_almacen_id);
     $medidasAdicionales = $productosModel->obtenerMedidas();
