@@ -444,7 +444,7 @@
             $('#cot_emptyState').addClass('d-none');
 
             const medidas = JSON.parse(d.medidas || '[]');
-            let opcionesUnidad = '<option value="0" data-equivalencia="0" data-medida-id="0">Seleccione</option>';
+            let opcionesUnidad = '';
             medidas.forEach(m => {
                 opcionesUnidad += `<option value="${m.id}" data-equivalencia="${m.equivalencia}" data-medida-id="${m.id}">${m.nombre}</option>`;
             });

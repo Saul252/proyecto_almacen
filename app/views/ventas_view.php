@@ -200,12 +200,13 @@
                                 <label class="form-label text-body-secondary fw-semibold small mb-1">
                                     <i class="bi bi-search me-1 text-primary"></i> Añadir Producto
                                 </label>
-                                <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                                <div class="d-flex gap-2">
                                     <select id="buscadorProductosEditar"
                                         class="form-select select2-pagina border-slate-300">
                                         <option value="">Escribe SKU o nombre...</option>
                                     </select>
-                                    <button type="button" class="btn btn-primary d-flex align-items-center px-3 "
+                                    <button type="button"
+                                        class="btn btn-primary d-flex align-items-center px-3 flex-shrink-0"
                                         onclick="abrirModalProducto()" title="Agregar nuevo producto">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
@@ -543,7 +544,51 @@
             // Inicializar Select2 en la página
             // 1. Buscador de productos (sin dropdownParent por el overflow-hidden)
             $('#buscadorProductosEditar').select2({
-                theme: 'bootstrap-5'
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Escribe SKU o nombre...',
+                allowClear: true,
+
+                templateResult: function (data) {
+                    if (!data.id) return data.text;
+
+                    const $el = $(data.element);
+                    const sku = $el.attr('data-sku') || '';
+                    const nombre = $el.attr('data-nombre') || data.text;
+                    const stock = $el.attr('data-stock') || '';
+                    const ur = $el.attr('data-ur') || '';
+
+                    return $(`
+            <div class="d-flex align-items-center gap-2 py-1">
+                <div class="d-flex align-items-center justify-content-center rounded-2 bg-primary bg-opacity-10 text-primary flex-shrink-0"
+                     style="width:32px;height:32px;">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <div class="flex-grow-1 overflow-hidden">
+                    <div class="fw-semibold small text-truncate">${nombre}</div>
+                    <div class="d-flex align-items-center gap-2 small text-body-secondary">
+                        <span class="badge bg-dark text-white font-monospace">${sku}</span>
+                        ${stock ? `<span class="opacity-50">·</span ><span class=" text-dark font-monospace">Stock: ${stock} ${ur}</span>` : ''}
+                    </div>
+                </div>
+            </div>
+        `);
+                },
+
+                templateSelection: function (data) {
+                    if (!data.id) return data.text;
+
+                    const $el = $(data.element);
+                    const sku = $el.attr('data-sku') || '';
+                    const nombre = $el.attr('data-nombre') || data.text;
+
+                    return $(`
+            <span class="d-inline-flex align-items-center gap-2">
+                <span class="badge bg-dark text-white font-monospace">${sku}</span>
+                <span class="fw-semibold small text-truncate">${nombre}</span>
+            </span>
+        `);
+                }
             });
 
             // 2. Select de vendedor
@@ -873,7 +918,6 @@
                     name="itemsEditar[${id}][cant]"
                     class="form-control cantidad-editar"
                     onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductosEditar').select2('open'); }"
-                   
                     step="0.01" value="1" min="0.01" required>
                 <input type="hidden"
                     name="itemsEditar[${id}][equivalencia]"
@@ -887,8 +931,8 @@
             </td>
             <td>
                 <select name="itemsEditar[${id}][tipoPrecio]"
-                    class="form-select tipoPrecio-select-editar">
-                     <option value="seleccionar" data-precio="0">Seleccione</option>
+                    class="form-select tipoPrecio-select-editar"
+                    onchange="calcularPrecioSugeridoEditar(this)">
                     <option value="minorista"    data-precio="${preMin}">Min $${(preMin * factor).toFixed(2)} x ${d.ur}</option>
                     <option value="mayorista"    data-precio="${preMat}">May $${(preMat * factor).toFixed(2)} x ${d.ur}</option>
                     <option value="distribuidor" data-precio="${preDis}">Dis $${(preDis * factor).toFixed(2)} x ${d.ur}</option>
@@ -919,8 +963,18 @@
         </tr>
     `);
 
-            // 🔥 Enfocar el input de cantidad de ESTA fila
+            // 🔥 1) Disparar el cálculo de precio sugerido al agregar el producto
             const $fila = $(`#filaEditar-${id}`);
+
+            // Si quieres forzar el tipo de precio por defecto (opcional):
+            // $fila.find('.tipoPrecio-select-editar').val('minorista');
+
+            const $selectTipoPrecio = $fila.find('.tipoPrecio-select-editar')[0];
+            if ($selectTipoPrecio && typeof calcularPrecioSugeridoEditar === 'function') {
+                calcularPrecioSugeridoEditar($selectTipoPrecio);
+            }
+
+            // 🔥 2) Enfocar el input de cantidad de ESTA fila
             const $cantidad = $fila.find('.cantidad-editar');
 
             if ($cantidad.length) {
@@ -949,9 +1003,10 @@
             }
 
             $(this).val(null).trigger('change');
-        });  /* =========================================================
-           CÁLCULOS
-           ========================================================= */
+        });
+        /* =========================================================
+        CÁLCULOS
+        ========================================================= */
         function calcularTotalSolEditar(input) {
             if (recalculandoFilaEditar) return;
             recalculandoFilaEditar = true;

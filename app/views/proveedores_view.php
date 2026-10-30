@@ -536,8 +536,13 @@ function exportarProveedoresCSV() {
 function cargarProveedores() {
     const almacen = $('#almacen_id_proveedor').val() || 0;
 
-    // Mostrar estado de carga
-    $('#tablaProveedores tbody').html(`
+    // 1) Destruir DataTables si existe (para poder manipular el tbody)
+    if ($.fn.DataTable.isDataTable('#tablaProveedores')) {
+        $('#tablaProveedores').DataTable().destroy();
+    }
+
+    // 2) Vaciar el tbody y mostrar spinner
+    $('#tablaProveedores tbody').empty().html(`
         <tr>
             <td colspan="6" class="text-center py-4 text-body-secondary">
                 <div class="spinner-border spinner-border-sm me-2" role="status"></div>
@@ -547,13 +552,16 @@ function cargarProveedores() {
     `);
 
     $.ajax({
-        url: '${URL_EGRESOS}?action=getProveedoresJSONAlmacen&almacen=${almacen}',
+        url: '/myvet/app/controllers/proveedoresController.php',
         method: 'GET',
-        data: { ajax: 1, almacen_id: almacen },
+        data: { action: 'listarProveedoresAlmacen', almacen_id: almacen },
         dataType: 'json',
         success: function(res) {
+            const tbody = $('#tablaProveedores tbody');
+            tbody.empty();   // 3) limpiar spinner
+
             if (res.status !== 'success') {
-                $('#tablaProveedores tbody').html(`
+                tbody.html(`
                     <tr><td colspan="6" class="text-center text-danger py-4">
                         ${res.message || 'Error al cargar proveedores'}
                     </td></tr>
@@ -562,8 +570,6 @@ function cargarProveedores() {
             }
 
             const proveedores = res.data || [];
-            const tbody = $('#tablaProveedores tbody');
-            tbody.empty();
 
             if (proveedores.length === 0) {
                 tbody.html(`
@@ -607,10 +613,7 @@ function cargarProveedores() {
                 `);
             });
 
-            // (Re)inicializar DataTables si aún no está
-            if ($.fn.DataTable.isDataTable('#tablaProveedores')) {
-                $('#tablaProveedores').DataTable().destroy();
-            }
+            // 4) Inicializar DataTables sobre las filas nuevas
             $('#tablaProveedores').DataTable({
                 language: {
                     url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
@@ -622,15 +625,14 @@ function cargarProveedores() {
         },
         error: function(xhr) {
             console.error(xhr.responseText);
-            $('#tablaProveedores tbody').html(`
+            $('#tablaProveedores tbody').empty().html(`
                 <tr><td colspan="6" class="text-center text-danger py-4">
                     Error de conexión al cargar proveedores.
                 </td></tr>
             `);
         }
     });
-}
-   /* =========================
+} /* =========================
        NUEVO
     ========================= */
     function nuevoProveedor() {

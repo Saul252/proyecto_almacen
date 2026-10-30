@@ -394,12 +394,13 @@
                                 <label class="form-label text-body-secondary fw-semibold small mb-1">
                                     <i class="bi bi-search me-1 text-primary"></i> Añadir Producto
                                 </label>
-                                <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                                <div class="d-flex gap-2">
                                     <select id="buscadorProductosEditar"
                                         class="form-select select2-pagina border-slate-300">
                                         <option value="">Escribe SKU o nombre...</option>
                                     </select>
-                                    <button type="button" class="btn btn-primary d-flex align-items-center px-3"
+                                    <button type="button"
+                                        class="btn btn-primary d-flex align-items-center px-3 flex-shrink-0"
                                         onclick="abrirModalProducto()" title="Agregar nuevo producto">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
@@ -752,7 +753,53 @@
         // =====================================================
         // SELECT2
         // =====================================================
-        $('#buscadorProductosEditar').select2({ theme: 'bootstrap-5' });
+        $('#buscadorProductosEditar').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            placeholder: 'Escribe SKU o nombre...',
+            allowClear: true,
+
+            templateResult: function (data) {
+                if (!data.id) return data.text;
+
+                const $el = $(data.element);
+                const sku = $el.attr('data-sku') || '';
+                const nombre = $el.attr('data-nombre') || data.text;
+                const stock = $el.attr('data-stock') || '';
+                const ur = $el.attr('data-ur') || '';
+
+                return $(`
+            <div class="d-flex align-items-center gap-2 py-1">
+                <div class="d-flex align-items-center justify-content-center rounded-2 bg-primary bg-opacity-10 text-primary flex-shrink-0"
+                     style="width:32px;height:32px;">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <div class="flex-grow-1 overflow-hidden">
+                    <div class="fw-semibold small text-truncate">${nombre}</div>
+                    <div class="d-flex align-items-center gap-2 small text-body-secondary">
+                        <span class="badge bg-dark text-white font-monospace">${sku}</span>
+                        ${stock ? `<span class="opacity-50">·</span><span class=" text-dark font-monospace">Stock: ${stock} ${ur}</span>` : ''}
+                    </div>
+                </div>
+            </div>
+        `);
+            },
+
+            templateSelection: function (data) {
+                if (!data.id) return data.text;
+
+                const $el = $(data.element);
+                const sku = $el.attr('data-sku') || '';
+                const nombre = $el.attr('data-nombre') || data.text;
+
+                return $(`
+            <span class="d-inline-flex align-items-center gap-2">
+                <span class="badge bg-dark text-white font-monospace">${sku}</span>
+                <span class="fw-semibold small text-truncate">${nombre}</span>
+            </span>
+        `);
+            }
+        });
         $('#select-vendedor1').select2({ theme: 'bootstrap-5' });
 
         $('.select2-pagina').not('#buscadorProductosEditar, #select-vendedor1').each(function () {
@@ -1058,8 +1105,7 @@
                     value="1"
                     min="0.01"
                     required
-                     onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductosEditar').select2('open'); }"
-                   
+                    onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductosEditar').select2('open'); }"
                     oninput="actualizarEquivalencia(this);calcularTotalSolEditar(this)">
                 <input
                     type="hidden"
@@ -1079,9 +1125,8 @@
                 <select
                     name="itemsEditar[${id}][tipoPrecio]"
                     class="form-select tipoPrecio-select-editar"
-                   
                     onchange="calcularPrecioSugeridoEditar(this)" required>
-                      <option value="seleccionar" data-precio="0">Seleccione</option>
+                   
                     <option value="minorista" data-precio="${preMin}">Min $${(preMin * factor).toFixed(2)} x ${d.ur}</option>
                     <option value="mayorista" data-precio="${preMat}">May $${(preMat * factor).toFixed(2)} x ${d.ur}</option>
                     <option value="distribuidor" data-precio="${preDis}">Dis $${(preDis * factor).toFixed(2)} x ${d.ur}</option>
@@ -1121,10 +1166,21 @@
         </tr>
         `);
 
+            // 🔥 Disparar el cálculo de precio sugerido al agregar el producto
+            const $fila = $(`#filaEditar-${id}`);
+
+            // Opcional: fijar "minorista" por defecto (descomenta si lo quieres)
+            // $fila.find('.tipoPrecio-select-editar').val('minorista');
+
+            const $selectTipoPrecio = $fila.find('.tipoPrecio-select-editar')[0];
+            if ($selectTipoPrecio && typeof calcularPrecioSugeridoEditar === 'function') {
+                calcularPrecioSugeridoEditar($selectTipoPrecio);
+            }
+
             // Enfocar el input de cantidad de ESTA fila
             setTimeout(() => {
-                const $fila = $(`#filaEditar-${id}`);
-                const $cantidad = $fila.find('.cantidad-editar');
+                const $filaFocus = $(`#filaEditar-${id}`);
+                const $cantidad = $filaFocus.find('.cantidad-editar');
 
                 if ($cantidad.length) {
                     const inputCantidad = $cantidad[0];
@@ -1150,7 +1206,6 @@
 
             $(this).val(null).trigger('change');
         });
-
         // =====================================================
         // VALIDAR EXISTENCIAS
         // =====================================================

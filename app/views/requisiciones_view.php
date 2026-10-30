@@ -147,14 +147,15 @@
                             <!-- Añadir Producto -->
                             <div class="card-filter-box p-4 mb-4 shadow-sm rounded-4">
                                 <label class="form-label text-body-secondary fw-semibold small mb-1">
-                                    <i class="bi bi-search me-1 text-primary"></i> Añadir Producto
+                                    <i class="bi bi-search me-1 text-primary"></i> Añadir Producto a Lista
                                 </label>
-                                <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                                <div class="d-flex gap-2">
                                     <select id="buscadorProductosEditar"
                                         class="form-select select2-pagina border-slate-300">
                                         <option value="">Escribe SKU o nombre...</option>
                                     </select>
-                                    <button type="button" class="btn btn-primary d-flex align-items-center px-3"
+                                    <button type="button"
+                                        class="btn btn-primary d-flex align-items-center px-3 flex-shrink-0"
                                         onclick="abrirModalProducto()" title="Agregar nuevo producto">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
@@ -372,7 +373,53 @@
         }
 
         $(async function init() {
-            $('#buscadorProductosEditar').select2({ theme: 'bootstrap-5' });
+            $('#buscadorProductosEditar').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Escribe SKU o nombre...',
+                allowClear: true,
+
+                templateResult: function (data) {
+                    if (!data.id) return data.text;
+
+                    const $el = $(data.element);
+                    const sku = $el.attr('data-sku') || '';
+                    const nombre = $el.attr('data-nombre') || data.text;
+                    const stock = $el.attr('data-stock') || '';
+                    const ur = $el.attr('data-ur') || '';
+
+                    return $(`
+            <div class="d-flex align-items-center gap-2 py-1">
+                <div class="d-flex align-items-center justify-content-center rounded-2 bg-primary bg-opacity-10 text-primary flex-shrink-0"
+                     style="width:32px;height:32px;">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <div class="flex-grow-1 overflow-hidden">
+                    <div class="fw-semibold small text-truncate">${nombre}</div>
+                    <div class="d-flex align-items-center gap-2 small text-body-secondary">
+                        <span class="badge bg-dark text-white font-monospace">${sku}</span>
+                        ${stock ? `<span class="opacity-50">·</span><span  class=" text-dark font-monospace">Stock: ${stock} ${ur}</span>` : ''}
+                    </div>
+                </div>
+            </div>
+        `);
+                },
+
+                templateSelection: function (data) {
+                    if (!data.id) return data.text;
+
+                    const $el = $(data.element);
+                    const sku = $el.attr('data-sku') || '';
+                    const nombre = $el.attr('data-nombre') || data.text;
+
+                    return $(`
+            <span class="d-inline-flex align-items-center gap-2">
+                <span class="badge bg-dark text-white font-monospace">${sku}</span>
+                <span class="fw-semibold small text-truncate">${nombre}</span>
+            </span>
+        `);
+                }
+            });
             $('#select-vendedor1').select2({ theme: 'bootstrap-5' });
 
             $('.select2-pagina').not('#buscadorProductosEditar, #select-vendedor1').each(function () {
@@ -627,52 +674,63 @@
             const factor = parseFloat(d.factor) || 1;
 
             $tabla().append(`
-                <tr id="filaEditar-${id}">
-                    <td><b>${d.nombre}</b><br><small class="text-body-secondary">${d.sku}</small></td>
-                    <td class="ps-4">
-                        <input type="hidden" name="itemsEditar[${id}][exis]" class="cantidad-exis" value="${d.stock}" min="0.01">
-                        <span>${d.stock / d.factor}</span> <b>${d.ur}</b>
-                    </td>
-                    <td>
-                        <input type="number" name="itemsEditar[${id}][cant]" class="form-control cantidad-editar"
-                            step="0.01" value="1" min="0.01"  onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductosEditar').select2('open'); }"
+        <tr id="filaEditar-${id}">
+            <td><b>${d.nombre}</b><br><small class="text-body-secondary">${d.sku}</small></td>
+            <td class="ps-4">
+                <input type="hidden" name="itemsEditar[${id}][exis]" class="cantidad-exis" value="${d.stock}" min="0.01">
+                <span>${d.stock / d.factor}</span> <b>${d.ur}</b>
+            </td>
+            <td>
+                <input type="number" name="itemsEditar[${id}][cant]" class="form-control cantidad-editar"
+                    step="0.01" value="1" min="0.01"  onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductosEditar').select2('open'); }"
                    required>
-                        <input type="hidden" name="itemsEditar[${id}][equivalencia]" class="form-control equivalencia" value="1">
-                    </td>
-                    <td>
-                        <select name="itemsEditar[${id}][unidad]" class="form-select unidad-select-editar">${opcionesUnidad}</select>
-                    </td>
-                    <td>
-                        <select name="itemsEditar[${id}][tipoPrecio]" class="form-select tipoPrecio-select-editar">
-                            <option value="seleccionar" data-precio="0">Seleccione</option>
-                            <option value="minorista" data-precio="${preMin}">Min $${(preMin * factor).toFixed(2)} x ${d.ur}</option>
-                            <option value="mayorista" data-precio="${preMat}">May $${(preMat * factor).toFixed(2)} x ${d.ur}</option>
-                            <option value="distribuidor" data-precio="${preDis}">Dis $${(preDis * factor).toFixed(2)} x ${d.ur}</option>
-                        </select>
-                    </td>
-                    <td>
-                        <input type="number" lang="en-US" name="itemsEditar[${id}][precioUnitario]"
-                            class="form-control precio-unitario-editar"
-                            onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductosEditar').select2('open'); }"
-                            step="0.01" min="0" placeholder="0.00" required>
-                    </td>
-                    <td style="min-width:140px;">
-                        <input type="number" lang="en-US"
-                            onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductosEditar').select2('open'); }"
-                            name="itemsEditar[${id}][precio]"
-                            class="form-control precio-total-editar fw-bold text-success"
-                            step="0.01" min="0" placeholder="0.00"
-                            style="font-size:1.1rem;height:40px;">
-                    </td>
-                    <td class="text-center">
-                        <button type="button" class="btn btn-link text-danger p-0" data-accion="quitar" data-id="${id}">
-                            <i class="bi bi-trash fs-5"></i>
-                        </button>
-                    </td>
-                </tr>
-            `);
+                <input type="hidden" name="itemsEditar[${id}][equivalencia]" class="form-control equivalencia" value="1">
+            </td>
+            <td>
+                <select name="itemsEditar[${id}][unidad]" class="form-select unidad-select-editar">${opcionesUnidad}</select>
+            </td>
+            <td>
+                <select name="itemsEditar[${id}][tipoPrecio]" class="form-select tipoPrecio-select-editar">
+                   
+                    <option value="minorista" data-precio="${preMin}">Min $${(preMin * factor).toFixed(2)} x ${d.ur}</option>
+                    <option value="mayorista" data-precio="${preMat}">May $${(preMat * factor).toFixed(2)} x ${d.ur}</option>
+                    <option value="distribuidor" data-precio="${preDis}">Dis $${(preDis * factor).toFixed(2)} x ${d.ur}</option>
+                </select>
+            </td>
+            <td>
+                <input type="number" lang="en-US" name="itemsEditar[${id}][precioUnitario]"
+                    class="form-control precio-unitario-editar"
+                    onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductosEditar').select2('open'); }"
+                    step="0.01" min="0" placeholder="0.00" required>
+            </td>
+            <td style="min-width:140px;">
+                <input type="number" lang="en-US"
+                    onkeydown="if(event.key==='Enter'){ event.preventDefault(); $('#buscadorProductosEditar').select2('open'); }"
+                    name="itemsEditar[${id}][precio]"
+                    class="form-control precio-total-editar fw-bold text-success"
+                    step="0.01" min="0" placeholder="0.00"
+                    style="font-size:1.1rem;height:40px;">
+            </td>
+            <td class="text-center">
+                <button type="button" class="btn btn-link text-danger p-0" data-accion="quitar" data-id="${id}">
+                    <i class="bi bi-trash fs-5"></i>
+                </button>
+            </td>
+        </tr>
+    `);
 
+            // 🔥 Disparar el cálculo de precio sugerido al agregar el producto
             const $fila = $(`#filaEditar-${id}`);
+
+            // Opcional: fijar "minorista" por defecto (descomenta si lo quieres)
+            // $fila.find('.tipoPrecio-select-editar').val('minorista');
+
+            const $selectTipoPrecio = $fila.find('.tipoPrecio-select-editar')[0];
+            if ($selectTipoPrecio && typeof calcularPrecioSugeridoEditar === 'function') {
+                calcularPrecioSugeridoEditar($selectTipoPrecio);
+            }
+
+            // Enfocar el input de cantidad de ESTA fila
             const $cantidad = $fila.find('.cantidad-editar');
             if ($cantidad.length) {
                 const inputCantidad = $cantidad[0];
@@ -690,7 +748,6 @@
 
             $(this).val(null).trigger('change');
         });
-
         function calcularTotalSolEditar(input) {
             if (recalculandoFilaEditar) return;
             recalculandoFilaEditar = true;
