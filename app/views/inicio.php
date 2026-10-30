@@ -290,7 +290,7 @@ $abrirTodos = ($totalGruposVisibles <= 2);
         </div>
 
         <!-- GRID BENTO BOX DE APLICACIONES -->
-        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-3">
 
             <?php if (empty($gruposFiltrados)): ?>
                 <div class="col-12">

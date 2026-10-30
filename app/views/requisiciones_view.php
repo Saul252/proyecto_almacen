@@ -60,7 +60,7 @@
         }
 
         .page-header-gradient {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            background: linear-gradient(135deg, #2a5e17 0%, #02862e 100%);
             color: #ffffff;
             padding: 1.5rem 2rem;
         }
@@ -132,10 +132,10 @@
                 <input type="hidden" id="editar_venta_id" name="cotizacion_id" value="">
 
                 <!-- Encabezado -->
-                <div class="page-header-gradient d-flex justify-content-between align-items-center p-2">
+                <div class="page-header-gradient d-flex justify-content-betwen align-items-center p-2">
                     <div>
                         <h4 class="fw-bold mb-1 text-white d-flex align-items-center">
-                            <i class="bi bi-cart-check-fill me-2 fs-3"></i> Remisiones
+                            <i class="bi bi-cart-check-fill me-2 fs-3"></i> Modulo de Remisiones
                         </h4>
                     </div>
                 </div>

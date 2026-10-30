@@ -107,18 +107,7 @@
                     </div>
                 </div>
 
-                <div class="ios-micro-card border-blue">
-                    <span class="ios-micro-label">
-                        <?= ($rData['tipo'] == 'admin') ? 'Global' : 'Stock' ?>
-                    </span>
-                    <div class="ios-micro-value">
-                        <?= number_format($cant_prod) ?>
-                    </div>
-                    <div class="ios-micro-footer text-truncate" style="max-width: 80px;"
-                        title="<?= $rData['nombre'] ?>">
-                        <?= $rData['nombre'] ?>
-                    </div>
-                </div>
+
 
                 <div class="ios-micro-card border-purple">
                     <span class="ios-micro-label">Catálogo</span>
@@ -128,19 +117,7 @@
                     <div class="ios-micro-footer">Items</div>
                 </div>
 
-                <div class="ios-micro-card border-green">
-                    <span class="ios-micro-label">Cobertura</span>
-                    <div class="d-flex align-items-baseline">
-                        <span class="ios-micro-value">
-                            <?= $cobertura ?>
-                        </span>
-                        <span style="font-size: 0.6rem; font-weight: 700; color: #1c1c1e; margin-left: 1px;">%</span>
-                    </div>
-                    <div class="progress"
-                        style="height: 3px; background-color: #f2f2f7; border-radius: 10px; margin-top: 4px; width: 100%;">
-                        <div class="progress-bar" style="width: <?= $cobertura ?>%; background-color: #34c759;"></div>
-                    </div>
-                </div>
+
 
                 <div class="d-flex justify-content-end align-items-center mb-3">
                     <button type="button"
@@ -153,24 +130,26 @@
         </div>
 
         <div class="card p-3 shadow-sm">
-            <div class="row mb-3 g-2 align-items-center">
-                <div class="col-md-2">
-                    <select id="filtroCategoria" class="form-select">
-                        <option value="">Categorías</option>
+            <div class="row mb-4 g-2 g-md-3 align-items-center">
+
+                <!-- Filtros: categoría + almacén -->
+                <div class="col-12 col-md-auto d-flex gap-2">
+                    <select id="filtroCategoria"
+                        class="form-select form-select-sm rounded-3 shadow-none flex-fill bg-primary-subtle text-primary-emphasis border-primary-subtle fw-semibold">
+                        <option value="">Todas las Categorías</option>
                         <?php foreach ($categorias as $cat): ?>
                             <option value="<?= $cat['id'] ?>">
                                 <?= htmlspecialchars($cat['nombre']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
-                </div>
 
-                <div class="col-md-2">
-                    <select id="filtroAlmacen" class="form-select" <?= ($almacen_usuario > 0) ? 'disabled' : '' ?>>
+                    <select id="filtroAlmacen"
+                        class="form-select form-select-sm rounded-3 shadow-none flex-fill bg-info-subtle text-info-emphasis border-info-subtle fw-semibold"
+                        <?= ($almacen_usuario > 0) ? 'disabled' : '' ?>>
                         <?php if ($almacen_usuario == 0): ?>
-                            <option value="">Todos los Almacenes</option>
+                            <option value="0">Todos los Almacenes</option>
                         <?php endif; ?>
-
                         <?php foreach ($almacenes as $alm): ?>
                             <option value="<?= $alm['id'] ?>" <?= ($almacen_usuario == $alm['id']) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($alm['nombre']) ?>
@@ -178,37 +157,86 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <input type="text" id="buscador" class="form-control" placeholder="🔎 Buscar...">
+
+                <!-- Buscador -->
+                <div class="col-12 col-md flex-grow-1">
+                    <div class="input-group input-group-sm">
+                        <span
+                            class="input-group-text bg-primary-subtle text-primary-emphasis border-primary-subtle rounded-start-3">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" id="buscador"
+                            class="form-control bg-primary-subtle text-body border-primary-subtle ps-1 shadow-none rounded-end-3"
+                            placeholder="Buscar...">
+                    </div>
                 </div>
 
-                <div class="col-md-5">
-                    <div class="d-flex gap-2 flex-wrap">
-                        <button class="btn btn-success flex-fill" data-bs-toggle="modal"
-                            data-bs-target="#modalAgregarProducto">
-                            <i class="bi bi-plus-lg"></i> Producto
-                        </button>
-                        <button
-                            class="btn btn-sm btn-info text-white px-3 rounded-pill fw-semibold shadow-sm d-flex align-items-center gap-2 transition-all"
-                            onclick="abrirModalInventarioInicial()">
-                            <i class="bi bi-sliders fs-6"></i> Iniciales
-                        </button>
-                        <button class="btn btn-primary" onclick="abrirModalCargarCSV()">
-                            Cargar CSV
-                        </button>
-                        <button class="btn btn-outline-secondary" onclick="descargarProductos()"
-                            title="Descargar Excel de Productos">
-                            <i class="bi bi-download"></i>
+                <!-- Acciones -->
+                <div class="col-12 col-md-auto ms-md-auto">
+                    <div class="d-flex gap-2 align-items-center flex-wrap flex-md-nowrap justify-content-end">
+
+                        <!-- Agregar Producto -->
+                        <button type="button"
+                            class="btn btn-sm bg-primary-subtle text-primary-emphasis border border-primary-subtle px-3 rounded-pill fw-semibold d-flex align-items-center gap-2 flex-grow-1 flex-md-grow-0 justify-content-center"
+                            data-bs-toggle="modal" data-bs-target="#modalAgregarProducto">
+                            <i class="bi bi-plus-lg"></i> Agregar Producto
                         </button>
 
-                        <button class="btn btn-dark flex-fill" data-bs-toggle="modal" data-bs-target="#modalTraspaso">
-                            <i class="bi bi-arrow-left-right"></i> Traspaso
-                        </button>
+                        <!-- Herramientas -->
+                        <div class="dropdown position-relative flex-grow-1 flex-md-grow-0">
+                            <button type="button"
+                                class="btn btn-sm bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 rounded-pill fw-semibold d-flex align-items-center justify-content-center gap-2 dropdown-toggle w-100"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-tools"></i> Herramientas
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm rounded-3 border-0">
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center gap-2" data-bs-toggle="modal"
+                                        onclick="abrirModalInventarioInicial()">
+                                        <i class="bi bi-sliders text-warning"></i> Cargar Inventario por producto
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center gap-2"
+                                        onclick="descargarProductos()">
+                                        <i class="bi bi-download text-success"></i> Descargar Excel para carga masiva
+                                    </button>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center gap-2"
+                                        onclick="abrirModalCargarCSV()">
+                                        <i class="bi bi-filetype-csv text-danger"></i> Cargar Inventario masivo
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
 
-                        <button class="btn btn-primary flex-fill" data-bs-toggle="modal"
-                            data-bs-target="#modalTraspasosGestion" onclick="cargarTraspasos()">
-                            <i class="bi bi-shield-check"></i> Autorizar
-                        </button>
+                        <!-- Traspasos -->
+                        <div class="dropdown position-relative flex-grow-1 flex-md-grow-0">
+                            <button type="button"
+                                class="btn btn-sm bg-purple-subtle text-purple-emphasis border border-purple-subtle px-3 rounded-pill fw-semibold d-flex align-items-center justify-content-center gap-2 dropdown-toggle w-100"
+                                style="--bs-purple-rgb: 139,92,246;" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-arrow-left-right"></i> Traspasos
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm rounded-3 border-0">
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center gap-2" data-bs-toggle="modal"
+                                        data-bs-target="#modalTraspaso">
+                                        <i class="bi bi-plus-circle text-primary"></i> Nuevo Traspaso
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center gap-2" data-bs-toggle="modal"
+                                        data-bs-target="#modalTraspasosGestion" onclick="cargarTraspasos()">
+                                        <i class="bi bi-check2-circle text-success"></i> Autorizar Traspasos
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -468,120 +496,82 @@
 
         }
         async function exportarProductosAExcel(productos) {
-            // 1. Crear un nuevo libro de trabajo
-            const workbook = new ExcelJS.Workbook();
-            const worksheet = workbook.addWorksheet('Inventario Productos');
-            const almacen_cargar = $('#filtroAlmacen').val();
+            // El nombre se conserva por compatibilidad con el onclick existente,
+            // pero ahora genera CSV.
 
-            // 2. Definir las columnas de la tabla y sus anchos
-            worksheet.columns = [
-                { header: 'ID Producto', key: 'producto_id', width: 12 },
-                { header: 'SKU', key: 'sku', width: 15 },
-                { header: 'Almacén', key: 'almacen_id', width: 12 },
-                { header: 'Nombre del Producto', key: 'nombre', width: 30 },
-                { header: 'U. Reporte', key: 'unidad_reporte', width: 12 },
-                { header: 'Factor Conv. (1/factor)', key: 'factor_conversion', width: 18 },
-                { header: 'P. Minorista', key: 'precio_minorista', width: 15 },
-                { header: 'P. Mayorista', key: 'precio_mayorista', width: 15 },
-                { header: 'P. Distribuidor', key: 'precio_distribuidor', width: 15 },
-                { header: 'Existencias', key: 'existencias', width: 12 },
-                { header: 'Costo Lote', key: 'costo_lote', width: 15 }
+            if (!Array.isArray(productos) || productos.length === 0) {
+                Swal.fire({ icon: 'warning', title: 'Sin datos', text: 'No hay productos para exportar.' });
+                return;
+            }
+
+            const almacenCargar = document.getElementById('filtroAlmacen')?.value || '';
+
+            // 1. Cabeceras (mismo orden que tenías en Excel)
+            const headers = [
+                'ID Producto',
+                'SKU',
+                'Almacén',
+                'Nombre del Producto',
+                'U. Reporte',
+                'Factor Conv. (1/factor)',
+                'P. Minorista',
+                'P. Mayorista',
+                'P. Distribuidor',
+                'Existencias',
+                'Costo Lote'
             ];
 
-            // Estilo para la cabecera (Fondo azul desaturado profesional, texto blanco en negrita)
-            const headerRow = worksheet.getRow(1);
-            headerRow.font = { name: 'Segoe UI', size: 11, bold: true, color: { argb: 'FFFFFF' } };
-            headerRow.fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: '2E5B82' }
+            // 2. Helper para escapar campos CSV (comillas, comas, saltos de línea)
+            const escCSV = (v) => {
+                const s = String(v ?? '');
+                // Si contiene coma, comilla o salto de línea → envolver en comillas y duplicar comillas internas
+                if (/[",\n\r]/.test(s)) {
+                    return '"' + s.replace(/"/g, '""') + '"';
+                }
+                return s;
             };
-            headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
-            headerRow.height = 25;
 
-            // 3. Iterar con un forEach sobre los datos para ir agregando las filas
-            productos.forEach((prod, index) => {
+            // 3. Construir filas
+            const lineas = [headers.map(escCSV).join(',')];
 
-                // --- Factor de conversión e inversa ---
+            productos.forEach((prod) => {
                 const factor = parseFloat(prod.factor_conversion || 0);
-                const factorInverso = factor === 0 ? 0 : 1 / factor;
 
-                // Añadimos la fila al worksheet mapeando los tipos numéricos correctos
-                const row = worksheet.addRow({
-                    producto_id: prod.producto_id,
-                    sku: prod.sku,
-                    almacen_id: almacen_cargar || '',
-                    nombre: prod.nombre,
-                    unidad_reporte: prod.unidad_reporte || '',
-                    factor_conversion: factorInverso,
-                    precio_minorista: parseFloat(prod.precio_minorista || 0),
-                    precio_mayorista: parseFloat(prod.precio_mayorista || 0),
-                    precio_distribuidor: parseFloat(prod.precio_distribuidor || 0),
-                    existencias: 0,
-                    costo_lote: 0
-                });
+                const fila = [
+                    prod.producto_id ?? '',
+                    prod.sku ?? '',
+                    almacenCargar,
+                    prod.nombre ?? '',
+                    prod.unidad_reporte ?? '',
+                    factor, // número crudo; Excel lo formatea
+                    parseFloat(prod.precio_minorista || 0),
+                    parseFloat(prod.precio_mayorista || 0),
+                    parseFloat(prod.precio_distribuidor || 0),
+                    0, // Existencias (para llenar)
+                    0  // Costo Lote (para llenar)
+                ];
 
-                // Formatear celdas de números y precios para que Excel los reconozca nativamente
-                row.getCell('producto_id').alignment = { horizontal: 'center' };
-                row.getCell('sku').alignment = { horizontal: 'center' };
-                row.getCell('almacen_id').alignment = { horizontal: 'center' };
-                row.getCell('unidad_reporte').alignment = { horizontal: 'center' };
-                row.getCell('existencias').alignment = { horizontal: 'center' };
-
-                // Formatos numéricos monetarios y decimales
-                row.getCell('factor_conversion').numFmt = '#,##0.0000';
-                row.getCell('precio_minorista').numFmt = '$#,##0.00';
-                row.getCell('precio_mayorista').numFmt = '$#,##0.00';
-                row.getCell('precio_distribuidor').numFmt = '$#,##0.00';
-                row.getCell('existencias').numFmt = '#,##0.00';
-                row.getCell('costo_lote').numFmt = '$#,##0.00';
-
-                // Aplicar bordes delgados gris claro a las filas
-                row.eachCell((cell) => {
-                    cell.font = { name: 'Segoe UI', size: 10 };
-                    cell.border = {
-                        top: { style: 'thin', color: { argb: 'E0E0E0' } },
-                        bottom: { style: 'thin', color: { argb: 'E0E0E0' } },
-                        left: { style: 'thin', color: { argb: 'E0E0E0' } },
-                        right: { style: 'thin', color: { argb: 'E0E0E0' } }
-                    };
-
-                    // Zebra striping alternado (efecto visual gris claro en filas impares)
-                    if (index % 2 !== 0) {
-                        cell.fill = {
-                            type: 'pattern',
-                            pattern: 'solid',
-                            fgColor: { argb: 'F9FAFB' }
-                        };
-                    }
-                });
-
-                row.height = 20;
+                lineas.push(fila.map(escCSV).join(','));
             });
 
-            const filename = 'Reporte_Productos_Inventario.xlsx';
+            // 4. Añadir BOM UTF-8 para que Excel respete tildes/ñ
+            const csvContent = '\uFEFF' + lineas.join('\r\n');
 
-            // --- Procesamiento y descarga en el Navegador ---
+            // 5. Descargar
+            const filename = 'Reporte_Productos_Inventario.csv';
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
 
-            // Generar el buffer del archivo Excel
-            const buffer = await workbook.xlsx.writeBuffer();
-
-            // Crear un objeto Blob con el tipo MIME correcto para archivos XLSX
-            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
-            // Crear un enlace temporal en el DOM
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = filename;
-
-            // Añadir al documento, hacer click de forma virtual y removerlo
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
 
-            // Liberar memoria del objeto URL creado
-            URL.revokeObjectURL(link.href);
-        }    </script>
+            setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        }
+
+    </script>
     <script>
         /**
      * Procesa el CSV descargado (editado por el usuario en Existencias y Costo Lote)
@@ -641,13 +631,17 @@
             // 4. Construir filas válidas
             const filasValidas = [];
             const omitidas = [];   // 👈 filas con existencias = 0
+            const almacen_usu = <?= (int) ($_SESSION['almacen_id'] ?? 0) ?>;
+
 
             for (let i = 1; i < filas.length; i++) {
                 const row = filas[i];
                 if (!row || row.length === 0 || row.every(c => !String(c).trim())) continue;
 
                 const productoId = String(row[idx.producto_id] || '').trim();
-                const almacenId = String(row[idx.almacen_id] || '').trim();
+                const almacenId = almacen_usu == 0
+                    ? String(row[idx.almacen_id] || '').trim()
+                    : almacen_usu;
                 if (!productoId || !almacenId) continue;
 
                 const factorReal = parseNumero(row[idx.factor]) || 1;

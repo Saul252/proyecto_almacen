@@ -104,13 +104,13 @@ $estadosEnum = ['activo', 'inactivo', 'vacaciones', 'en_ruta'];
                         <?= count($trabajadores) ?>
                     </div>
                 </div>
-<?php if ($almacen_usuario == 0): ?>
+
                       
                 <button class="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center" onclick="nuevoTrabajador()" style="height: 34px; font-weight: 600; font-size: 0.85rem;">
                     <i class="bi bi-person-plus-fill me-1"></i> Agregar
                 </button>
                  
-                    <?php endif; ?>
+                
             </div>
         </div>
 

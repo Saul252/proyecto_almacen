@@ -367,10 +367,10 @@
                 <input type="hidden" id="editar_venta_id" name="cotizacion_id" value="">
 
                 <!-- Encabezado de la Página -->
-                <div class="page-header-gradient d-flex justify-content-between align-items-center p-2">
+                <div class="page-header-gradient d-flex justify-content-betwen align-items-center p-2">
                     <div>
                         <h4 class="fw-bold mb-1 text-white d-flex align-items-center">
-                            <i class="bi bi-cart-check-fill me-2 fs-3"></i> Caja Rápida
+                            <i class="bi bi-cart-check-fill me-2 fs-3"></i> Modulo de Caja Rápida
                         </h4>
                     </div>
                 </div>

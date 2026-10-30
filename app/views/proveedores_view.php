@@ -533,8 +533,102 @@ function exportarProveedoresCSV() {
     /* =========================
        CARGAR PROVEEDORES
     ========================= */
-    function cargarProveedores() {
-      
+function cargarProveedores() {
+    const almacen = $('#almacen_id_proveedor').val() || 0;
+
+    // Mostrar estado de carga
+    $('#tablaProveedores tbody').html(`
+        <tr>
+            <td colspan="6" class="text-center py-4 text-body-secondary">
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                Cargando proveedores...
+            </td>
+        </tr>
+    `);
+
+    $.ajax({
+        url: '${URL_EGRESOS}?action=getProveedoresJSONAlmacen&almacen=${almacen}',
+        method: 'GET',
+        data: { ajax: 1, almacen_id: almacen },
+        dataType: 'json',
+        success: function(res) {
+            if (res.status !== 'success') {
+                $('#tablaProveedores tbody').html(`
+                    <tr><td colspan="6" class="text-center text-danger py-4">
+                        ${res.message || 'Error al cargar proveedores'}
+                    </td></tr>
+                `);
+                return;
+            }
+
+            const proveedores = res.data || [];
+            const tbody = $('#tablaProveedores tbody');
+            tbody.empty();
+
+            if (proveedores.length === 0) {
+                tbody.html(`
+                    <tr><td colspan="6" class="text-center text-body-secondary py-4">
+                        <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                        No hay proveedores registrados en este almacén.
+                    </td></tr>
+                `);
+                return;
+            }
+
+            proveedores.forEach(p => {
+                const activo = Number(p.activo) === 1;
+                const filaClase = activo ? '' : 'fila-inactiva';
+
+                tbody.append(`
+                    <tr class="${filaClase}">
+                        <td class="ps-4">
+                            <div class="fw-semibold">${p.nombre_comercial || 'Sin nombre'}</div>
+                            <div class="small text-body-secondary">${p.razon_social || ''}</div>
+                        </td>
+                        <td><span class="font-monospace small">${p.rfc || '—'}</span></td>
+                        <td class="small">${p.correo || '—'}</td>
+                        <td class="small">${p.telefono || '—'}</td>
+                        <td class="text-center">
+                            ${activo
+                                ? '<span class="badge bg-success-subtle text-success-emphasis rounded-pill">Activo</span>'
+                                : '<span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill">Inactivo</span>'}
+                        </td>
+                        <td class="text-end pe-4">
+                            <button class="btn btn-sm btn-outline-primary rounded-pill me-1"
+                                onclick="editarProveedor(${p.id})" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm ${activo ? 'btn-outline-danger' : 'btn-outline-success'} rounded-pill"
+                                onclick="cambiarEstado(${p.id})" title="${activo ? 'Desactivar' : 'Activar'}">
+                                <i class="bi ${activo ? 'bi-toggle-on' : 'bi-toggle-off'}"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+            });
+
+            // (Re)inicializar DataTables si aún no está
+            if ($.fn.DataTable.isDataTable('#tablaProveedores')) {
+                $('#tablaProveedores').DataTable().destroy();
+            }
+            $('#tablaProveedores').DataTable({
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                },
+                pageLength: 10,
+                order: [[0, 'asc']],
+                columnDefs: [{ orderable: false, targets: [5] }]
+            });
+        },
+        error: function(xhr) {
+            console.error(xhr.responseText);
+            $('#tablaProveedores tbody').html(`
+                <tr><td colspan="6" class="text-center text-danger py-4">
+                    Error de conexión al cargar proveedores.
+                </td></tr>
+            `);
+        }
+    });
 }
    /* =========================
        NUEVO

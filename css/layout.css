@@ -9,7 +9,7 @@
     --borde-suave: rgba(0, 0, 0, 0.12);
     --borde-cristal-humo: rgba(255, 255, 255, 0.18);
 
-    --navbar-dark: #000000ab;
+    --navbar-dark: #ffffffdc;
 
     --sidebar-bg: rgba(255, 255, 255, 0.85);
     --sidebar-hover-bg: rgba(37, 99, 235, 0.1);
@@ -18,7 +18,7 @@
     --icono: rgb(19, 70, 165);
 
     /* Dropdown Glassmorphism */
-    --dropdown-bg: rgba(0, 0, 0, 0.769);
+    --dropdown-bg: rgba(255, 254, 254, 0.942);
     --dropdown-text: #000000;
     --dropdown-hover-bg: rgba(37, 99, 235, 0.12);
     --dropdown-hover-text: #2563eb;
@@ -45,7 +45,7 @@
     --scrollbar-thumb: rgba(255, 255, 255, 0.2);
 
     /* Dropdown Glassmorphism Oscuro */
-    --dropdown-bg: rgba(15, 23, 42, 0.88);
+    --dropdown-bg: rgba(0, 0, 0, 0.88);
     --dropdown-text: #f8fafc;
     --dropdown-hover-bg: rgba(59, 130, 246, 0.25);
     --dropdown-hover-text: #60a5fa;
@@ -248,4 +248,54 @@
 
 body.sidebar-hidden .main-content {
     margin-left: 0 !important;
+}
+
+/* ============================================================
+   NAVBAR: textos blancos en modo oscuro
+   (solo lo que faltaba; respeta los colores de acento de iconos)
+   ============================================================ */
+
+/* Texto de los enlaces del navbar en oscuro */
+[data-bs-theme="dark"] .navbar-premium .nav-link,
+[data-bs-theme="dark"] .navbar-premium .nav-link .acceso,
+[data-bs-theme="dark"] .navbar-premium .dropdown-toggle,
+[data-bs-theme="dark"] .navbar-premium .btn-link,
+[data-bs-theme="dark"] #dropdownMasModulos .nav-link {
+    color: #f8fafc !important;
+}
+
+/* Hover en oscuro: azul claro para mantener contraste */
+[data-bs-theme="dark"] .navbar-premium .nav-link:hover,
+[data-bs-theme="dark"] .navbar-premium .nav-link:hover .acceso,
+[data-bs-theme="dark"] .navbar-premium .dropdown-toggle:hover {
+    color: #a5b4fc !important;
+}
+
+/* Activo en oscuro */
+[data-bs-theme="dark"] .navbar-premium .nav-link.active-nav-item,
+[data-bs-theme="dark"] .navbar-premium .nav-link.active-nav-item .acceso {
+    color: #a5b4fc !important;
+}
+
+/* Anula text-white / text-dark que vengan del PHP en oscuro */
+[data-bs-theme="dark"] .navbar-premium .nav-link.text-dark,
+[data-bs-theme="dark"] .navbar-premium .nav-link .icono.text-dark {
+    color: #f8fafc !important;
+}
+
+/* Items del dropdown en oscuro (por si el tema no los invierte) */
+[data-bs-theme="dark"] .navbar-premium .dropdown-menu .dropdown-item {
+    color: var(--dropdown-text) !important;
+}
+
+[data-bs-theme="dark"] .navbar-premium .dropdown-menu .dropdown-item:hover,
+[data-bs-theme="dark"] .navbar-premium .dropdown-menu .dropdown-item:focus {
+    color: var(--dropdown-hover-text) !important;
+    background-color: var(--dropdown-hover-bg) !important;
+}
+
+/* Modo claro: negro legible (opcional, refuerza el default) */
+.navbar-premium .nav-link,
+.navbar-premium .nav-link .acceso {
+    color: #1e293b;
 }

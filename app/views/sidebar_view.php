@@ -215,12 +215,14 @@ $modulos = [
     /* Fondo degradado Premium */
     .navbar-premium {
         background: var(--navbar-dark) !important;
+        color: #0b0b0b !important;
     }
 
     /* Elemento activo */
     .navbar-premium .active-nav-item {
         background: var(--navbar-dark) !important;
         border-radius: 8px;
+        color: #0b0b0b !important;
     }
 
     /* Hover en escritorios */
@@ -232,7 +234,7 @@ $modulos = [
     }
 
     .dropdown-item {
-        color: #fff !important;
+        color: #000000 !important;
 
     }
 
@@ -311,56 +313,54 @@ $modulos = [
 
         <!-- BRAND / LOGO Y BOTÓN MÓVIL -->
         <div class="d-flex align-items-center gap-2 me-lg-3">
-            <button class="navbar-toggler  shadow-none p-1 ms-2" type="button" data-bs-toggle="collapse"
+            <button class="navbar-toggler shadow-none p-1 ms-2 border-0" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarMainContent" aria-controls="navbarMainContent" aria-expanded="false"
                 aria-label="Abrir Menú">
-                <i class="bi bi-list fs-2 icono"></i>
+                <i class="bi bi-list fs-2 text-body-emphasis"></i>
             </button>
         </div>
 
         <!-- CONTENIDO COLAPSABLE DE MÓDULOS -->
         <div class="collapse navbar-collapse" id="navbarMainContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-1 d-flex flex-wrap flex-lg-nowrap" id="mainNavList">
-                <li class="nav-item  modulo-item" data-titulo="">
-                    <a class="nav-link  d-flex align-items-center gap-2 px-3 py-2 rounded-3  <?= $grupoActivo ? 'active-nav-item fw-bold' : '' ?>"
+
+                <li class="nav-item modulo-item" data-titulo="">
+                    <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded-3 text-dark <?= $grupoActivo ? 'active-nav-item fw-bold' : '' ?>"
                         href="/myvet/inicio">
                         <i class="bi-house-heart-fill fs-5 icono text-info"></i>
                         <span class="text-nowrap acceso">INICIO</span>
                     </a>
+                </li>
 
-                    <?php foreach ($modulos as $index => $grupo): ?>
-                        <?php
-                        $submodulosPermitidos = array_filter($grupo['submodulos'], function ($sub) {
-                            return puedeVerModulo($sub['id']);
-                        });
+                <?php foreach ($modulos as $index => $grupo): ?>
+                    <?php
+                    $submodulosPermitidos = array_filter($grupo['submodulos'], function ($sub) {
+                        return puedeVerModulo($sub['id']);
+                    });
+                    if (empty($submodulosPermitidos))
+                        continue;
 
-                        if (empty($submodulosPermitidos))
-                            continue;
-
-                        $grupoActivo = false;
-                        foreach ($submodulosPermitidos as $sub) {
-                            if ($sub['active']) {
-                                $grupoActivo = true;
-                                break;
-                            }
+                    $grupoActivo = false;
+                    foreach ($submodulosPermitidos as $sub) {
+                        if ($sub['active']) {
+                            $grupoActivo = true;
+                            break;
                         }
-                        ?>
+                    }
+                    ?>
 
                     <li class="nav-item dropdown modulo-item" data-titulo="<?= htmlspecialchars($grupo['titulo']) ?>">
-                        <a class="nav-link dropdown-toggle no-arrow d-flex align-items-center gap-2 px-3 py-2 rounded-3 text-white <?= $grupoActivo ? 'active-nav-item fw-bold' : '' ?>"
+                        <a class="nav-link dropdown-toggle no-arrow d-flex align-items-center gap-2 px-3 py-2 rounded-3 text-dark <?= $grupoActivo ? 'active-nav-item fw-bold' : '' ?>"
                             href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="<?= $grupo['icono'] ?> fs-5 icono <?= $grupo['color'] ?? 'text-white' ?>"></i>
+                            <i class="<?= $grupo['icono'] ?> fs-5 icono <?= $grupo['color'] ?? 'text-info' ?>"></i>
                             <span class="text-nowrap acceso"><?= $grupo['titulo'] ?></span>
-
-                            <!-- Flechita discreta -->
-                            <i class="bi bi-chevron-down ms-1 icono"
-                                style="font-size: 0.7rem; transition: transform 0.2s ease;"></i>
+                            <i class="bi bi-chevron-down ms-1 icono" style="font-size: 0.7rem;"></i>
                         </a>
 
                         <ul class="dropdown-menu shadow-lg border p-2 rounded-3">
                             <?php foreach ($submodulosPermitidos as $m): ?>
                                 <li>
-                                    <a class="dropdown-item d-flex align-items-center gap-2 rounded-2 py-2 px-3 <?= $m['active'] ? 'active shadow-sm' : '' ?>"
+                                    <a class="dropdown-item d-flex align-items-center gap-2 rounded-2 py-2 px-3 text-dark <?= $m['active'] ? 'active shadow-sm' : '' ?>"
                                         href="<?= $m['url'] ?>">
                                         <i class="<?= $m['icon'] ?> fs-6 <?= $m['class'] ?? $grupo['color'] ?? '' ?>"></i>
                                         <span><?= $m['label'] ?></span>
@@ -371,9 +371,9 @@ $modulos = [
                     </li>
                 <?php endforeach; ?>
 
-                <!-- BOTÓN / CONTENEDOR PARA MÓDULOS AGRUPADOS (MÁS) -->
+                <!-- BOTÓN "MÁS" -->
                 <li class="nav-item dropdown d-none" id="dropdownMasModulos">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 px-3 py-2 rounded-3 text-white bg-white bg-opacity-10"
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 px-3 py-2 rounded-3 text-dark bg-body-secondary bg-opacity-25"
                         href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-three-dots fs-5 text-warning"></i>
                         <span>Más</span>
@@ -384,42 +384,39 @@ $modulos = [
                 </li>
             </ul>
         </div>
-
         <!-- CONTROLES DERECHOS -->
         <div class="d-flex align-items-center gap-2 gap-md-3">
 
-            <!-- CONTENEDOR FLOTANTE UNIFICADO (glassmorphism) -->
-            <div
-                class="d-flex align-items-center bg-white bg-opacity-10 border border-white border-opacity-25 rounded-pill p-1 shadow-sm">
+            <div class="d-flex align-items-center rounded-pill p-1 shadow-sm
+                bg-white bg-opacity-25 border border-white border-opacity-50
+                bg-md-white bg-opacity-md-25
+                text-body-emphasis">
 
-                <!-- SOPORTE / AYUDA -->
+                <!-- SOPORTE / AYUDA (WhatsApp) -->
                 <a href="https://wa.me/525523789029?text=Hola,%20necesito%20ayuda%20o%20reportar%20un%20problema%20con%20el%20sistema."
                     target="_blank"
-                    class="btn btn-sm btn-link d-flex align-items-center gap-2 px-3 py-1 rounded-pill transition-all shadow-none border-0 bg-transparent"
-                    style="color:#25D366 !important; --bs-btn-color:#25D366; --bs-btn-hover-color:#4ade80; --bs-btn-active-color:#4ade80; --bs-btn-focus-shadow-rgb:37,211,102;">
+                    class="btn btn-sm btn-link d-flex align-items-center gap-2 px-3 py-1 rounded-pill shadow-none border-0 bg-transparent text-success fw-semibold">
                     <i class="bi bi-whatsapp fs-6"></i>
                     <span class="small d-none d-lg-inline">Soporte / Ayuda</span>
                 </a>
 
-                <div class="vr opacity-25 mx-1" style="height: 18px; width: 1px;"></div>
+                <div class="vr opacity-50 mx-1"></div>
 
                 <!-- BOTÓN TEMA -->
                 <button type="button"
-                    class="btn btn-sm btn-link text-decoration-none d-flex align-items-center gap-2 px-3 py-1 rounded-pill transition-all shadow-none border-0 bg-transparent"
-                    id="btnThemeToggle" onclick="alternarModoOscuro()"
-                    style="--bs-btn-color:#fff; --bs-btn-hover-color:#fde68a; --bs-btn-active-color:#fde68a; --bs-btn-focus-shadow-rgb:255,255,255;">
+                    class="btn btn-sm btn-link text-decoration-none d-flex align-items-center gap-2 px-3 py-1 rounded-pill shadow-none border-0 bg-transparent text-body-emphasis"
+                    id="btnThemeToggle" onclick="alternarModoOscuro()">
                     <i class="bi bi-moon-stars-fill fs-6" id="themeIcon"></i>
                     <span class="small d-none d-lg-inline" id="themeLabel">Tema</span>
                 </button>
 
-                <div class="vr opacity-25 mx-1" style="height: 18px; width: 1px;"></div>
+                <div class="vr opacity-50 mx-1"></div>
 
                 <!-- NOTIFICACIONES -->
                 <div class="dropdown">
                     <button
-                        class="btn btn-sm btn-link text-decoration-none position-relative px-3 py-1 rounded-pill shadow-none border-0 bg-transparent"
-                        type="button" id="btnNotif" data-bs-toggle="dropdown" aria-expanded="false"
-                        style="--bs-btn-color:#fff; --bs-btn-hover-color:#fde68a; --bs-btn-active-color:#fde68a; --bs-btn-focus-shadow-rgb:255,255,255;">
+                        class="btn btn-sm btn-link text-decoration-none position-relative px-3 py-1 rounded-pill shadow-none border-0 bg-transparent text-body-emphasis"
+                        type="button" id="btnNotif" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-bell fs-6"></i>
                         <span id="notif-badge"
                             class="position-absolute top-25 start-75 translate-middle badge rounded-pill bg-danger d-none"
@@ -429,55 +426,54 @@ $modulos = [
                         id="menuNotif" style="width: 320px; max-width: 90vw; max-height: 400px; overflow-y: auto;">
                         <li
                             class="p-3 border-bottom bg-body-tertiary d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0 fw-bold text-body small"><i
-                                    class="bi bi-bell-fill text-primary me-2"></i>Traspasos Pendientes</h6>
+                            <h6 class="mb-0 fw-bold text-body small">
+                                <i class="bi bi-bell-fill text-primary me-2"></i>Notificaciones
+                            </h6>
                             <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill"
                                 style="font-size: 0.7rem;">Alertas</span>
                         </li>
                         <div id="lista-notificaciones">
-                            <li class="p-3 text-center text-body-secondary small">Cargando...</li>
+                            <li class="p-3 text-center text-body-secondary small">Sin notificaciones</li>
                         </div>
                     </ul>
                 </div>
 
-                <div class="vr opacity-25 mx-1" style="height: 18px; width: 1px;"></div>
+                <div class="vr opacity-50 mx-1"></div>
 
                 <!-- USUARIO -->
                 <div class="dropdown">
                     <button
-                        class="btn user-dropdown-btn d-flex align-items-center gap-2 p-1 pe-3 rounded-pill shadow-sm border-0"
-                        type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false"
-                        style="--bs-btn-color:#fff; --bs-btn-hover-color:#fff; --bs-btn-active-color:#fff; --bs-btn-focus-shadow-rgb:255,255,255;">
+                        class="btn user-dropdown-btn d-flex align-items-center gap-2 p-1 pe-3 rounded-pill shadow-sm border-0 bg-transparent text-body-emphasis"
+                        type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
 
                         <!-- Avatar -->
-                        <div
-                            class="user-avatar-circle d-flex align-items-center justify-content-center rounded-circle flex-shrink-0 text-white">
+                        <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0 bg-primary text-white"
+                            style="width:34px;height:34px;">
                             <i class="bi bi-person-fill"></i>
                         </div>
 
                         <!-- Nombre -->
                         <div class="text-center flex-grow-1 d-none d-md-block me-1">
-                            <span class="d-block lh-1 small fw-semibold user-name-text text-truncate  text-white"
+                            <span class="d-block lh-1 small fw-semibold text-body-emphasis text-truncate"
                                 style="max-width: 120px;">
                                 <?= htmlspecialchars($_SESSION['nombre'] ?? 'Usuario') ?>
                             </span>
                         </div>
 
                         <!-- Flecha -->
-                        <i class="bi bi-chevron-down user-chevron flex-shrink-0 text-white"></i>
+                        <i class="bi bi-chevron-down flex-shrink-0 text-body-emphasis"></i>
                     </button>
 
                     <ul class="dropdown-menu dropdown-menu-end shadow-lg mt-2 rounded-3" style="min-width: 200px;">
                         <li class="px-3 py-2 border-bottom">
-                            <p class="mb-0 small text-white">Sesión activa</p>
-                            <p class="mb-0 fw-bold text-white text-truncate" style="max-width: 170px;">
+                            <p class="mb-0 small text-body-secondary">Sesión activa</p>
+                            <p class="mb-0 fw-bold text-body-emphasis text-truncate" style="max-width: 170px;">
                                 <?= $_SESSION['nombre'] ?? 'Usuario' ?>
                             </p>
                         </li>
                         <li>
                             <a class="dropdown-item text-danger d-flex align-items-center gap-2 py-2 mt-1 rounded-2"
-                                href="/myvet/logout.php" onmouseover="this.classList.add('bg-danger-subtle')"
-                                onmouseout="this.classList.remove('bg-danger-subtle')">
+                                href="/myvet/logout.php">
                                 <i class="bi bi-box-arrow-right"></i>
                                 <span>Cerrar Sesión</span>
                             </a>

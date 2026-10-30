@@ -242,12 +242,12 @@
                     <div class="modal-body">
                         <input type="hidden" id="cita_id" name="cita_id" value="0">
                         <select name="almacen_id" id="almacen_id"
-                            class="form-select form-select-sm shadow-sm rounded-3 py-2" required>
+                            class="form-select form-select-sm shadow-sm rounded-3 py-2" required <?= ($_SESSION['almacen_id'] > 0) ? 'disabled' : '' ?>>
                             <?php foreach ($almacenes as $a): ?>
                                 <option value="<?= $a['id'] ?>"><?= htmlspecialchars($a['nombre']) ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <input type="text" id="tipoCita" name="tipoCita" value="medica">
+                        <input type="hidden" id="tipoCita" name="tipoCita" value="medica">
 
                         <div class="mb-3">
                             <label class="form-label text-body-secondary fw-semibold small mb-1">
