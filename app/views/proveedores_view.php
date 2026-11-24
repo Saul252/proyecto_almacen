@@ -450,6 +450,7 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <?php require_once __DIR__ . '/egresosComponets/modalProveedoresCompraP.php'; ?>
+    <?php require_once __DIR__ . '/egresosComponets/verEditarUbicaciones.php'; ?>
 
     <script>
     let tabla;
@@ -604,6 +605,11 @@ function cargarProveedores() {
                                 onclick="editarProveedor(${p.id})" title="Editar">
                                 <i class="bi bi-pencil"></i>
                             </button>
+                            <button type="button" class="btn-accion btn-ubicacion"
+                                            onclick="abrirModalGestionUbicaciones(${p.id ?? ''}, '${p.nombre_comercial ?? ''}')"
+                                            title="Gestionar ubicaciones">
+                                            <i class="bi bi-geo-alt"></i>
+                                        </button>
                             <button class="btn btn-sm ${activo ? 'btn-outline-danger' : 'btn-outline-success'} rounded-pill"
                                 onclick="cambiarEstado(${p.id})" title="${activo ? 'Desactivar' : 'Activar'}">
                                 <i class="bi ${activo ? 'bi-toggle-on' : 'bi-toggle-off'}"></i>

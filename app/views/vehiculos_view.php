@@ -1,7 +1,7 @@
 <?php
 /**
  * vehiculos_view.php 
- * Versión ajustada para segmentación por Almacén - cfsistem
+ * Versión ajustada para segmentación por Almacén - myvet
  */
 $estadosUnidad = [
     'disponible' => ['label' => 'Disponible', 'class' => 'st-disponible', 'dot' => '#28a745'],
@@ -16,7 +16,7 @@ $estadosUnidad = [
 <head>
     <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transporte | cfsistem</title>
+    <title>Transporte | myvet</title>
     <link rel="icon" type="image/png"
         href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
 
@@ -176,7 +176,7 @@ $estadosUnidad = [
         <div class="d-flex justify-content-between align-items-end flex-wrap mb-5" style="gap: 20px;">
             <div>
                 <h1 class="fw-bold m-0 " style="letter-spacing: -1px;">Flota Vehicular</h1>
-                <span class="text-body-secondary fw-medium">Panel de control logístico de cfsistem</span>
+                <span class="text-body-secondary fw-medium">Panel de control logístico de myvet</span>
             </div>
 
             <div class="d-flex align-items-center gap-3">

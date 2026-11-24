@@ -283,6 +283,210 @@ if (isset($_GET['action']) && $_GET['action'] == 'actualizarProveedor') {
 }
 
 /* =====================================================
+   💾 GUARDAR UBICACIÓN
+===================================================== */
+if (isset($_GET['action']) && $_GET['action'] === 'guardarDireccionProveedor') {
+
+    header('Content-Type: application/json');
+
+    try {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            throw new Exception("Método no permitido");
+        }
+
+        // Desempaquetar y limpiar campos exactos de la tabla
+        $datos = [
+            'proveedor_id' => intval($_POST['proveedor_id'] ?? 0),
+            'nombre' => trim(strip_tags($_POST['nombre'] ?? '')),
+            'direccion_completa' => trim(strip_tags($_POST['direccion_completa'] ?? '')),
+            'telefono' => trim(strip_tags($_POST['telefono'] ?? '')),
+            'contacto' => trim(strip_tags($_POST['contacto'] ?? '')),
+            'extencion' => trim(strip_tags($_POST['extencion'] ?? ''))
+        ];
+
+        if ($datos['proveedor_id'] <= 0) {
+            throw new Exception("ID de proveedor no válido");
+        }
+        if (empty($datos['nombre'])) {
+            throw new Exception("El nombre de la ubicación es obligatorio");
+        }
+        if (empty($datos['direccion_completa'])) {
+            throw new Exception("La dirección completa es obligatoria");
+        }
+
+        $resultado = $model->guardarUbicacion($datos);
+
+        if (!$resultado['success']) {
+            throw new Exception($resultado['message'] ?? "Error al guardar la ubicación");
+        }
+
+        echo json_encode($resultado);
+
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+
+    exit;
+}
+
+
+/* =====================================================
+   🔍 OBTENER UNO (UBICACIÓN)
+===================================================== */
+if (isset($_GET['action']) && $_GET['action'] === 'obtenerUbicacion') {
+
+    header('Content-Type: application/json');
+
+    try {
+        $id = intval($_GET['id'] ?? 0);
+
+        if ($id <= 0) {
+            throw new Exception("ID de ubicación inválido");
+        }
+
+        $resultado = $model->obtenerPorIdUbicacion($id);
+
+        if (!$resultado['success']) {
+            throw new Exception($resultado['message'] ?? "Ubicación no encontrada");
+        }
+
+        echo json_encode([
+            'success' => true,
+            'data' => $resultado['data']
+        ]);
+
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+
+    exit;
+}
+
+
+/* =====================================================
+   ✏️ ACTUALIZAR UBICACIÓN
+===================================================== */
+if (isset($_GET['action']) && $_GET['action'] === 'actualizarUbicacion') {
+
+    header('Content-Type: application/json');
+
+    try {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            throw new Exception("Método no permitido");
+        }
+
+        $id = intval($_POST['id'] ?? $_GET['id'] ?? 0);
+
+        if ($id <= 0) {
+            throw new Exception("ID de ubicación inválido");
+        }
+
+        $datos = [
+            'id' => $id,
+            'proveedor_id' => intval($_POST['proveedor_id'] ?? 0),
+            'nombre' => trim(strip_tags($_POST['nombre'] ?? '')),
+            'direccion_completa' => trim(strip_tags($_POST['direccion_completa'] ?? '')),
+            'telefono' => trim(strip_tags($_POST['telefono'] ?? '')),
+            'contacto' => trim(strip_tags($_POST['contacto'] ?? '')),
+            'extencion' => trim(strip_tags($_POST['extencion'] ?? ''))
+        ];
+
+        if (empty($datos['nombre']) || empty($datos['direccion_completa'])) {
+            throw new Exception("El nombre y la dirección son obligatorios");
+        }
+
+        $resultado = $model->actualizarUbicacion($id, $datos);
+
+        if (!$resultado['success']) {
+            throw new Exception($resultado['message'] ?? "Error al actualizar la ubicación");
+        }
+
+        echo json_encode($resultado);
+
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+
+    exit;
+}
+
+
+/* =====================================================
+   🗑️ ELIMINAR UBICACIÓN
+===================================================== */
+if (isset($_GET['action']) && $_GET['action'] === 'eliminarUbicacion') {
+
+    header('Content-Type: application/json');
+
+    try {
+        $id = intval($_POST['id'] ?? $_GET['id'] ?? 0);
+
+        if ($id <= 0) {
+            throw new Exception("ID de ubicación inválido");
+        }
+
+        $resultado = $model->eliminarUbicacion($id);
+
+        if (!$resultado['success']) {
+            throw new Exception($resultado['message'] ?? "Error al eliminar la ubicación");
+        }
+
+        echo json_encode($resultado);
+
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+
+    exit;
+}
+/* =====================================================
+   📋 LISTAR DIRECCIONES / UBICACIONES POR PROVEEDOR
+===================================================== */
+if (isset($_GET['action']) && $_GET['action'] === 'listarDireccionesProveedor') {
+
+    header('Content-Type: application/json');
+
+    try {
+        $proveedorId = intval($_GET['proveedor_id'] ?? 0);
+
+        if ($proveedorId <= 0) {
+            throw new Exception("ID de proveedor inválido");
+        }
+
+        $resultado = $model->listarUbicacionesPorProveedor($proveedorId);
+
+        if (!$resultado['success']) {
+            throw new Exception($resultado['message'] ?? "No se encontraron ubicaciones");
+        }
+
+        echo json_encode([
+            'success' => true,
+            'data' => $resultado['data']
+        ]);
+
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage(),
+            'data' => []
+        ]);
+    }
+
+    exit;
+}
+/* =====================================================
    📄 CARGA NORMAL
 ===================================================== */
 

@@ -275,13 +275,13 @@
             </html>
         `;
 
-            const resp = await fetch('/cfsistem/app/controllers/correoController.php', {
+            const resp = await fetch('/myvet/app/controllers/correoController.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     modo: 'archivos',
                     para: correo,
-                    asunto: `Solicitud ${folio} - CF System`,
+                    asunto: `Solicitud ${folio} - JSEA`,
                     contenido: `<p>Buenas tardes,</p><p>Adjunto encontrará la solicitud <strong>${folio}</strong>.</p><p>Gracias por su preferencia.</p>`,
                     adjuntos: [{ html: html, nombre: `Solicitud_${folioLimpio}.pdf` }]
                 })

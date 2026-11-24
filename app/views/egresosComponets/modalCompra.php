@@ -206,7 +206,7 @@ const ES_ADMIN = <?= ($_SESSION['rol_id'] == 1) ? 'true' : 'false' ?>;
         
  
 /**
- * LÓGICA DE COMPRAS - CF SISTEM
+ * LÓGICA DE COMPRAS - JSEA
  */
 function refrescar(){
     refrescarListaProductosCompra()

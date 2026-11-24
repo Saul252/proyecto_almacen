@@ -50,7 +50,7 @@ class RepartoModel
                     entrega_venta_id, 
                     fecha_programada, 
                     estado_reparto
-                ) VALUES (?, ?, ?, CURDATE(), 'en_transito')";
+                ) VALUES (?, ?, ?, CURDATE(), 'completado')";
 
             $stmtM = $this->db->prepare($sqlM);
             $stmtM->bind_param("iii", $vehiculo_id, $chofer_id, $movimiento_id);
@@ -78,7 +78,7 @@ class RepartoModel
                     reparto_id, 
                     estatus_consolidado,
                     entrega_id
-                ) VALUES (?, ?, ?, 'abierto', ?)";
+                ) VALUES (?, ?, ?, 'cerrado', ?)";
 
             $stmtC = $this->db->prepare($sqlC);
             $stmtC->bind_param("siii", $folio_viaje, $vehiculo_id, $reparto_id, $entrega_id);
@@ -91,7 +91,7 @@ class RepartoModel
                     descripcion_punto, 
                     estado_punto,
                     entrega_id
-                ) VALUES (?, 1, ?, 'pendiente', ?)";
+                ) VALUES (?, 1, ?, 'visitado', ?)";
 
             $stmtP = $this->db->prepare($sqlP);
             $stmtP->bind_param("isi", $reparto_id, $direccion, $entrega_id);
@@ -1255,7 +1255,7 @@ class RepartoModel
      */
     /**
      * Obtiene el reporte detallado de un viaje por su folio o el listado general.
-     * Adaptado para el sistema cfsistem.
+     * Adaptado para el sistema myvet.
      * * @param string|null $folio_folio El folio del viaje (ej: RUT-260324-02-25)
      * @return array Arreglo asociativo con los datos para el modal
      */
@@ -3077,7 +3077,7 @@ LEFT JOIN clientes c
 
             return $res;
         } catch (Exception $e) {
-            error_log("Error CF System: " . $e->getMessage());
+            error_log("Error JSEA: " . $e->getMessage());
             return [];
         }
     }
@@ -3149,7 +3149,7 @@ LEFT JOIN clientes c
             return $res;
 
         } catch (Exception $e) {
-            error_log("Error CF System: " . $e->getMessage());
+            error_log("Error JSEA: " . $e->getMessage());
             return [];
         }
     }
@@ -3212,7 +3212,7 @@ LEFT JOIN clientes c
             return $res;
 
         } catch (Exception $e) {
-            error_log("Error CF System: " . $e->getMessage());
+            error_log("Error JSEA: " . $e->getMessage());
             return [];
         }
     }
@@ -3450,6 +3450,123 @@ LEFT JOIN clientes c
                 $this->db->rollback();
             error_log("Error al eliminar evidencia: " . $e->getMessage());
             return false;
+        }
+    }
+    public function cancelarEntrega($entrega_id)
+    {
+        try {
+            $this->db->begin_transaction();
+
+            // 0. Obtener el venta_id antes de borrar (usamos LIMIT 1 por seguridad)
+            $sqlVentaId = "SELECT DISTINCT ev.venta_id 
+                           FROM entregas_venta ev
+                           JOIN detalle_entrega de ON ev.id = de.entrega_id
+                           WHERE de.entrega_id = ? LIMIT 1";
+            $stmtV = $this->db->prepare($sqlVentaId);
+            $stmtV->bind_param("i", $entrega_id);
+            $stmtV->execute();
+            $resV = $stmtV->get_result()->fetch_assoc();
+            $venta_id = $resV ? intval($resV['venta_id']) : 0;
+
+            // 1. Obtener y revertir el stock de los lotes y el inventario global de TODOS los movimientos asociados
+            $sqlSalidas = "SELECT lote_id, cantidad_salida FROM lotes_movimientos_salida WHERE entrega_venta_id = ?";
+            $stmtS = $this->db->prepare($sqlSalidas);
+            $stmtS->bind_param("i", $entrega_id);
+            $stmtS->execute();
+            $resSalidas = $stmtS->get_result();
+
+            while ($salida = $resSalidas->fetch_assoc()) {
+                $lote_id = intval($salida['lote_id']);
+                $cantidad = floatval($salida['cantidad_salida']);
+
+                if ($lote_id > 0 && $cantidad > 0) {
+                    $sqlLoteCheck = "SELECT cantidad_actual, almacen_id, producto_id FROM lotes_stock WHERE id = ? FOR UPDATE";
+                    $stmtLC = $this->db->prepare($sqlLoteCheck);
+                    $stmtLC->bind_param("i", $lote_id);
+                    $stmtLC->execute();
+                    $loteInfo = $stmtLC->get_result()->fetch_assoc();
+
+                    if ($loteInfo) {
+                        $nuevo_stock_lote = floatval($loteInfo['cantidad_actual']) + $cantidad;
+                        $nuevo_estado = ($nuevo_stock_lote > 0) ? 'activo' : 'agotado';
+                        $almacen_id = intval($loteInfo['almacen_id']);
+                        $producto_id = intval($loteInfo['producto_id']);
+
+                        // Actualizar lote
+                        $sqlUpLote = "UPDATE lotes_stock SET cantidad_actual = ?, estado_lote = ? WHERE id = ?";
+                        $stmtUL = $this->db->prepare($sqlUpLote);
+                        $stmtUL->bind_param("dsi", $nuevo_stock_lote, $nuevo_estado, $lote_id);
+                        $stmtUL->execute();
+
+                        // Actualizar inventario global
+                        $sqlInv = "UPDATE inventario SET stock = stock + ? WHERE producto_id = ? AND almacen_id = ?";
+                        $stmtI = $this->db->prepare($sqlInv);
+                        $stmtI->bind_param("dii", $cantidad, $producto_id, $almacen_id);
+                        $stmtI->execute();
+                    }
+                }
+            }
+
+            // 1.1 RESTAR LA CANTIDAD ENTREGADA EN DETALLE_VENTA Y CAMBIAR ESTADO A 'parcial'
+            // Obtenemos qué detalle_venta_id y qué cantidad se entregó en esta entrega antes de borrar los registros
+            $sqlDetallesEntrega = "SELECT detalle_venta_id, cantidad FROM detalle_entrega WHERE entrega_id = ?";
+            $stmtDE = $this->db->prepare($sqlDetallesEntrega);
+            $stmtDE->bind_param("i", $entrega_id);
+            $stmtDE->execute();
+            $resDE = $stmtDE->get_result();
+
+            while ($item = $resDE->fetch_assoc()) {
+                $detalle_venta_id = intval($item['detalle_venta_id']);
+                $cantidad_regresada = floatval($item['cantidad']);
+
+                if ($detalle_venta_id > 0 && $cantidad_regresada > 0) {
+                    // Restamos la cantidad entregada y actualizamos el estado de entrega a 'parcial'
+                    $sqlUpDetVenta = "UPDATE detalle_venta 
+                                      SET cantidad_entregada = GREATEST(0, cantidad_entregada - ?), 
+                                          estado_entrega = 'parcial' 
+                                      WHERE id = ?";
+                    $stmtUDV = $this->db->prepare($sqlUpDetVenta);
+                    $stmtUDV->bind_param("di", $cantidad_regresada, $detalle_venta_id);
+                    $stmtUDV->execute();
+                }
+            }
+
+            // 2. Eliminar registros en cascada (incluyendo transporte_consolidacion)
+            $tablas = [
+                "DELETE FROM registro_salida_lotes WHERE movimiento_id IN (SELECT id FROM movimientos WHERE entrega_id = ?)",
+                "DELETE FROM movimientos WHERE entrega_id = ?",
+                "DELETE FROM lotes_movimientos_salida WHERE entrega_venta_id = ?",
+                "DELETE FROM detalle_entrega WHERE entrega_id = ?",
+                "DELETE FROM transporte_rutas_puntos WHERE entrega_id = ?",
+                "DELETE FROM transporte_repartos_maestro WHERE entrega_venta_id = ?",
+                "DELETE FROM transporte_consolidacion WHERE entrega_id = ?",
+                "DELETE FROM entregas_venta WHERE id = ?"
+            ];
+
+            foreach ($tablas as $sqlQuery) {
+                $stmtDel = $this->db->prepare($sqlQuery);
+                $stmtDel->bind_param("i", $entrega_id);
+                $stmtDel->execute();
+            }
+
+            // 3. Actualizar el estado general de la venta a 'parcial'
+            if ($venta_id > 0) {
+                $sqlUpVenta = "UPDATE ventas SET estado_entrega = 'parcial' WHERE id = ?";
+                $stmtUV = $this->db->prepare($sqlUpVenta);
+                $stmtUV->bind_param("i", $venta_id);
+                $stmtUV->execute();
+            }
+
+            $this->db->commit();
+            return true;
+
+        } catch (Exception $e) {
+            try {
+                $this->db->rollback();
+            } catch (Exception $ex) {
+                // Evita errores si la transacción ya estaba cerrada
+            }
+            throw new Exception("Error en base de datos: " . $e->getMessage());
         }
     }
 }

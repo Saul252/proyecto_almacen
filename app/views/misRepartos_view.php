@@ -1,6 +1,6 @@
 <?php
 /**
- * CF SYSTEM - Logística Híbrida
+ * JSEA - Logística Híbrida
  * Vista con Tabla Bootstrap Nativa, Paginación Clásica y Modal de Entrega.
  */
 ?>
@@ -10,7 +10,7 @@
 <head>
     <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title><?= $es_supervisor ? 'Monitor Global' : 'Mis Repartos' ?> | cfsistem</title>
+    <title><?= $es_supervisor ? 'Monitor Global' : 'Mis Repartos' ?> | myvet</title>
     <link rel="icon" type="image/png"
         href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
 

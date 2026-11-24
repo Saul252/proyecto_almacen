@@ -484,7 +484,7 @@
         async function descargarProductos() {
             const URL_ACCESO = '/myvet/app/controllers/accesoController.php';
             const almacen_cargar = $('#filtroAlmacen').val();
-            // 1. Realizar la petición a tu controlador de Cf System
+            // 1. Realizar la petición a tu controlador de JSEA
             const resp = await fetch(
                 `${URL_ACCESO}?action=obtenerProductosAlmacen&id=${encodeURIComponent(almacen_cargar)}`
             );

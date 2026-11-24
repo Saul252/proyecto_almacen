@@ -180,7 +180,7 @@
                     // 9) Enviar al backend
                     const resultado = await enviarCorreo({
                         correo: correoDestino,
-                        titulo: `Comprobante de Pago ${folio} - CF System`,
+                        titulo: `Comprobante de Pago ${folio} - JSEA`,
                         descripcion:
                             `Buenas tardes ${data.nombre_comercial},\n\n` +
                             `Por este medio le enviamos su comprobante de pago con folio ${folio} ` +
@@ -255,7 +255,7 @@
         nombreDocumento = 'Documento.pdf',
         htmlDocumento = null,
         urlBackend = '/myvet/app/controllers/correoController.php',
-        remitente = 'CF System'
+        remitente = 'JSEA'
     }) {
         if (!correo || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
             throw new Error('Correo inválido');

@@ -455,4 +455,196 @@ class ProveedoresModel
             "etiqueta" => "Global"
         ];
     }
+
+    public function guardarUbicacion($datos)
+    {
+        $id_proveedor = isset($datos['proveedor_id']) && $datos['proveedor_id'] !== '' ? (int) $datos['proveedor_id'] : 0;
+        $nombre = trim($datos['nombre'] ?? '');
+        $direccion_completa = trim($datos['direccion_completa'] ?? '');
+        $telefono = trim($datos['telefono'] ?? '');
+        $contacto = trim($datos['contacto'] ?? '');
+        $extencion = trim($datos['extencion'] ?? '');
+
+        $sql = "INSERT INTO ubicaciones_proveedores 
+        (
+            id_proveedor,
+            nombre,
+            direccion_completa,
+            telefono,
+            contacto,
+            extencion
+        )
+        VALUES (?, ?, ?, ?, ?, ?)";
+
+        $stmt = $this->db->prepare($sql);
+
+        if (!$stmt) {
+            return [
+                "success" => false,
+                "message" => "Error en prepare: " . $this->db->error
+            ];
+        }
+
+        // isssss -> id_proveedor (int), nombre (string), direccion_completa (string), telefono (string), contacto (string), extencion (string)
+        $stmt->bind_param(
+            "isssss",
+            $id_proveedor,
+            $nombre,
+            $direccion_completa,
+            $telefono,
+            $contacto,
+            $extencion
+        );
+
+        if ($stmt->execute()) {
+            return [
+                "success" => true,
+                "id" => $stmt->insert_id,
+                "message" => "Ubicación guardada correctamente"
+            ];
+        } else {
+            return [
+                "success" => false,
+                "message" => "Error al insertar: " . $stmt->error
+            ];
+        }
+    }
+
+    // 2. OBTENER / LISTAR (READ)
+    public function obtenerPorIdUbicacion($id)
+    {
+        $sql = "SELECT id, id_proveedor, nombre, direccion_completa, telefono, contacto, extencion 
+                FROM ubicaciones_proveedores 
+                WHERE id = ?";
+
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) {
+            return ["success" => false, "message" => "Error en prepare: " . $this->db->error];
+        }
+
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+
+        if ($row = $resultado->fetch_assoc()) {
+            return ["success" => true, "data" => $row];
+        }
+
+        return ["success" => false, "message" => "Ubicación no encontrada"];
+    }
+
+    // 3. ACTUALIZAR (UPDATE)
+    public function actualizarUbicacion($id, $datos)
+    {
+        $id_proveedor = isset($datos['proveedor_id']) && $datos['proveedor_id'] !== '' ? (int) $datos['proveedor_id'] : 0;
+        $nombre = trim($datos['nombre'] ?? '');
+        $direccion_completa = trim($datos['direccion_completa'] ?? '');
+        $telefono = trim($datos['telefono'] ?? '');
+        $contacto = trim($datos['contacto'] ?? '');
+        $extencion = trim($datos['extencion'] ?? '');
+        $id = (int) $id;
+
+        $sql = "UPDATE ubicaciones_proveedores SET 
+                    id_proveedor = ?, 
+                    nombre = ?, 
+                    direccion_completa = ?, 
+                    telefono = ?, 
+                    contacto = ?, 
+                    extencion = ? 
+                WHERE id = ?";
+
+        $stmt = $this->db->prepare($sql);
+
+        if (!$stmt) {
+            return [
+                "success" => false,
+                "message" => "Error en prepare: " . $this->db->error
+            ];
+        }
+
+        // isssssi -> id_proveedor (int), nombre, direccion_completa, telefono, contacto, extencion (strings), id final (int)
+        $stmt->bind_param(
+            "isssssi",
+            $id_proveedor,
+            $nombre,
+            $direccion_completa,
+            $telefono,
+            $contacto,
+            $extencion,
+            $id
+        );
+
+        if ($stmt->execute()) {
+            return [
+                "success" => true,
+                "message" => "Ubicación actualizada correctamente"
+            ];
+        } else {
+            return [
+                "success" => false,
+                "message" => "Error al actualizar: " . $stmt->error
+            ];
+        }
+    }
+
+    // 4. ELIMINAR (DELETE)
+    public function eliminarUbicacion($id)
+    {
+        $sql = "DELETE FROM ubicaciones_proveedores WHERE id = ?";
+
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) {
+            return [
+                "success" => false,
+                "message" => "Error en prepare: " . $this->db->error
+            ];
+        }
+
+        $stmt->bind_param("i", $id);
+
+        if ($stmt->execute()) {
+            return [
+                "success" => true,
+                "message" => "Ubicación eliminada correctamente"
+            ];
+        } else {
+            return [
+                "success" => false,
+                "message" => "Error al eliminar: " . $stmt->error
+            ];
+        }
+    }
+    // 5. LISTAR UBICACIONES POR PROVEEDOR (READ ALL)
+    public function listarUbicacionesPorProveedor($proveedorId)
+    {
+        $proveedorId = (int) $proveedorId;
+
+        $sql = "SELECT id, id_proveedor, nombre, direccion_completa, telefono, contacto, extencion 
+                FROM ubicaciones_proveedores 
+                WHERE id_proveedor = ? 
+                ORDER BY id DESC";
+
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) {
+            return [
+                "success" => false,
+                "message" => "Error en prepare: " . $this->db->error,
+                "data" => []
+            ];
+        }
+
+        $stmt->bind_param("i", $proveedorId);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+
+        $ubicaciones = [];
+        while ($row = $resultado->fetch_assoc()) {
+            $ubicaciones[] = $row;
+        }
+
+        return [
+            "success" => true,
+            "data" => $ubicaciones
+        ];
+    }
 }

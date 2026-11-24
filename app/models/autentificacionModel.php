@@ -13,7 +13,7 @@ class AuthModel
      */
     public function obtenerPorUsername(string $username): ?array
     {
-        $sql = "SELECT u.id, u.nombre, u.username, u.password, u.rol_id, u.almacen_id, u.activo, r.nombre AS rol, almacen.tipo_plan as plan, almacen.logo as logo, almacen.ico as ico,almacen.pago as pago, almacen.nombre as nombre_almacen
+        $sql = "SELECT u.id, u.nombre, u.username, u.password, u.rol_id, u.almacen_id, u.activo, r.nombre AS rol, almacen.tipo_plan as plan, almacen.logo as logo, almacen.ico as ico,almacen.pago as pago, almacen.nombre as nombre_almacen, almacen.ubicacion as direccion, almacen.rfc as rfc
                 FROM usuarios u
                 INNER JOIN roles r ON u.rol_id = r.id
                 left join almacenes almacen on almacen.id=u.almacen_id

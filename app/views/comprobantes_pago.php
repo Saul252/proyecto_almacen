@@ -9,7 +9,7 @@ error_reporting(E_ALL);
 <head>
     <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comprobantes de pago | cfsistem</title>
+    <title>Comprobantes de pago | myvet</title>
     <link rel="icon" type="image/png"
         href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
 
@@ -1361,7 +1361,7 @@ window.onload = async function(){
                         text: res.message || 'Operación realizada correctamente.',
                         icon: 'success',
                         confirmButtonText: 'Aceptar',
-                        confirmButtonColor: '#1f2a37', // Combinando con el tono oscuro de tu CF System
+                        confirmButtonColor: '#1f2a37', // Combinando con el tono oscuro de tu JSEA
                         timer: 2000, // Se cierra automáticamente en 2 segundos si no dan clic
                         timerProgressBar: true
                     }).then(() => {

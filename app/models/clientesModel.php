@@ -909,4 +909,128 @@ class ClientesModel
 
         return $stmt->execute();
     }
+
+    public function guardarUbicacion($datos)
+    {
+        // Limpieza de datos
+        $cliente_id = intval($datos['cliente_id'] ?? 0);
+        $nombre = trim($datos['nombre'] ?? '');
+        $direccion_completa = trim($datos['direccion_completa'] ?? '');
+
+        $sql = "INSERT INTO ubicaciones_clientes (cliente_id, nombre, direccion_completa) VALUES (?, ?, ?)";
+
+        $stmt = $this->db->prepare($sql);
+
+        if (!$stmt) {
+            throw new Exception("Error al preparar INSERT: " . $this->db->error);
+        }
+
+        $stmt->bind_param("iss", $cliente_id, $nombre, $direccion_completa);
+
+        if (!$stmt->execute()) {
+            throw new Exception("Error al guardar la ubicación del cliente: " . $stmt->error);
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Ubicación registrada correctamente',
+            'id' => $stmt->insert_id
+        ];
+    }
+    public function actualizarUbicacion($id, $datos)
+    {
+        // Limpieza de datos
+        $cliente_id = intval($datos['cliente_id'] ?? 0);
+        $nombre = trim($datos['nombre'] ?? '');
+        $direccion_completa = trim($datos['direccion_completa'] ?? '');
+
+        // Campos a actualizar
+        $campos = [
+            "cliente_id = ?",
+            "nombre = ?",
+            "direccion_completa = ?"
+        ];
+
+        $params = [
+            $cliente_id,
+            $nombre,
+            $direccion_completa
+        ];
+
+        $tipos = "iss";
+
+        $sql = "UPDATE ubicaciones_clientes
+        SET " . implode(", ", $campos) . "
+        WHERE id = ?";
+
+        $params[] = $id;
+        $tipos .= "i";
+
+        $stmt = $this->db->prepare($sql);
+
+        if (!$stmt) {
+            throw new Exception("Error al preparar UPDATE: " . $this->db->error);
+        }
+
+        $stmt->bind_param($tipos, ...$params);
+
+        if (!$stmt->execute()) {
+            throw new Exception("Error al actualizar la ubicación del cliente: " . $stmt->error);
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Ubicación actualizada correctamente'
+        ];
+    }
+    public function eliminarUbicacion($id)
+    {
+        $id = intval($id);
+
+        $sql = "DELETE FROM ubicaciones_clientes WHERE id = ?";
+
+        $stmt = $this->db->prepare($sql);
+
+        if (!$stmt) {
+            throw new Exception("Error al preparar DELETE: " . $this->db->error);
+        }
+
+        $stmt->bind_param("i", $id);
+
+        if (!$stmt->execute()) {
+            throw new Exception("Error al eliminar la ubicación del cliente: " . $stmt->error);
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Ubicación eliminada correctamente'
+        ];
+    }
+    public function listarUbicacionesPorCliente($cliente_id)
+    {
+        $cliente_id = intval($cliente_id);
+
+        $sql = "SELECT id, cliente_id, nombre, direccion_completa 
+            FROM ubicaciones_clientes 
+            WHERE cliente_id = ?";
+
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) {
+            throw new Exception("Error al preparar SELECT: " . $this->db->error);
+        }
+
+        $stmt->bind_param("i", $cliente_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $ubicaciones = [];
+        while ($row = $result->fetch_assoc()) {
+            $ubicaciones[] = $row;
+        }
+
+        return [
+            'success' => true,
+            'data' => $ubicaciones
+        ];
+    }
 }

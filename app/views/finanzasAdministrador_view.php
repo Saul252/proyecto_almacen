@@ -2,142 +2,146 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8"name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Corte de Caja | Cf System</title>
-      <link rel="icon" type="image/png" href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corte de Caja | JSEA</title>
+    <link rel="icon" type="image/png"
+        href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
 
-    <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>" type="image/x-icon">
+    <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
+        type="image/x-icon">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
     <?php require_once __DIR__ . '/layout/icono.php' ?>
-    <?php if (function_exists('cargarEstilos')) { cargarEstilos(); } ?>
+    <?php if (function_exists('cargarEstilos')) {
+        cargarEstilos();
+    } ?>
     <style>
-    :root {
-        --apple-bg: #f5f5f7;
-        --apple-blue: #007aff;
-    }
-
-    body {
-      
-        font-family: -apple-system, sans-serif;
-    }
-
-    .main-content {
-        margin-left: 0px;
-        padding: 80px 20px;
-        transition: 0.3s;
-    }
-
-    .glass-card {
-         background: var(--bg-gradient)!important;
-        backdrop-filter: blur(15px);
-        border-radius: 20px;
-        
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    }
-
-    .ios-input {
-        
-        background: #eef0f2;
-        border-radius: 10px;
-        padding: 10px;
-    }
-
-    .loading-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.7);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        border-radius: 20px;
-        z-index: 10;
-    }
-
-    .table thead th {
-         background: var(--bg-gradient)!important;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-weight: 700;
-        color: #8e8e93;
-        font-size: 10px;
-        
-    }
-
-    .badge-metodo {
-        font-size: 10px;
-        padding: 5px 10px;
-        border-radius: 8px;
-        font-weight: 600;
-    }
-
-    .origen-tag {
-        font-size: 9px;
-        padding: 2px 6px;
-        border-radius: 4px;
-        text-transform: uppercase;
-        margin-top: 4px;
-        display: inline-block;
-    }
-
-    @media (max-width: 992px) {
-        .main-content {
-            margin-left: 0;
+        :root {
+            --apple-bg: #f5f5f7;
+            --apple-blue: #007aff;
         }
-    }
 
-    .glass-card {
-        background: var(--bg-gradient)!important;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        transition: transform 0.2s;
-        border: 1px solid #eef0f2;
-    }
+        body {
 
-    .glass-card:hover {
-        transform: translateY(-5px);
-    }
+            font-family: -apple-system, sans-serif;
+        }
 
-    .icon-box {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 10px;
-    }
+        .main-content {
+            margin-left: 0px;
+            padding: 80px 20px;
+            transition: 0.3s;
+        }
 
-    .text-xs {
-        font-size: 0.7rem;
-        letter-spacing: 0.5px;
-    }
+        .glass-card {
+            background: var(--bg-gradient) !important;
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
 
-    .bg-soft-success {
-        background: var(--bg-gradient)!important;
-        color: #2e7d32;
-    }
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
 
-    .bg-soft-primary {
-          background: var(--bg-gradient)!important;
-        color: #1565c0;
-    }
+        .ios-input {
 
-    .bg-soft-warning {
-         background: var(--bg-gradient)!important;
-        color: #ef6c00;
-    }
+            background: #eef0f2;
+            border-radius: 10px;
+            padding: 10px;
+        }
 
-    .bg-soft-danger {
-        background: var(--bg-gradient)!important;
-        color: #c62828;
-    }
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            z-index: 10;
+        }
+
+        .table thead th {
+            background: var(--bg-gradient) !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            color: #8e8e93;
+            font-size: 10px;
+
+        }
+
+        .badge-metodo {
+            font-size: 10px;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .origen-tag {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        @media (max-width: 992px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        .glass-card {
+            background: var(--bg-gradient) !important;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+            border: 1px solid #eef0f2;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+        }
+
+        .text-xs {
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+        }
+
+        .bg-soft-success {
+            background: var(--bg-gradient) !important;
+            color: #2e7d32;
+        }
+
+        .bg-soft-primary {
+            background: var(--bg-gradient) !important;
+            color: #1565c0;
+        }
+
+        .bg-soft-warning {
+            background: var(--bg-gradient) !important;
+            color: #ef6c00;
+        }
+
+        .bg-soft-danger {
+            background: var(--bg-gradient) !important;
+            color: #c62828;
+        }
     </style>
 </head>
 
@@ -185,17 +189,17 @@
 
                     <div class="col-md-3">
                         <label class="small fw-bold text-body-secondary text-uppercase">Almacén / Sucursal</label>
-                        <select id="almacen_id" class="form-select ios-input"
-                            <?= ($almacen_sesion != 0) ? 'disabled' : '' ?>>
+                        <select id="almacen_id" class="form-select ios-input" <?= ($almacen_sesion != 0) ? 'disabled' : '' ?>>
                             <?php if ($almacen_sesion == 0): ?>
-                            <option value="0">🌐 Todas las Sucursales</option>
+                                <option value="0">🌐 Todas las Sucursales</option>
                             <?php endif; ?>
 
-                            <?php if(isset($listaAlmacenes)) foreach($listaAlmacenes as $alm): ?>
-                            <option value="<?= $alm['id'] ?>" <?= ($almacen_sesion == $alm['id']) ? 'selected' : '' ?>>
-                                📍 <?= $alm['nombre'] ?>
-                            </option>
-                            <?php endforeach; ?>
+                            <?php if (isset($listaAlmacenes))
+                                foreach ($listaAlmacenes as $alm): ?>
+                                    <option value="<?= $alm['id'] ?>" <?= ($almacen_sesion == $alm['id']) ? 'selected' : '' ?>>
+                                        📍 <?= $alm['nombre'] ?>
+                                    </option>
+                                <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -219,15 +223,15 @@
             </div>
 
 
-            <div class="row mb-4 g-3  shadow-sm h-100" style="border-radius: 15px;background: var(--card-header-bg)!important;">
+            <div class="row mb-4 g-3  shadow-sm h-100"
+                style="border-radius: 15px;background: var(--card-header-bg)!important;">
                 <!-- CONTENEDOR DEL SALDO INICIAL: empieza visible, JS lo controla -->
                 <div id="contenedor-saldo-inicial" class="mb-4 animate__animated animate__fadeIn">
                 </div>
 
                 <div class="row g-4">
                     <div class="col-12">
-                        <div class="card  p-3"
-                            style="border-radius:20px; background: var(--card-header-bg)!important;">
+                        <div class="card  p-3" style="border-radius:20px; background: var(--card-header-bg)!important;">
 
                             <div class="row text-center">
 
@@ -425,158 +429,160 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <?php if (function_exists('cargarScripts')) { cargarScripts(); } ?>
+    <?php if (function_exists('cargarScripts')) {
+        cargarScripts();
+    } ?>
 
     <script>
-    /**
-     * Determina si el periodo seleccionado requiere mostrar el saldo inicial.
-     * Solo se muestra para "hoy" y "ayer".
-     */
-    function periodoRequiereSaldo(periodo) {
-        return periodo === 'hoy' || periodo === 'ayer';
-    }
+        /**
+         * Determina si el periodo seleccionado requiere mostrar el saldo inicial.
+         * Solo se muestra para "hoy" y "ayer".
+         */
+        function periodoRequiereSaldo(periodo) {
+            return periodo === 'hoy' || periodo === 'ayer';
+        }
 
-    const AppCaja = {
-        config: {
-            url: '/myvet/app/controllers/finanzasAdmController.php'
-        },
+        const AppCaja = {
+            config: {
+                url: '/myvet/app/controllers/finanzasAdmController.php'
+            },
 
-        init: function() {
-            this.bindEvents();
-            this.update();
-        },
+            init: function () {
+                this.bindEvents();
+                this.update();
+            },
 
-        bindEvents: function() {
-            const self = this;
+            bindEvents: function () {
+                const self = this;
 
-            $('#periodo').on('change', function() {
-                const periodo = $(this).val();
+                $('#periodo').on('change', function () {
+                    const periodo = $(this).val();
 
-                if (!periodoRequiereSaldo(periodo)) {
-                    $('#contenedor-saldo-inicial').empty().hide();
-                }
-
-                if (periodo === 'personalizado') {
-                    $('#div-fechas').removeClass('d-none').addClass(
-                    'animate__animated animate__fadeIn');
-                } else {
-                    $('#div-fechas').addClass('d-none');
-                    self.update();
-                }
-            });
-
-            $('#almacen_id').on('change', function() {
-                self.update();
-            });
-
-            // 🔥 filtro por método de pago
-            $('#metodo_pago_filtro').on('change', function() {
-                self.renderTabla(self.lastData || []);
-            });
-        },
-
-        update: function() {
-            $('#tabla-loader').css('display', 'flex');
-
-            const params = {
-                ajax: 1,
-                periodo: $('#periodo').val(),
-                f_inicio: $('#f_inicio').val(),
-                f_fin: $('#f_fin').val(),
-                almacen_id: $('#almacen_id').val()
-            };
-
-            $.getJSON(this.config.url, params, (res) => {
-
-                if (res.status === 'success' || res.totales) {
-
-                    const mostrar = periodoRequiereSaldo(params.periodo);
-
-
-                    // 1. Saldos e ingresos
-                    this.renderSaldoInicial(res.saldo_inicial, res.es_lista, mostrar);
-                    this.renderTotales(res.totales, res.saldo_inicial, res.es_lista, mostrar);
-                    // 🔥 NUEVO: tablas inferiores
-                    this.renderEgresos('body_gastos', res.gastos || []);
-                    this.renderEgresos('body_compras', res.compras || []);
-                    console.log(res.egresos);
-
-                    // 2. Totales egresos (cards generales)
-                    if (this.renderEgresosTotales) {
-                        this.renderEgresosTotales(
-                            res.gastosTotales || 0,
-                            res.comprasTotales || 0
-                        );
+                    if (!periodoRequiereSaldo(periodo)) {
+                        $('#contenedor-saldo-inicial').empty().hide();
                     }
 
-                    // 3. Tabla principal
-                    this.lastData = res.detalles;
-                    this.renderTabla(res.detalles);
+                    if (periodo === 'personalizado') {
+                        $('#div-fechas').removeClass('d-none').addClass(
+                            'animate__animated animate__fadeIn');
+                    } else {
+                        $('#div-fechas').addClass('d-none');
+                        self.update();
+                    }
+                });
 
-                    // 4. 🔥 DESGLOSE GASTOS POR MÉTODO
-                    this.renderGastosPorMetodo(res.gastosMetodo || {
-                        EFECTIVO: 0,
-                        TARJETA: 0,
-                        TRANSFERENCIA: 0
-                    });
-                    this.renderComprasPorMetodo(res.comprasMetodo || {
-                        EFECTIVO: 0,
-                        TARJETA: 0,
-                        TRANSFERENCIA: 0
-                    });
+                $('#almacen_id').on('change', function () {
+                    self.update();
+                });
 
-                    // 5. 🔥 DESGLOSE COMPRAS (si también lo tienes por método o lista)
+                // 🔥 filtro por método de pago
+                $('#metodo_pago_filtro').on('change', function () {
+                    self.renderTabla(self.lastData || []);
+                });
+            },
 
-                    // 🔥 GUARDAR GASTOS Y COMPRAS GLOBALMENTE
-                    window._gastosMetodo = res.gastosMetodo || {
-                        EFECTIVO: 0,
-                        TARJETA: 0,
-                        TRANSFERENCIA: 0
-                    };
-                    window._comprasMetodo = res.comprasMetodo || {
-                        EFECTIVO: 0,
-                        TARJETA: 0,
-                        TRANSFERENCIA: 0
-                    };
+            update: function () {
+                $('#tabla-loader').css('display', 'flex');
 
+                const params = {
+                    ajax: 1,
+                    periodo: $('#periodo').val(),
+                    f_inicio: $('#f_inicio').val(),
+                    f_fin: $('#f_fin').val(),
+                    almacen_id: $('#almacen_id').val()
+                };
 
+                $.getJSON(this.config.url, params, (res) => {
 
-                    console.log("🔥 DATOS CARGADOS:", window._gastosMetodo, window._comprasTotales);
-                    // ... dentro de $.getJSON(this.config.url, params, (res) => { ...
+                    if (res.status === 'success' || res.totales) {
+
+                        const mostrar = periodoRequiereSaldo(params.periodo);
 
 
-                    // Agrega esto para capturar el desglose del saldo inicial:
-                    window._saldoInicialDesglose = {
-                        efectivo: parseFloat(res.saldo_inicial?.monto_efectivo || 0),
-                        tarjeta: parseFloat(res.saldo_inicial?.monto_tarjeta || 0),
-                        transferencia: parseFloat(res.saldo_inicial?.monto_transferencia || 0),
-                        total: parseFloat(res.saldo_inicial?.monto || 0)
-                    };
+                        // 1. Saldos e ingresos
+                        this.renderSaldoInicial(res.saldo_inicial, res.es_lista, mostrar);
+                        this.renderTotales(res.totales, res.saldo_inicial, res.es_lista, mostrar);
+                        // 🔥 NUEVO: tablas inferiores
+                        this.renderEgresos('body_gastos', res.gastos || []);
+                        this.renderEgresos('body_compras', res.compras || []);
+                        console.log(res.egresos);
 
-                    console.log("🔥 DATOS CARGADOS:", window._gastosMetodo, window
-                        ._saldoInicialDesglose);
+                        // 2. Totales egresos (cards generales)
+                        if (this.renderEgresosTotales) {
+                            this.renderEgresosTotales(
+                                res.gastosTotales || 0,
+                                res.comprasTotales || 0
+                            );
+                        }
 
+                        // 3. Tabla principal
+                        this.lastData = res.detalles;
+                        this.renderTabla(res.detalles);
+
+                        // 4. 🔥 DESGLOSE GASTOS POR MÉTODO
+                        this.renderGastosPorMetodo(res.gastosMetodo || {
+                            EFECTIVO: 0,
+                            TARJETA: 0,
+                            TRANSFERENCIA: 0
+                        });
+                        this.renderComprasPorMetodo(res.comprasMetodo || {
+                            EFECTIVO: 0,
+                            TARJETA: 0,
+                            TRANSFERENCIA: 0
+                        });
+
+                        // 5. 🔥 DESGLOSE COMPRAS (si también lo tienes por método o lista)
+
+                        // 🔥 GUARDAR GASTOS Y COMPRAS GLOBALMENTE
+                        window._gastosMetodo = res.gastosMetodo || {
+                            EFECTIVO: 0,
+                            TARJETA: 0,
+                            TRANSFERENCIA: 0
+                        };
+                        window._comprasMetodo = res.comprasMetodo || {
+                            EFECTIVO: 0,
+                            TARJETA: 0,
+                            TRANSFERENCIA: 0
+                        };
+
+
+
+                        console.log("🔥 DATOS CARGADOS:", window._gastosMetodo, window._comprasTotales);
+                        // ... dentro de $.getJSON(this.config.url, params, (res) => { ...
+
+
+                        // Agrega esto para capturar el desglose del saldo inicial:
+                        window._saldoInicialDesglose = {
+                            efectivo: parseFloat(res.saldo_inicial?.monto_efectivo || 0),
+                            tarjeta: parseFloat(res.saldo_inicial?.monto_tarjeta || 0),
+                            transferencia: parseFloat(res.saldo_inicial?.monto_transferencia || 0),
+                            total: parseFloat(res.saldo_inicial?.monto || 0)
+                        };
+
+                        console.log("🔥 DATOS CARGADOS:", window._gastosMetodo, window
+                            ._saldoInicialDesglose);
+
+                    }
+                }).fail((error) => {
+                    console.error("Error al actualizar la caja:", error);
+                }).always(() => {
+                    $('#tabla-loader').hide();
+                });
+            },
+            renderEgresos: function (id, data) {
+                const body = document.getElementById(id);
+                if (!body) return;
+
+                if (data.length === 0) {
+                    body.innerHTML =
+                        '<tr><td colspan="10" class="text-center text-body-secondary small py-3">No hay datos disponibles</td></tr>';
+                    return;
                 }
-            }).fail((error) => {
-                console.error("Error al actualizar la caja:", error);
-            }).always(() => {
-                $('#tabla-loader').hide();
-            });
-        },
-        renderEgresos: function(id, data) {
-            const body = document.getElementById(id);
-            if (!body) return;
 
-            if (data.length === 0) {
-                body.innerHTML =
-                    '<tr><td colspan="10" class="text-center text-body-secondary small py-3">No hay datos disponibles</td></tr>';
-                return;
-            }
-
-            let html = '';
-            data.forEach(item => {
-                const entidad = item.entidad || item.proveedor || item.beneficiario || 'N/A';
-                html += `
+                let html = '';
+                data.forEach(item => {
+                    const entidad = item.entidad || item.proveedor || item.beneficiario || 'N/A';
+                    html += `
                 <tr>
                     <td class="small fw-bold text-secondary">${item.almacen_nombre || 'N/A'}</td>
                     <td class="small text-body-secondary">${item.fecha || ''}</td>
@@ -585,19 +591,19 @@
                     <td>${item.metodo_pago}</td>
                     <td class="text-end fw-bold text-danger">-${this.formatMoney(item.total)}</td>
                 </tr>`;
-            });
-            body.innerHTML = html;
-        },
+                });
+                body.innerHTML = html;
+            },
 
-        renderGastosPorMetodo: function(data) {
+            renderGastosPorMetodo: function (data) {
 
-            const efec = parseFloat(data.EFECTIVO || 0);
-            const tar = parseFloat(data.TARJETA || 0);
-            const tra = parseFloat(data.TRANSFERENCIA || 0);
+                const efec = parseFloat(data.EFECTIVO || 0);
+                const tar = parseFloat(data.TARJETA || 0);
+                const tra = parseFloat(data.TRANSFERENCIA || 0);
 
-            const total = efec + tar + tra;
+                const total = efec + tar + tra;
 
-            $('#contenedor-egresos-gastos').html(`
+                $('#contenedor-egresos-gastos').html(`
     <div class="card shadow-sm  mb-3 animate__animated animate__fadeIn " style="border-radius:15px;">
         <div class="card-header bg-danger text-white">
             <strong>Gastos por Método</strong>
@@ -628,16 +634,16 @@
         </div>
     </div>
 `).show();
-        },
-        renderComprasPorMetodo: function(data) {
+            },
+            renderComprasPorMetodo: function (data) {
 
-            const efec = parseFloat(data.EFECTIVO || 0);
-            const tar = parseFloat(data.TARJETA || 0);
-            const tra = parseFloat(data.TRANSFERENCIA || 0);
+                const efec = parseFloat(data.EFECTIVO || 0);
+                const tar = parseFloat(data.TARJETA || 0);
+                const tra = parseFloat(data.TRANSFERENCIA || 0);
 
-            const total = efec + tar + tra;
+                const total = efec + tar + tra;
 
-            $('#contenedor-egresosCompras').html(`
+                $('#contenedor-egresosCompras').html(`
         <div class="card shadow-sm  mb-3 animate__animated animate__fadeIn " style="border-radius:15px;">
             <div class="card-header bg-warning text-dark">
                 <strong>Compras por Método</strong>
@@ -670,19 +676,19 @@
             </div>
         </div>
     `).show();
-        },
-        renderSaldoInicial: function(data, esLista, mostrar) {
-            const $contenedor = $('#contenedor-saldo-inicial');
-            if (!$contenedor.length) return;
+            },
+            renderSaldoInicial: function (data, esLista, mostrar) {
+                const $contenedor = $('#contenedor-saldo-inicial');
+                if (!$contenedor.length) return;
 
-            if (!mostrar) {
-                $contenedor.empty().hide();
-                return;
-            }
+                if (!mostrar) {
+                    $contenedor.empty().hide();
+                    return;
+                }
 
-            if (esLista) {
-                let filas = (data && data.length > 0) ?
-                    data.map(s => `
+                if (esLista) {
+                    let filas = (data && data.length > 0) ?
+                        data.map(s => `
                     <tr>
                         <td class="ps-4 fw-bold text-secondary small text-uppercase">${s.almacen}</td>
                         <td class="text-end fw-semibold  small">${this.formatMoney(s?.monto_efectivo)}</td>
@@ -691,9 +697,9 @@
                         <td class="text-end pe-4 fw-bold text-primary">${this.formatMoney(s?.monto)}</td>
                     </tr>
                 `).join('') :
-                    '<tr><td colspan="5" class="text-center py-3 text-body-secondary small">Sin registros</td></tr>';
+                        '<tr><td colspan="5" class="text-center py-3 text-body-secondary small">Sin registros</td></tr>';
 
-                $contenedor.html(`
+                    $contenedor.html(`
                 <div class="glass-card overflow-hidden animate__animated animate__fadeIn">
                     <div class="p-3 border-bottom bg-light bg-opacity-50">
                         <h6 class="m-0 fw-bold  text-xs text-uppercase">
@@ -717,14 +723,14 @@
                 </div>
             `).show();
 
-            } else {
-                const d = data || {};
-                const total = this.formatMoney(d.monto || 0);
-                const efec = this.formatMoney(d.monto_efectivo || 0);
-                const tarj = this.formatMoney(d.monto_tarjeta || 0);
-                const tran = this.formatMoney(d.monto_transferencia || 0);
+                } else {
+                    const d = data || {};
+                    const total = this.formatMoney(d.monto || 0);
+                    const efec = this.formatMoney(d.monto_efectivo || 0);
+                    const tarj = this.formatMoney(d.monto_tarjeta || 0);
+                    const tran = this.formatMoney(d.monto_transferencia || 0);
 
-                $contenedor.html(`
+                    $contenedor.html(`
                 <div class="card  shadow-sm text-white animate__animated animate__fadeInRight" 
                      style="background: linear-gradient(90deg, #007aff, #00c6ff); border-radius:15px;">
                     <div class="card-body p-3">
@@ -752,85 +758,85 @@
                     </div>
                 </div>
             `).show();
-            }
-        },
+                }
+            },
 
-        renderTotales: function(s, saldoIni, esLista, mostrar) {
-            if (!s) return;
-            const dIni = saldoIni || {};
+            renderTotales: function (s, saldoIni, esLista, mostrar) {
+                if (!s) return;
+                const dIni = saldoIni || {};
 
-            const iniEfec = (mostrar && !esLista) ? parseFloat(dIni.monto_efectivo || 0) : 0;
-            const iniTar = (mostrar && !esLista) ? parseFloat(dIni.monto_tarjeta || 0) : 0;
-            const iniTra = (mostrar && !esLista) ? parseFloat(dIni.monto_transferencia || 0) : 0;
+                const iniEfec = (mostrar && !esLista) ? parseFloat(dIni.monto_efectivo || 0) : 0;
+                const iniTar = (mostrar && !esLista) ? parseFloat(dIni.monto_tarjeta || 0) : 0;
+                const iniTra = (mostrar && !esLista) ? parseFloat(dIni.monto_transferencia || 0) : 0;
 
-            $('#res-venta-bruta').text(this.formatMoney(s.venta_bruta || 0));
-            $('#res-deuda').text(this.formatMoney(s.deuda_pendiente || 0));
-            $('#res-saldo-favor').text(this.formatMoney(s.saldo_favor_usado || 0));
+                $('#res-venta-bruta').text(this.formatMoney(s.venta_bruta || 0));
+                $('#res-deuda').text(this.formatMoney(s.deuda_pendiente || 0));
+                $('#res-saldo-favor').text(this.formatMoney(s.saldo_favor_usado || 0));
 
-            $('#res-total-efectivo').text(this.formatMoney(parseFloat(s.ingreso_total_efectivo || 0)));
-            $('#res-total-tarjeta').text(this.formatMoney(parseFloat(s.ingreso_total_tarjeta || 0)));
-            $('#res-total-trans').text(this.formatMoney(parseFloat(s.ingreso_total_transfer || 0)));
+                $('#res-total-efectivo').text(this.formatMoney(parseFloat(s.ingreso_total_efectivo || 0)));
+                $('#res-total-tarjeta').text(this.formatMoney(parseFloat(s.ingreso_total_tarjeta || 0)));
+                $('#res-total-trans').text(this.formatMoney(parseFloat(s.ingreso_total_transfer || 0)));
 
-            $('#res-v-efectivo').text(this.formatMoney(parseFloat(s.solo_venta_efectivo || 0)));
-            $('#res-v-tarjeta').text(this.formatMoney(parseFloat(s.solo_venta_tarjeta || 0)));
-            $('#res-v-trans').text(this.formatMoney(parseFloat(s.solo_venta_transfer || 0)));
+                $('#res-v-efectivo').text(this.formatMoney(parseFloat(s.solo_venta_efectivo || 0)));
+                $('#res-v-tarjeta').text(this.formatMoney(parseFloat(s.solo_venta_tarjeta || 0)));
+                $('#res-v-trans').text(this.formatMoney(parseFloat(s.solo_venta_transfer || 0)));
 
-            $('#res-a-efectivo').text(this.formatMoney(parseFloat(s.abono_efectivo || 0)));
-            $('#res-a-tarjeta').text(this.formatMoney(parseFloat(s.abono_tarjeta || 0)));
-            $('#res-a-trans').text(this.formatMoney(parseFloat(s.abono_transferencia || 0)));
-        },
+                $('#res-a-efectivo').text(this.formatMoney(parseFloat(s.abono_efectivo || 0)));
+                $('#res-a-tarjeta').text(this.formatMoney(parseFloat(s.abono_tarjeta || 0)));
+                $('#res-a-trans').text(this.formatMoney(parseFloat(s.abono_transferencia || 0)));
+            },
 
-        renderTabla: function(data) {
-            let html = '';
-            const metodoFiltro = $('#metodo_pago_filtro').val();
+            renderTabla: function (data) {
+                let html = '';
+                const metodoFiltro = $('#metodo_pago_filtro').val();
 
-            if (data && data.length > 0) {
+                if (data && data.length > 0) {
 
-                const dataFiltrada = data.filter(v => {
+                    const dataFiltrada = data.filter(v => {
 
-                    const metodo = (v.metodo_pago || '').toUpperCase();
-                    const deuda = parseFloat(v.deuda_viva || 0);
-                    const saldo = parseFloat(v.uso_saldo_favor || 0);
+                        const metodo = (v.metodo_pago || '').toUpperCase();
+                        const deuda = parseFloat(v.deuda_viva || 0);
+                        const saldo = parseFloat(v.uso_saldo_favor || 0);
 
-                    if (metodoFiltro === 'todos') return true;
+                        if (metodoFiltro === 'todos') return true;
 
-                    if (metodoFiltro === 'EFECTIVO') return metodo === 'EFECTIVO';
-                    if (metodoFiltro === 'TARJETA') return metodo === 'TARJETA';
-                    if (metodoFiltro === 'TRANSFERENCIA') return metodo === 'TRANSFERENCIA';
+                        if (metodoFiltro === 'EFECTIVO') return metodo === 'EFECTIVO';
+                        if (metodoFiltro === 'TARJETA') return metodo === 'TARJETA';
+                        if (metodoFiltro === 'TRANSFERENCIA') return metodo === 'TRANSFERENCIA';
 
-                    if (metodoFiltro === 'Saldo a Favor') {
-                        return metodo.includes('SALDO') || saldo > 0;
-                    }
+                        if (metodoFiltro === 'Saldo a Favor') {
+                            return metodo.includes('SALDO') || saldo > 0;
+                        }
 
-                    if (metodoFiltro === 'Null') {
-                        return deuda > 0;
-                    }
+                        if (metodoFiltro === 'Null') {
+                            return deuda > 0;
+                        }
 
-                    return true;
-                });
+                        return true;
+                    });
 
-                if (dataFiltrada.length === 0) {
-                    html =
-                        '<tr><td colspan="7" class="text-center py-5 text-body-secondary">No hay resultados para este filtro</td></tr>';
-                } else {
+                    if (dataFiltrada.length === 0) {
+                        html =
+                            '<tr><td colspan="7" class="text-center py-5 text-body-secondary">No hay resultados para este filtro</td></tr>';
+                    } else {
 
-                    dataFiltrada.forEach(v => {
-                        const dReal = parseFloat(v.dinero_real || 0);
-                        const sFavor = parseFloat(v.uso_saldo_favor || 0);
-                        const dViva = parseFloat(v.deuda_viva || 0);
+                        dataFiltrada.forEach(v => {
+                            const dReal = parseFloat(v.dinero_real || 0);
+                            const sFavor = parseFloat(v.uso_saldo_favor || 0);
+                            const dViva = parseFloat(v.deuda_viva || 0);
 
-                        let productosHtml = '';
-                        if (v.productos && Array.isArray(v.productos)) {
-                            v.productos.forEach(p => {
-                                productosHtml += `
+                            let productosHtml = '';
+                            if (v.productos && Array.isArray(v.productos)) {
+                                v.productos.forEach(p => {
+                                    productosHtml += `
                                 <div class="d-flex flex-column mb-1">
                                     <span class="small fw-semibold  text-truncate" style="max-width:180px">${p.producto}</span>
                                     <small class="text-body-secondary" style="font-size:9px;">Cant: ${p.cantidad}</small>
                                 </div>`;
-                            });
-                        }
+                                });
+                            }
 
-                        html += `
+                            html += `
                         <tr class="border-bottom animate__animated animate__fadeInUp">
                             <td class="ps-4">
                                 <span class="fw-bold d-block ">${v.folio || 'S/F'}</span>
@@ -845,27 +851,27 @@
                                 ${dViva > 0 ? this.formatMoney(dViva) : '<i class="bi bi-check-circle-fill text-success me-1"></i>PAGADO'}
                             </td>
                         </tr>`;
-                    });
+                        });
 
+                    }
+
+                } else {
+                    html =
+                        '<tr><td colspan="7" class="text-center py-5 text-body-secondary">No se encontraron movimientos</td></tr>';
                 }
 
-            } else {
-                html =
-                    '<tr><td colspan="7" class="text-center py-5 text-body-secondary">No se encontraron movimientos</td></tr>';
+                $('#tablaDetalles tbody').html(html);
+            },
+
+            formatMoney: function (amount) {
+                return '$' + parseFloat(amount || 0).toLocaleString('es-MX', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
             }
+        };
 
-            $('#tablaDetalles tbody').html(html);
-        },
-
-        formatMoney: function(amount) {
-            return '$' + parseFloat(amount || 0).toLocaleString('es-MX', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-        }
-    };
-
-    $(document).ready(() => AppCaja.init());
+        $(document).ready(() => AppCaja.init());
     </script>
 
 

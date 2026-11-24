@@ -884,14 +884,27 @@
        
 
         <td class="text-end pe-3">
-            <button type="button" 
-                    class="btn btn-sm btn-outline-primary rounded-3 " 
-                    onclick="verDetalle(${p.venta_id})" 
-                    data-bs-toggle="tooltip" 
-                    title="Ver detalle de la venta">
-                <i class="bi bi-eye-fill fs-6"></i>
-            </button>
+            <div class="d-flex align-items-center justify-content-end gap-1">
+        <!-- Botón Ver Detalle -->
+        <button type="button" 
+                class="btn btn-sm btn-outline-primary rounded-3 border-0" 
+                onclick="verDetalle(${p.venta_id})" 
+                data-bs-toggle="tooltip" 
+                title="Ver detalle de la venta">
+            <i class="bi bi-eye-fill fs-6"></i>
+        </button>
+
+        <!-- Botón Eliminar Pago -->
+        <button type="button" 
+                class="btn btn-sm btn-outline-danger rounded-3 border-0" 
+                onclick="eliminarPago(${p.id})"
+                data-bs-toggle="tooltip" 
+                title="Eliminar pago">
+            <i class="bi bi-trash fs-6"></i>
+        </button>
+    </div>
         </td>
+        
     </tr>`;
                     }).join('');
 
@@ -1430,6 +1443,69 @@
                 });
             });
         </script>
+         <script>
+        function eliminarPago(pagoId) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Esta acción eliminará el pago y actualizará el estado de la venta a pendiente o parcial.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Mostrar indicador de carga
+                    Swal.fire({
+                        title: 'Eliminando...',
+                        text: 'Por favor espera',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Petición AJAX usando Fetch al controlador
+                    // Asegúrate de ajustar la ruta si tu controlador está en otra ubicación relativa
+                    fetch('/myvet/app/controllers/ventasHistorialController.php?action=eliminarPago', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'pago_id=' + encodeURIComponent(pagoId)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                Swal.fire(
+                                    '¡Eliminado!',
+                                    data.message,
+                                    'success'
+                                ).then(() => {
+                                    // Recargar la página o actualizar la tabla dinámicamente
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Error',
+                                    data.message || 'No se pudo eliminar el pago.',
+                                    'error'
+                                );
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire(
+                                'Error de red',
+                                'Ocurrió un error al comunicarse con el servidor.',
+                                'error'
+                            );
+                        });
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>

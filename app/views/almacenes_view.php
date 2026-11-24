@@ -1076,7 +1076,7 @@
         }
         async function descargarProductos() {
 
-            // 1. Realizar la petición a tu controlador de Cf System
+            // 1. Realizar la petición a tu controlador de JSEA
             const resp = await fetch(
                 `/myvet/app/controllers/cotizacionesController.php?action=obtenerProductos`
             );
@@ -1365,7 +1365,7 @@
                 formData.append(`almacenes[${f.almacen_id}][precio_distribuidor]`, f.precio_distribuidor);
 
                 try {
-                    const resp = await fetch('/cfsistem/app/controllers/almacenes.php?action=guardarCantidadesIniciales', {
+                    const resp = await fetch('/myvet/app/controllers/almacenes.php?action=guardarCantidadesIniciales', {
                         method: 'POST',
                         body: formData
                     });

@@ -793,7 +793,7 @@ $paginaActual = 'trabajadores';
                     <div class="d-flex align-items-center">
                         <img src="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>" width="28" height="28" class="me-2" alt="Logo">
                         <div>
-                            <h6 class="fw-bold m-0 text-uppercase" style="font-size: 0.8rem;">CF SYSTEM - RECIBO DE NÓMINA</h6>
+                            <h6 class="fw-bold m-0 text-uppercase" style="font-size: 0.8rem;">JSEA - RECIBO DE NÓMINA</h6>
                             <small class="text-body-secondary" style="font-size: 0.6rem;">COMPROBANTE DE PAGO DE SALARIO</small>
                         </div>
                     </div>
@@ -1028,14 +1028,14 @@ $paginaActual = 'trabajadores';
                     chequesHTML += `
             <div class="cheque-contenedor">
                 <!-- Marca de Agua Individual -->
-                <img src="/cfsistem/public/assets/logo.ico" class="watermark-cheque" alt="Logo">
+                <img src="/myvet/public/assets/logo.ico" class="watermark-cheque" alt="Logo">
 
                 <!-- Encabezado del Cheque -->
                 <div class="d-flex justify-content-between align-items-center mb-1 pb-1 border-bottom border-2 border-primary">
                     <div class="d-flex align-items-center">
-                        <img src="/cfsistem/public/assets/logo.ico" width="28" height="28" class="me-2" alt="Logo">
+                        <img src="/myvet/public/assets/logo.ico" width="28" height="28" class="me-2" alt="Logo">
                         <div>
-                            <h6 class="fw-bold m-0 text-uppercase" style="font-size: 0.8rem;">CF SYSTEM - RECIBO DE NÓMINA</h6>
+                            <h6 class="fw-bold m-0 text-uppercase" style="font-size: 0.8rem;">JSEA - RECIBO DE NÓMINA</h6>
                             <small class="text-body-secondary" style="font-size: 0.6rem;">COMPROBANTE DE PAGO DE SALARIO</small>
                         </div>
                     </div>
@@ -1119,9 +1119,9 @@ $paginaActual = 'trabajadores';
         <head>
             <meta charset="UTF-8"name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Cheques de Nómina - ${valorSemana || 'Semanal'}</title>
-      <link rel="icon" type="image/png" href="/cfsistem/public/assets/logo.png">
+      <link rel="icon" type="image/png" href="/myvet/public/assets/logo.png">
 
-    <link rel="shortcut icon" href="/cfsistem/public/assets/logo.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/myvet/public/assets/logo.ico" type="image/x-icon">
 
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">

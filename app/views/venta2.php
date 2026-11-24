@@ -28,7 +28,7 @@
     <style>
         /* Variables de color para Modo Claro (por defecto) */
         :root {
-            --bg-main: #f8fafc;
+
             --card-bg: #ffffff;
             --card-shadow: rgba(15, 23, 42, 0.08);
             --header-gradient: linear-gradient(135deg, #09b009 0%, #0f2a13 100%);
@@ -43,7 +43,7 @@
 
         /* Sobrescritura de variables para Modo Oscuro */
         [data-bs-theme="dark"] {
-            --bg-main: #0f172a;
+
             --card-bg: #1e293b;
             --card-shadow: rgba(0, 0, 0, 0.35);
             --header-gradient: linear-gradient(135deg, #059669 0%, #022c22 100%);
@@ -61,10 +61,7 @@
             transition: background-color 0.3s ease;
         }
 
-        .main-content {
 
-            background-color: var(--bg-main) !important;
-        }
 
         .main-card {
             background: var(--card-bg);
@@ -223,7 +220,7 @@
    ESTRUCTURA GENERAL & EFECTOS BÁSICOS
    ========================================================================== */
         .main-content {
-            background: var(--pos-bg-main);
+
             color: var(--pos-text-main);
             padding: 1.5rem;
             min-height: 100vh;
@@ -410,7 +407,8 @@
                             <!-- Tabla de Artículos -->
                             <div class="card shadow-sm rounded-4 overflow-hidden mb-4">
                                 <div class="table-responsive" style="min-height:280px !important; max-height: 340px;">
-                                    <table class="table table-hover align-middle mb-0" id="tablaDetalleEditar">
+                                    <table class="table table-hover  table-striped align-middle mb-0"
+                                        id="tablaDetalleEditar">
                                         <thead class="border-bottom">
                                             <tr class="text-secondary small fw-bold text-uppercase tracking-wider">
                                                 <th class="ps-4 py-3" style="width: 30%;">Producto</th>

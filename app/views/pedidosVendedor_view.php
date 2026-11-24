@@ -9,35 +9,40 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8"name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pedidos de Vendedor | CF System</title>
-      <link rel="icon" type="image/png" href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
+    <title>Pedidos de Vendedor | JSEA</title>
+    <link rel="icon" type="image/png"
+        href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
 
-    <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>" type="image/x-icon">
+    <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
+        type="image/x-icon">
 
 
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-  <?php require_once __DIR__ . '/layout/icono.php' ?>
-    <?php if (function_exists('cargarEstilos')) { cargarEstilos(); } ?>
-<style>
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+        rel="stylesheet" />
+    <?php require_once __DIR__ . '/layout/icono.php' ?>
+    <?php if (function_exists('cargarEstilos')) {
+        cargarEstilos();
+    } ?>
+    <style>
         :root {
             --sidebar-width: 0px;
             --navbar-height: 65px;
         }
 
         body {
-           
+
             font-family: 'Segoe UI', Roboto, sans-serif;
         }
 
         /* ── Layout ── */
         .main-content {
-            
+
             padding: 24px 28px;
             padding-top: calc(var(--navbar-height) + 20px);
             min-height: 100vh;
@@ -45,24 +50,40 @@
 
         /* ── Cards ── */
         .glass-card {
-            background: rgba(255,255,255,0.95);
-            border: 1px solid rgba(255,255,255,0.4);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.4);
             border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
         }
 
         /* ── Tabla en escritorio ── */
-        .tabla-scroll { max-height: 45vh; overflow-y: auto; }
+        .tabla-scroll {
+            max-height: 45vh;
+            overflow-y: auto;
+        }
 
         /* ── Badges de estado ── */
-        .badge-pendiente { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-        .badge-cubierto  { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
+        .badge-pendiente {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        .badge-cubierto {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+        }
 
         /* ── Select2 ── */
-        .select2-container--bootstrap-5 .select2-selection { border-radius: 10px; }
+        .select2-container--bootstrap-5 .select2-selection {
+            border-radius: 10px;
+        }
 
         /* ── Filtros ── */
-        #div_personalizado { display: none; }
+        #div_personalizado {
+            display: none;
+        }
 
         /* ─────────────────────────────────────────────────────────
            CARDS DE PEDIDO PARA MÓVIL
@@ -72,11 +93,13 @@
             border-radius: 14px;
             padding: 14px 16px;
             margin-bottom: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
             border-left: 4px solid #0d6efd;
         }
 
-        .pedido-card.cubierto { border-left-color: #198754; }
+        .pedido-card.cubierto {
+            border-left-color: #198754;
+        }
 
         .pedido-card .folio {
             font-size: 0.7rem;
@@ -120,13 +143,14 @@
             bottom: 24px;
             right: 20px;
             z-index: 1050;
-            width: 56px; height: 56px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             background: #0d6efd;
             color: white;
-            
+
             font-size: 1.5rem;
-            box-shadow: 0 6px 20px rgba(13,110,253,0.4);
+            box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
             align-items: center;
             justify-content: center;
         }
@@ -140,7 +164,10 @@
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
         }
-        .filtros-scroll::-webkit-scrollbar { display: none; }
+
+        .filtros-scroll::-webkit-scrollbar {
+            display: none;
+        }
 
         .chip-filtro {
             flex-shrink: 0;
@@ -171,24 +198,46 @@
             }
 
             /* Ocultar tabla, mostrar cards */
-            .tabla-desktop { display: none !important; }
-            .cards-mobile  { display: block !important; }
+            .tabla-desktop {
+                display: none !important;
+            }
+
+            .cards-mobile {
+                display: block !important;
+            }
 
             /* Mostrar FAB, ocultar botón de cabecera */
-            .btn-nuevo-desktop { display: none !important; }
-            .fab-nuevo { display: flex !important; }
+            .btn-nuevo-desktop {
+                display: none !important;
+            }
+
+            .fab-nuevo {
+                display: flex !important;
+            }
 
             /* Filtros: ocultar form completo, mostrar chips + select simple */
-            .filtros-desktop { display: none !important; }
-            .filtros-mobile  { display: block !important; }
+            .filtros-desktop {
+                display: none !important;
+            }
+
+            .filtros-mobile {
+                display: block !important;
+            }
 
             /* Header más compacto */
-            .page-header h2 { font-size: 1.4rem; }
+            .page-header h2 {
+                font-size: 1.4rem;
+            }
         }
 
         @media (min-width: 992px) {
-            .cards-mobile   { display: none !important; }
-            .filtros-mobile { display: none !important; }
+            .cards-mobile {
+                display: none !important;
+            }
+
+            .filtros-mobile {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -207,12 +256,13 @@
                 </h2>
                 <p class="text-body-secondary small mb-0">
                     <span class="badge bg-info text-dark"><?= htmlspecialchars($_SESSION['rol']) ?></span>
-                    <span class="badge bg-secondary ms-1"><?= htmlspecialchars($_SESSION['almacen_nombre'] ?? 'General') ?></span>
+                    <span
+                        class="badge bg-secondary ms-1"><?= htmlspecialchars($_SESSION['almacen_nombre'] ?? 'General') ?></span>
                 </p>
             </div>
             <div class="col-auto btn-nuevo-desktop">
-                <button class="btn btn-primary rounded-pill px-4 shadow-sm"
-                        data-bs-toggle="modal" data-bs-target="#modalNuevoPedido">
+                <button class="btn btn-primary rounded-pill px-4 shadow-sm" data-bs-toggle="modal"
+                    data-bs-target="#modalNuevoPedido">
                     <i class="bi bi-plus-lg me-1"></i> Nuevo Pedido
                 </button>
             </div>
@@ -246,15 +296,15 @@
                 </div>
 
                 <?php if ($_SESSION['almacen_id'] == 0): ?>
-                <div class="col-md-2">
-                    <label class="form-label small fw-bold text-body-secondary">Sucursal</label>
-                    <select id="filtro_almacen" class="form-select form-select-sm select2-modal">
-                        <option value="0">Todas</option>
-                        <?php foreach ($almacenes as $alm): ?>
-                            <option value="<?= $alm['id'] ?>"><?= htmlspecialchars($alm['nombre']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-bold text-body-secondary">Sucursal</label>
+                        <select id="filtro_almacen" class="form-select form-select-sm select2-modal">
+                            <option value="0">Todas</option>
+                            <?php foreach ($almacenes as $alm): ?>
+                                <option value="<?= $alm['id'] ?>"><?= htmlspecialchars($alm['nombre']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 <?php else: ?>
                     <input type="hidden" id="filtro_almacen" value="<?= $_SESSION['almacen_id'] ?>">
                 <?php endif; ?>
@@ -269,10 +319,12 @@
                 </div>
 
                 <div class="col-md-3 text-md-end">
-                    <button type="button" onclick="loadPedidos()" class="btn btn-dark btn-sm rounded-pill px-3 shadow-sm">
+                    <button type="button" onclick="loadPedidos()"
+                        class="btn btn-dark btn-sm rounded-pill px-3 shadow-sm">
                         <i class="bi bi-search me-1"></i> Buscar
                     </button>
-                    <button type="button" onclick="limpiarFiltros()" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                    <button type="button" onclick="limpiarFiltros()"
+                        class="btn btn-outline-secondary btn-sm rounded-pill px-3">
                         <i class="bi bi-arrow-counterclockwise"></i>
                     </button>
                 </div>
@@ -287,8 +339,10 @@
                 <span class="chip-filtro" data-rango="ayer" onclick="seleccionarChip(this, 'ayer')">Ayer</span>
                 <span class="chip-filtro" data-rango="semana" onclick="seleccionarChip(this, 'semana')">Semana</span>
                 <span class="chip-filtro" data-rango="mes" onclick="seleccionarChip(this, 'mes')">Mes</span>
-                <span class="chip-filtro" data-estado="todos"  onclick="seleccionarEstadoChip(this, 'todos')">Todos</span>
-                <span class="chip-filtro active" data-estado="1" onclick="seleccionarEstadoChip(this, '1')">Pendientes</span>
+                <span class="chip-filtro" data-estado="todos"
+                    onclick="seleccionarEstadoChip(this, 'todos')">Todos</span>
+                <span class="chip-filtro active" data-estado="1"
+                    onclick="seleccionarEstadoChip(this, '1')">Pendientes</span>
                 <span class="chip-filtro" data-estado="0" onclick="seleccionarEstadoChip(this, '0')">Cubiertos</span>
             </div>
         </div>
@@ -325,129 +379,147 @@
     <!-- ══════════════════════════════════════════════════════════
          MODAL NUEVO PEDIDO
     ══════════════════════════════════════════════════════════════ -->
-<div class="modal fade" id="modalNuevoPedido" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-fullscreen-md-down modal-dialog-centered">
-        <div class="modal-content  shadow-lg" style="border-radius: 25px; overflow: hidden;">
-            
-            <div class="modal-header  shadow-sm" style="background: linear-gradient(135deg, #212529 0%, #343a40 100%); padding: 1.5rem 2rem;">
-                <div class="d-flex align-items-center">
-                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 me-3">
-                        <i class="bi bi-bag-plus-fill fs-4 text-primary"></i>
-                    </div>
-                    <div>
-                        <h5 class="modal-title fw-bold text-white mb-0">Levantar Nuevo Pedido</h5>
-                        <small class="text-white-50">Complete los datos para la orden de despacho</small>
-                    </div>
-                </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+    <div class="modal fade" id="modalNuevoPedido" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-fullscreen-md-down modal-dialog-centered">
+            <div class="modal-content  shadow-lg" style="border-radius: 25px; overflow: hidden;">
 
-            <div class="modal-body p-0">
-                <form id="formPedido">
-                    <div class="p-4 border-bottom bg-light bg-opacity-50">
-                        <div class="row g-3">
-                            <?php if ($_SESSION['almacen_id'] == 0): ?>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold text-body-secondary small text-uppercase">Sucursal Destino</label>
-                                    <div class="input-group shadow-sm">
-                                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-geo-alt text-danger"></i></span>
-                                        <select name="almacen_id" id="almacen_id" class="form-select border-start-0 ps-0" required style="border-radius: 0 10px 10px 0;">
-                                            <option value="">Seleccione Almacén...</option>
-                                            <?php foreach($almacenes as $alm): ?>
-                                                <option value="<?= $alm['id'] ?>"><?= htmlspecialchars($alm['nombre']) ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                </div>
-                            <?php else: ?>
-                                <input type="hidden" name="almacen_id" id="almacen_id" value="<?= $_SESSION['almacen_id'] ?>">
-                            <?php endif; ?>
-
-                            <div class="<?= ($_SESSION['almacen_id'] == 0) ? 'col-md-5' : 'col-md-9' ?>">
-                                <label class="form-label fw-bold text-body-secondary small text-uppercase">Cliente</label>
-                                <select name="cliente_id" id="cliente_id" class="form-select select2-modal" required>
-                                    <option value="">Seleccione un cliente...</option>
-                                    <?php foreach($clientes as $c): ?>
-                                        <option value="<?= $c['id'] ?>">
-                                            <?= htmlspecialchars($c['nombre_comercial'] ?? $c['nombre'] ?? 'S/N') ?> (<?= $c['rfc'] ?>)
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-
-                            <div class="col-md-3">
-                                <label class="form-label fw-bold text-body-secondary small text-uppercase">Prioridad</label>
-                                <select name="prioridad" class="form-select shadow-sm  bg-white" style="border-radius: 10px;">
-                                    <option value="Baja">🟢 Baja</option>
-                                    <option value="Media" selected>🟡 Media</option>
-                                    <option value="Alta">🔴 Alta</option>
-                                </select>
-                            </div>
+                <div class="modal-header  shadow-sm"
+                    style="background: linear-gradient(135deg, #212529 0%, #343a40 100%); padding: 1.5rem 2rem;">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 p-2 rounded-3 me-3">
+                            <i class="bi bi-bag-plus-fill fs-4 text-primary"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold text-white mb-0">Levantar Nuevo Pedido</h5>
+                            <small class="text-white-50">Complete los datos para la orden de despacho</small>
                         </div>
                     </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
 
-                    <div class="p-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <h6 class="fw-bold mb-0 text-dark">Materiales del Pedido</h6>
-                            <div class="ms-auto col-md-5">
-                                <select id="buscador_productos" class="form-select select2-modal">
-                                    <option value="">🔍 SKU o Nombre del material...</option>
-                                    <?php foreach($productos as $p): 
-                                        $tieneFactor = (!empty($p['unidad_reporte']) && $p['factor_conversion'] > 1);
-                                    ?>
-                                        <option value="<?= $p['id'] ?? $p['producto_id'] ?>" 
-                                                data-nombre="<?= htmlspecialchars($p['nombre']) ?>" 
-                                                data-sku="<?= $p['sku'] ?>"
-                                                data-factor="<?= $p['factor_conversion'] ?>"
+                <div class="modal-body p-0">
+                    <form id="formPedido">
+                        <div class="p-4 border-bottom bg-light bg-opacity-50">
+                            <div class="row g-3">
+                                <?php if ($_SESSION['almacen_id'] == 0): ?>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold text-body-secondary small text-uppercase">Sucursal
+                                            Destino</label>
+                                        <div class="input-group shadow-sm">
+                                            <span class="input-group-text bg-white border-end-0"><i
+                                                    class="bi bi-geo-alt text-danger"></i></span>
+                                            <select name="almacen_id" id="almacen_id"
+                                                class="form-select border-start-0 ps-0" required
+                                                style="border-radius: 0 10px 10px 0;">
+                                                <option value="">Seleccione Almacén...</option>
+                                                <?php foreach ($almacenes as $alm): ?>
+                                                    <option value="<?= $alm['id'] ?>"><?= htmlspecialchars($alm['nombre']) ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                <?php else: ?>
+                                    <input type="hidden" name="almacen_id" id="almacen_id"
+                                        value="<?= $_SESSION['almacen_id'] ?>">
+                                <?php endif; ?>
+
+                                <div class="<?= ($_SESSION['almacen_id'] == 0) ? 'col-md-5' : 'col-md-9' ?>">
+                                    <label
+                                        class="form-label fw-bold text-body-secondary small text-uppercase">Cliente</label>
+                                    <select name="cliente_id" id="cliente_id" class="form-select select2-modal"
+                                        required>
+                                        <option value="">Seleccione un cliente...</option>
+                                        <?php foreach ($clientes as $c): ?>
+                                            <option value="<?= $c['id'] ?>">
+                                                <?= htmlspecialchars($c['nombre_comercial'] ?? $c['nombre'] ?? 'S/N') ?>
+                                                (<?= $c['rfc'] ?>)
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label
+                                        class="form-label fw-bold text-body-secondary small text-uppercase">Prioridad</label>
+                                    <select name="prioridad" class="form-select shadow-sm  bg-white"
+                                        style="border-radius: 10px;">
+                                        <option value="Baja">🟢 Baja</option>
+                                        <option value="Media" selected>🟡 Media</option>
+                                        <option value="Alta">🔴 Alta</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <h6 class="fw-bold mb-0 text-dark">Materiales del Pedido</h6>
+                                <div class="ms-auto col-md-5">
+                                    <select id="buscador_productos" class="form-select select2-modal">
+                                        <option value="">🔍 SKU o Nombre del material...</option>
+                                        <?php foreach ($productos as $p):
+                                            $tieneFactor = (!empty($p['unidad_reporte']) && $p['factor_conversion'] > 1);
+                                            ?>
+                                            <option value="<?= $p['id'] ?? $p['producto_id'] ?>"
+                                                data-nombre="<?= htmlspecialchars($p['nombre']) ?>"
+                                                data-sku="<?= $p['sku'] ?>" data-factor="<?= $p['factor_conversion'] ?>"
                                                 data-um="<?= $p['unidad_medida'] ?? 'PZA' ?>"
                                                 data-ur="<?= $p['unidad_reporte'] ?? '' ?>"
                                                 data-precio="<?= $p['precio'] ?? '' ?>"
                                                 data-tiene-factor="<?= $tieneFactor ? '1' : '0' ?>">
-                                            [<?= $p['sku'] ?>] <?= htmlspecialchars($p['nombre']) ?> 
-                                            <?= $tieneFactor ? "({$p['unidad_reporte']})" : "" ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
+                                                [<?= $p['sku'] ?>] <?= htmlspecialchars($p['nombre']) ?>
+                                                <?= $tieneFactor ? "({$p['unidad_reporte']})" : "" ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="table-responsive border rounded-4 bg-white shadow-sm overflow-hidden mb-4">
-                            <table class="table table-hover align-middle mb-0" id="tablaDetallePedido">
-                                <thead class="bg-light">
-                                    <tr class="text-body-secondary small text-uppercase">
-                                        <th class="ps-4 py-3">Producto</th>
-                                        <th width="180">Venta por</th>
-                                        <th width="150">Cantidad</th>
-                                        <th>Notas / Medidas</th>
-                                        <th width="60" class="text-center"></th>
-                                    </tr>
-                                </thead>
-                                <tbody class="border-top-0">
+                            <div class="table-responsive border rounded-4 bg-white shadow-sm overflow-hidden mb-4">
+                                <table class="table table-hover align-middle mb-0" id="tablaDetallePedido">
+                                    <thead class="bg-light">
+                                        <tr class="text-body-secondary small text-uppercase">
+                                            <th class="ps-4 py-3">Producto</th>
+                                            <th width="180">Venta por</th>
+                                            <th width="150">Cantidad</th>
+                                            <th>Notas / Medidas</th>
+                                            <th width="60" class="text-center"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="border-top-0">
                                     </tbody>
-                            </table>
-                        </div>
+                                </table>
+                            </div>
 
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="form-floating shadow-sm">
-                                    <textarea name="observaciones" class="form-control  bg-light" placeholder="Indicaciones..." id="obsText" style="height: 80px; border-radius: 12px;"></textarea>
-                                    <label for="obsText" class="text-body-secondary">Observaciones de Entrega</label>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-floating shadow-sm">
+                                        <textarea name="observaciones" class="form-control  bg-light"
+                                            placeholder="Indicaciones..." id="obsText"
+                                            style="height: 80px; border-radius: 12px;"></textarea>
+                                        <label for="obsText" class="text-body-secondary">Observaciones de
+                                            Entrega</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </form>
-            </div>
+                    </form>
+                </div>
 
-            <div class="modal-footer  bg-white p-4 pt-0">
-                <button type="button" class="btn btn-light rounded-pill px-4 text-body-secondary fw-bold" data-bs-dismiss="modal">CANCELAR</button>
-                <button type="button" onclick="guardarPedido()" class="btn btn-primary btn-lg px-5 rounded-pill shadow-lg " style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
-                    <i class="bi bi-cloud-arrow-up-fill me-2"></i> REGISTRAR PEDIDO
-                </button>
+                <div class="modal-footer  bg-white p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4 text-body-secondary fw-bold"
+                        data-bs-dismiss="modal">CANCELAR</button>
+                    <button type="button" onclick="guardarPedido()"
+                        class="btn btn-primary btn-lg px-5 rounded-pill shadow-lg "
+                        style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
+                        <i class="bi bi-cloud-arrow-up-fill me-2"></i> REGISTRAR PEDIDO
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
     <!-- ══════════════════════════════════════════════════════════
          MODAL VER PEDIDO
     ══════════════════════════════════════════════════════════════ -->
@@ -455,7 +527,8 @@
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content  shadow-lg" style="border-radius: 20px;">
                 <div class="modal-header bg-primary text-white py-3" style="border-radius: 20px 20px 0 0;">
-                    <h5 class="modal-title"><i class="bi bi-eye me-2"></i>Pedido: <span id="view_folio" class="fw-bold"></span></h5>
+                    <h5 class="modal-title"><i class="bi bi-eye me-2"></i>Pedido: <span id="view_folio"
+                            class="fw-bold"></span></h5>
                     <div id="view_estatus_modal" class="ms-auto me-3"></div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -467,7 +540,8 @@
                             <div id="view_almacen" class="small text-body-secondary"></div>
                         </div>
                         <div class="col-12 col-md-6 text-md-end">
-                            <label class="text-body-secondary small d-block text-uppercase fw-bold mt-2 mt-md-0">Registro</label>
+                            <label
+                                class="text-body-secondary small d-block text-uppercase fw-bold mt-2 mt-md-0">Registro</label>
                             <div id="view_vendedor" class="text-dark small fw-bold"></div>
                             <div id="view_fecha" class="text-secondary small"></div>
                             <div id="view_prioridad" class="mt-1"></div>
@@ -494,7 +568,8 @@
                     </div>
                 </div>
                 <div class="modal-footer ">
-                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-secondary rounded-pill px-4"
+                        data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -507,110 +582,110 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
-    /* ── Variables de estado de filtros móvil ── */
-    let _rangoMobile  = 'hoy';
-    let _estadoMobile = '1';
+        /* ── Variables de estado de filtros móvil ── */
+        let _rangoMobile = 'hoy';
+        let _estadoMobile = '1';
 
-    $(document).ready(function() {
-        initSelect2();
-        loadPedidos();
-    });
-
-    function initSelect2() {
-        $('.select2-modal').each(function() {
-            $(this).select2({
-                theme: 'bootstrap-5',
-                dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal') : null
-            });
+        $(document).ready(function () {
+            initSelect2();
+            loadPedidos();
         });
-    }
 
-    /* ── Chips de filtro en móvil ── */
-    function seleccionarChip(el, rango) {
-        document.querySelectorAll('[data-rango]').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-        _rangoMobile = rango;
-        loadPedidos();
-    }
+        function initSelect2() {
+            $('.select2-modal').each(function () {
+                $(this).select2({
+                    theme: 'bootstrap-5',
+                    dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal') : null
+                });
+            });
+        }
 
-    function seleccionarEstadoChip(el, estado) {
-        document.querySelectorAll('[data-estado]').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-        _estadoMobile = estado;
-        loadPedidos();
-    }
-
-    function toggleFechas() {
-        if ($('#filtro_rango').val() === 'personalizado') {
-            $('#div_personalizado').show();
-        } else {
-            $('#div_personalizado').hide();
+        /* ── Chips de filtro en móvil ── */
+        function seleccionarChip(el, rango) {
+            document.querySelectorAll('[data-rango]').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            _rangoMobile = rango;
             loadPedidos();
         }
-    }
 
-    function getFiltros() {
-        const esMobile = window.innerWidth < 992;
-        const hoy = new Date();
-        const fmt = (f) => f.toISOString().split('T')[0];
+        function seleccionarEstadoChip(el, estado) {
+            document.querySelectorAll('[data-estado]').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            _estadoMobile = estado;
+            loadPedidos();
+        }
 
-        const rango   = esMobile ? _rangoMobile  : $('#filtro_rango').val();
-        const estatus = esMobile ? _estadoMobile : $('#filtro_estatus').val();
-
-        let desde = '', hasta = '';
-
-        if (rango === 'personalizado') {
-            desde = $('#filtro_desde').val();
-            hasta = $('#filtro_hasta').val();
-        } else {
-            switch (rango) {
-                case 'hoy':   desde = hasta = fmt(hoy); break;
-                case 'ayer':
-                    let ay = new Date(); ay.setDate(hoy.getDate() - 1);
-                    desde = hasta = fmt(ay); break;
-                case 'semana':
-                    let lu = new Date(hoy);
-                    const d = hoy.getDay(), di = hoy.getDate() - d + (d == 0 ? -6 : 1);
-                    lu.setDate(di);
-                    desde = fmt(lu); hasta = fmt(hoy); break;
-                case 'mes':
-                    desde = fmt(new Date(hoy.getFullYear(), hoy.getMonth(), 1));
-                    hasta = fmt(new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0)); break;
+        function toggleFechas() {
+            if ($('#filtro_rango').val() === 'personalizado') {
+                $('#div_personalizado').show();
+            } else {
+                $('#div_personalizado').hide();
+                loadPedidos();
             }
         }
 
-        return {
-            action: 'listar',
-            desde, hasta,
-            almacen_id: $('#filtro_almacen').val() || '0',
-            estatus
-        };
-    }
+        function getFiltros() {
+            const esMobile = window.innerWidth < 992;
+            const hoy = new Date();
+            const fmt = (f) => f.toISOString().split('T')[0];
 
-    function loadPedidos() {
-        const filters = getFiltros();
-        if (!filters.desde || !filters.hasta) return;
+            const rango = esMobile ? _rangoMobile : $('#filtro_rango').val();
+            const estatus = esMobile ? _estadoMobile : $('#filtro_estatus').val();
 
-        $('#listaPedidos').html('<tr><td colspan="6" class="text-center p-4"><div class="spinner-border spinner-border-sm text-primary"></div></td></tr>');
-        $('#listaPedidosMobile').html('<div class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary"></div></div>');
+            let desde = '', hasta = '';
 
-        $.get('../controllers/pedidosVendedorController.php', filters, function(res) {
-            if (!res.success) return;
-
-            let htmlDesktop = '', htmlMobile = '';
-
-            if (res.data.length === 0) {
-                htmlDesktop = '<tr><td colspan="6" class="text-center p-5 text-body-secondary">No se encontraron registros.</td></tr>';
-                htmlMobile  = '<p class="text-center text-body-secondary py-4">No se encontraron registros.</p>';
+            if (rango === 'personalizado') {
+                desde = $('#filtro_desde').val();
+                hasta = $('#filtro_hasta').val();
             } else {
-                res.data.forEach(p => {
-                    const esCubierto = p.estatus != 1;
-                    const bEstatus = esCubierto
-                        ? `<span class="badge badge-cubierto">Cubierto</span>`
-                        : `<span class="badge badge-pendiente">Pendiente</span>`;
+                switch (rango) {
+                    case 'hoy': desde = hasta = fmt(hoy); break;
+                    case 'ayer':
+                        let ay = new Date(); ay.setDate(hoy.getDate() - 1);
+                        desde = hasta = fmt(ay); break;
+                    case 'semana':
+                        let lu = new Date(hoy);
+                        const d = hoy.getDay(), di = hoy.getDate() - d + (d == 0 ? -6 : 1);
+                        lu.setDate(di);
+                        desde = fmt(lu); hasta = fmt(hoy); break;
+                    case 'mes':
+                        desde = fmt(new Date(hoy.getFullYear(), hoy.getMonth(), 1));
+                        hasta = fmt(new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0)); break;
+                }
+            }
 
-                    // Desktop row
-                    htmlDesktop += `
+            return {
+                action: 'listar',
+                desde, hasta,
+                almacen_id: $('#filtro_almacen').val() || '0',
+                estatus
+            };
+        }
+
+        function loadPedidos() {
+            const filters = getFiltros();
+            if (!filters.desde || !filters.hasta) return;
+
+            $('#listaPedidos').html('<tr><td colspan="6" class="text-center p-4"><div class="spinner-border spinner-border-sm text-primary"></div></td></tr>');
+            $('#listaPedidosMobile').html('<div class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary"></div></div>');
+
+            $.get('../controllers/pedidosVendedorController.php', filters, function (res) {
+                if (!res.success) return;
+
+                let htmlDesktop = '', htmlMobile = '';
+
+                if (res.data.length === 0) {
+                    htmlDesktop = '<tr><td colspan="6" class="text-center p-5 text-body-secondary">No se encontraron registros.</td></tr>';
+                    htmlMobile = '<p class="text-center text-body-secondary py-4">No se encontraron registros.</p>';
+                } else {
+                    res.data.forEach(p => {
+                        const esCubierto = p.estatus != 1;
+                        const bEstatus = esCubierto
+                            ? `<span class="badge badge-cubierto">Cubierto</span>`
+                            : `<span class="badge badge-pendiente">Pendiente</span>`;
+
+                        // Desktop row
+                        htmlDesktop += `
                     <tr>
                         <td class="fw-bold text-primary">${p.folio}</td>
                         <td>
@@ -628,8 +703,8 @@
                         </td>
                     </tr>`;
 
-                    // Mobile card
-                    htmlMobile += `
+                        // Mobile card
+                        htmlMobile += `
                     <div class="pedido-card ${esCubierto ? 'cubierto' : ''}">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
@@ -650,44 +725,44 @@
                             </button>` : ''}
                         </div>
                     </div>`;
-                });
-            }
+                    });
+                }
 
-            $('#listaPedidos').html(htmlDesktop);
-            $('#listaPedidosMobile').html(htmlMobile);
-        });
-    }
+                $('#listaPedidos').html(htmlDesktop);
+                $('#listaPedidosMobile').html(htmlMobile);
+            });
+        }
 
-    function limpiarFiltros() {
-        $('#filtro_rango').val('hoy');
-        $('#filtro_almacen').val('0').trigger('change');
-        $('#filtro_estatus').val('1');
-        $('#div_personalizado').hide();
-        _rangoMobile = 'hoy';
-        _estadoMobile = '1';
-        document.querySelectorAll('[data-rango]').forEach(c => c.classList.toggle('active', c.dataset.rango === 'hoy'));
-        document.querySelectorAll('[data-estado]').forEach(c => c.classList.toggle('active', c.dataset.estado === '1'));
-        loadPedidos();
-    }
+        function limpiarFiltros() {
+            $('#filtro_rango').val('hoy');
+            $('#filtro_almacen').val('0').trigger('change');
+            $('#filtro_estatus').val('1');
+            $('#div_personalizado').hide();
+            _rangoMobile = 'hoy';
+            _estadoMobile = '1';
+            document.querySelectorAll('[data-rango]').forEach(c => c.classList.toggle('active', c.dataset.rango === 'hoy'));
+            document.querySelectorAll('[data-estado]').forEach(c => c.classList.toggle('active', c.dataset.estado === '1'));
+            loadPedidos();
+        }
 
-    /* ── Captura de productos ── */
-    $('#buscador_productos').on('change', function() {
-        const opt = $(this).find(':selected');
-        if (!opt.val()) return;
+        /* ── Captura de productos ── */
+        $('#buscador_productos').on('change', function () {
+            const opt = $(this).find(':selected');
+            if (!opt.val()) return;
 
-        const id = opt.val(), nombre = opt.data('nombre'), factor = parseFloat(opt.data('factor')) || 1;
-        const um = opt.data('um'), ur = opt.data('ur'), tieneFactor = opt.data('tiene-factor') == '1';
+            const id = opt.val(), nombre = opt.data('nombre'), factor = parseFloat(opt.data('factor')) || 1;
+            const um = opt.data('um'), ur = opt.data('ur'), tieneFactor = opt.data('tiene-factor') == '1';
 
-        let selectorMedida = `<span class="text-body-secondary small">${um}</span>`;
-        if (tieneFactor) {
-            selectorMedida = `
+            let selectorMedida = `<span class="text-body-secondary small">${um}</span>`;
+            if (tieneFactor) {
+                selectorMedida = `
             <select class="form-select form-select-sm select-modo-venta" onchange="recalcularFila(this)">
                 <option value="individual" data-factor="1">${um}</option>
                 <option value="referencia" data-factor="${factor}">${ur}</option>
             </select>`;
-        }
+            }
 
-        const fila = `
+            const fila = `
         <tr data-id="${id}" data-factor="${factor}" data-um="${um}">
             <td class="ps-2">
                 <div class="fw-bold small">${nombre}</div>
@@ -710,110 +785,111 @@
             </td>
         </tr>`;
 
-        $('#tablaDetallePedido tbody').append(fila);
-        $(this).val(null).trigger('change');
-    });
+            $('#tablaDetallePedido tbody').append(fila);
+            $(this).val(null).trigger('change');
+        });
 
-    function recalcularFila(el) {
-        const fila = $(el).closest('tr');
-        const modo = fila.find('.select-modo-venta').val() || 'individual';
-        const factor = parseFloat(fila.data('factor')) || 1;
-        const cant = parseFloat(fila.find('.cantidad').val()) || 0;
-        fila.find('.text-total-piezas').text(`${(modo === 'referencia' ? cant * factor : cant).toFixed(2)} ${fila.data('um')}`);
-    }
-
-    /* ── Guardar pedido ── */
-    function guardarPedido() {
-        const cliente = $('#cliente_id').val(), almacen = $('#almacen_id').val();
-        if (!almacen || !cliente) return Swal.fire('Error', 'Complete cliente y sucursal.', 'warning');
-
-        const items = [];
-        $('#tablaDetallePedido tbody tr').each(function() {
-            const fila = $(this);
+        function recalcularFila(el) {
+            const fila = $(el).closest('tr');
             const modo = fila.find('.select-modo-venta').val() || 'individual';
             const factor = parseFloat(fila.data('factor')) || 1;
             const cant = parseFloat(fila.find('.cantidad').val()) || 0;
-            items.push({
-                producto_id: fila.data('id'),
-                cantidad: (modo === 'referencia') ? (cant * factor) : cant,
-                notas: fila.find('.input-notas').val()
+            fila.find('.text-total-piezas').text(`${(modo === 'referencia' ? cant * factor : cant).toFixed(2)} ${fila.data('um')}`);
+        }
+
+        /* ── Guardar pedido ── */
+        function guardarPedido() {
+            const cliente = $('#cliente_id').val(), almacen = $('#almacen_id').val();
+            if (!almacen || !cliente) return Swal.fire('Error', 'Complete cliente y sucursal.', 'warning');
+
+            const items = [];
+            $('#tablaDetallePedido tbody tr').each(function () {
+                const fila = $(this);
+                const modo = fila.find('.select-modo-venta').val() || 'individual';
+                const factor = parseFloat(fila.data('factor')) || 1;
+                const cant = parseFloat(fila.find('.cantidad').val()) || 0;
+                items.push({
+                    producto_id: fila.data('id'),
+                    cantidad: (modo === 'referencia') ? (cant * factor) : cant,
+                    notas: fila.find('.input-notas').val()
+                });
             });
-        });
 
-        if (items.length === 0) return Swal.fire('Vacío', 'Agregue productos.', 'warning');
+            if (items.length === 0) return Swal.fire('Vacío', 'Agregue productos.', 'warning');
 
-        $.post('../controllers/pedidosVendedorController.php', {
-            action: 'guardar',
-            almacen_id: almacen,
-            cliente_id: cliente,
-            prioridad: $('#prioridad').val(),
-            observaciones: $('#observaciones').val(),
-            items: JSON.stringify(items)
-        }, function(res) {
-           if (res.success) {
-        Swal.fire({
-            title: '¡Éxito!',
-            text: res.message,
-            icon: 'success',
-            confirmButtonText: 'Aceptar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Esto recarga la página completa
-                location.reload();
-            }
-        });
-        
-        // Mantener esto por si el usuario cierra el modal antes de dar OK
-        $('#modalNuevoPedido').modal('hide');
-    }else { Swal.fire('Error', res.message, 'error'); }
-        });
-    }
+            $.post('../controllers/pedidosVendedorController.php', {
+                action: 'guardar',
+                almacen_id: almacen,
+                cliente_id: cliente,
+                prioridad: $('#prioridad').val(),
+                observaciones: $('#observaciones').val(),
+                items: JSON.stringify(items)
+            }, function (res) {
+                if (res.success) {
+                    Swal.fire({
+                        title: '¡Éxito!',
+                        text: res.message,
+                        icon: 'success',
+                        confirmButtonText: 'Aceptar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Esto recarga la página completa
+                            location.reload();
+                        }
+                    });
 
-    /* ── Ver pedido ── */
-    function verPedido(id) {
-        $.get('../controllers/pedidosVendedorController.php', { action: 'ver_detalle', id: id }, function(res) {
-            if (res.success) {
-                const p = res.pedido;
-                $('#view_folio').text(p.folio);
-                $('#view_cliente').text(p.cliente);
-                $('#view_almacen').html(`<i class="bi bi-geo-alt"></i> ${p.almacen_nombre}`);
-                $('#view_vendedor').html(`<i class="bi bi-person"></i> ${p.vendedor_nombre}`);
-                $('#view_fecha').text(p.fecha_solicitud);
-                $('#view_prioridad').html(`<span class="badge bg-dark">${p.prioridad}</span>`);
-                $('#view_estatus_modal').html(p.estatus == 1
-                    ? '<span class="badge bg-warning text-dark">Pendiente</span>'
-                    : '<span class="badge bg-success">Cubierto</span>');
-                $('#view_observaciones').text(p.observaciones || 'Sin notas adicionales.');
+                    // Mantener esto por si el usuario cierra el modal antes de dar OK
+                    $('#modalNuevoPedido').modal('hide');
+                } else { Swal.fire('Error', res.message, 'error'); }
+            });
+        }
 
-                let html = '';
-                res.detalles.forEach(d => {
-                    html += `<tr>
+        /* ── Ver pedido ── */
+        function verPedido(id) {
+            $.get('../controllers/pedidosVendedorController.php', { action: 'ver_detalle', id: id }, function (res) {
+                if (res.success) {
+                    const p = res.pedido;
+                    $('#view_folio').text(p.folio);
+                    $('#view_cliente').text(p.cliente);
+                    $('#view_almacen').html(`<i class="bi bi-geo-alt"></i> ${p.almacen_nombre}`);
+                    $('#view_vendedor').html(`<i class="bi bi-person"></i> ${p.vendedor_nombre}`);
+                    $('#view_fecha').text(p.fecha_solicitud);
+                    $('#view_prioridad').html(`<span class="badge bg-dark">${p.prioridad}</span>`);
+                    $('#view_estatus_modal').html(p.estatus == 1
+                        ? '<span class="badge bg-warning text-dark">Pendiente</span>'
+                        : '<span class="badge bg-success">Cubierto</span>');
+                    $('#view_observaciones').text(p.observaciones || 'Sin notas adicionales.');
+
+                    let html = '';
+                    res.detalles.forEach(d => {
+                        html += `<tr>
                         <td><div class="fw-bold">${d.producto_nombre}</div></td>
                         <td class="text-center fw-bold">${d.cantidad} ${d.unidad_medida}</td>
                         <td class="small text-body-secondary d-none d-md-table-cell">${d.notas_producto || '-'}</td>
                     </tr>`;
-                });
-                $('#tablaVerDetalles tbody').html(html);
-                $('#modalVerPedido').modal('show');
-            }
-        });
-    }
+                    });
+                    $('#tablaVerDetalles tbody').html(html);
+                    $('#modalVerPedido').modal('show');
+                }
+            });
+        }
 
-    /* ── Marcar cubierto ── */
-    function marcarCubierto(id) {
-        Swal.fire({
-            title: '¿Marcar como cubierto?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, confirmar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.post('../controllers/pedidosVendedorController.php', { action: 'cubrir', id: id }, function(res) {
-                    if (res.success) loadPedidos();
-                });
-            }
-        });
-    }
+        /* ── Marcar cubierto ── */
+        function marcarCubierto(id) {
+            Swal.fire({
+                title: '¿Marcar como cubierto?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, confirmar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('../controllers/pedidosVendedorController.php', { action: 'cubrir', id: id }, function (res) {
+                        if (res.success) loadPedidos();
+                    });
+                }
+            });
+        }
     </script>
 </body>
+
 </html>

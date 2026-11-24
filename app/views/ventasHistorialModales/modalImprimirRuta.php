@@ -18,6 +18,7 @@
                         onclick="imprimirModalRuta()">
                         <span>🖨</span> Imprimir
                     </button>
+                    <div id="contenedorBotonCancelar"></div>
                 </div>
 
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
@@ -36,6 +37,11 @@
     async function imprimirRuta(entrega_ida, folioViaje) {
 
         document.getElementById('folioRutaPrint').textContent = entrega_ida;
+        document.getElementById('contenedorBotonCancelar').innerHTML = `
+        <button type="button" class="btn btn-outline-danger btn-sm px-2 d-flex align-items-center gap-1" onclick="cancelarEntrega('${entrega_ida}')">
+            <i class="bi bi-x-circle"></i> Cancelar Entrega
+        </button>
+    `;
 
         const respuesta = await fetch(
             `/myvet/app/controllers/repartosController.php?action=get_ruta_entrega_por_despacho&entrega_id=${entrega_ida}&id=${encodeURIComponent(folioViaje)}`
@@ -637,4 +643,50 @@
         ventana.document.close();
         ventana.focus();
     }
+    function cancelarEntrega(idEntrega) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡Se cancelará la entrega y se devolverá el stock al inventario y lotes!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, cancelar entrega',
+            cancelButtonText: 'No'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/myvet/app/controllers/repartosController.php',
+                    type: 'GET',
+                    dataType: 'json',
+                    data: {
+                        action: 'cancelar_entrega',
+                        id: idEntrega
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire(
+                                '¡Cancelado!',
+                                response.message,
+                                'success'
+                            ).then(() => {
+                                // Cerrar el modal actual y refrescar la vista
+                                const modalElement = document.getElementById('modalImprimirRuta');
+                                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                                if (modalInstance) modalInstance.hide();
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('Error', response.message || 'No se pudo procesar la solicitud.', 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Error de red', 'Ocurrió un error al comunicarse con el servidor.', 'error');
+                    }
+                });
+            }
+        });
+    }
+
+
 </script>

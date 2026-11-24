@@ -1,6 +1,6 @@
 <?php
 /**
- * CF SYSTEM - Módulo de Logística (Controlador Integrado)
+ * JSEA - Módulo de Logística (Controlador Integrado)
  * Maneja la vista de "Mis Repartos" para Choferes y el Panel Global para Admin.
  */
 

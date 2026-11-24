@@ -444,7 +444,7 @@
 
             <div class="row align-items-center mb-4" style="position: relative;">
                 <div class="col-7 header-title">
-                    <h2 class="fw-bold mb-0">CF <span class="text-primary">SISTEM</span></h2>
+                    <h2 class="fw-bold mb-0">JSEA<span class="text-primary">SISTEM</span></h2>
                     <p class="text-secondary small mb-0">Comprobante Interno de Control de Inventarios</p>
                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle mt-2 badge-type">
                         ${tipo}
@@ -550,7 +550,7 @@
 
             <footer class="mt-5 pt-5 text-center">
                 <div class="label-sm border-top pt-3">
-                    CF SISTEM - Software de Gestión de Almacén<br>
+                    JSEA - Software de Gestión de Almacén<br>
                     <span class="fw-normal lowercase">Generado automáticamente por el módulo de logística</span>
                 </div>
             </footer>

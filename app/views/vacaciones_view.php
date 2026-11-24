@@ -1,53 +1,58 @@
 <?php
 /**
  * vacaciones_view.php 
- * Vista de Control y Gestión de Vacaciones de Trabajadores - cfsistem
+ * Vista de Control y Gestión de Vacaciones de Trabajadores - myvet
  */
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8"name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vacaciones | cfsistem</title>
-      <link rel="icon" type="image/png" href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
+    <title>Vacaciones | myvet</title>
+    <link rel="icon" type="image/png"
+        href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
 
-    <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>" type="image/x-icon">
+    <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
+        type="image/x-icon">
 
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    
+
     <?php require_once __DIR__ . '/layout/icono.php' ?>
-    <?php if (function_exists('cargarEstilos')) { cargarEstilos(); } ?>
-  
+    <?php if (function_exists('cargarEstilos')) {
+        cargarEstilos();
+    } ?>
+
     <style>
-        :root { 
-            --sidebar-width: 0px; 
+        :root {
+            --sidebar-width: 0px;
             --navbar-height: 65px;
             --glass-bg: rgba(255, 255, 255, 0.90);
             --accent-color: #0d6efd;
         }
 
-        body { 
-           
+        body {
+
             min-height: 100vh;
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
-        .main-content { 
-             
-            padding: 35px; 
-           
+        .main-content {
+
+            padding: 35px;
+
             transition: all 0.3s ease;
         }
 
         .card-premium {
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
         }
 
         .table thead th {
@@ -57,7 +62,7 @@
             font-size: 0.78rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            
+
             padding: 14px 12px;
         }
 
@@ -65,8 +70,8 @@
             transition: all 0.2s ease;
         }
 
-        .table tbody tr:hover { 
-            background: rgba(13, 110, 253, 0.03) !important; 
+        .table tbody tr:hover {
+            background: rgba(13, 110, 253, 0.03) !important;
         }
 
         .btn-action {
@@ -79,22 +84,26 @@
             border-radius: 10px;
             transition: all 0.2s;
         }
+
         .btn-action:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        @media (max-width: 768px) { 
-            .main-content { 
-                margin-left: 0; 
-                padding: 15px; 
-                padding-top: 90px; 
-            } 
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+                padding-top: 90px;
+            }
         }
     </style>
 </head>
+
 <body>
-    <?php if (function_exists('renderizarLayout')) { renderizarLayout($paginaActual); } ?>
+    <?php if (function_exists('renderizarLayout')) {
+        renderizarLayout($paginaActual);
+    } ?>
 
     <main class="main-content">
 
@@ -104,7 +113,8 @@
                 <div class="row align-items-center">
                     <div class="col-lg-6">
                         <div class="d-flex align-items-center">
-                            <div class="bg-primary bg-opacity-10 text-primary rounded-4 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded-4 p-3 me-3 d-flex align-items-center justify-content-center"
+                                style="width: 56px; height: 56px;">
                                 <i class="bi bi-calendar2-check fs-2"></i>
                             </div>
                             <div>
@@ -147,47 +157,41 @@
                             <span class="input-group-text border-end-0">
                                 <i class="bi bi-search text-muted"></i>
                             </span>
-                            <input type="text"
-                                id="f_search"
-                                class="form-control border-start-0 ps-0"
-                                placeholder="Folio, trabajador..."
-                                onkeyup="getVacaciones()">
+                            <input type="text" id="f_search" class="form-control border-start-0 ps-0"
+                                placeholder="Folio, trabajador..." onkeyup="getVacaciones()">
                         </div>
                     </div>
- <div class="col-lg-2">
+                    <div class="col-lg-2">
 
-                <label class="form-label fw-semibold small">
-                    Almacén
-                </label>
+                        <label class="form-label fw-semibold small">
+                            Almacén
+                        </label>
 
-               <select
-    id="f_almacen"
-    class="form-select"
-   >
+                        <select id="f_almacen" class="form-select">
 
-    <?php if ($tipo == 1): ?>
-        <option value="">Todos</option>
-    <?php endif; ?>
+                            <?php if ($tipo == 1): ?>
+                                <option value="">Todos</option>
+                            <?php endif; ?>
 
-    <?php foreach($almacenes as $a): ?>
-        <option
-            value="<?= $a['id'] ?>"
-            <?= ($a['id'] == $_SESSION['almacen_id']) ? 'selected' : '' ?>>
-            <?= htmlspecialchars($a['nombre']) ?>
-        </option>
-    <?php endforeach; ?>
+                            <?php foreach ($almacenes as $a): ?>
+                                <option value="<?= $a['id'] ?>" <?= ($a['id'] == $_SESSION['almacen_id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($a['nombre']) ?>
+                                </option>
+                            <?php endforeach; ?>
 
-</select>
+                        </select>
 
-            </div>
+                    </div>
                     <!-- Trabajador -->
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label fw-semibold small">Trabajador</label>
                         <select class="form-select" id="select-trabajadores" onchange="getVacaciones()">
                             <option value="">Todos</option>
-                            <?php if(!empty($trabajadores)): foreach($trabajadores as $t): ?>
-                                <option value="<?= $t['id'] ?>"data-almacen-id="<?= $t['almacen_id'] ?>"><?= htmlspecialchars($t['nombre']) ?></option>
-                            <?php endforeach; endif; ?>
+                            <?php if (!empty($trabajadores)):
+                                foreach ($trabajadores as $t): ?>
+                                    <option value="<?= $t['id'] ?>" data-almacen-id="<?= $t['almacen_id'] ?>">
+                                        <?= htmlspecialchars($t['nombre']) ?></option>
+                                <?php endforeach; endif; ?>
                         </select>
                     </div>
 
@@ -226,7 +230,8 @@
                         <i class="bi bi-list-check text-primary me-2"></i>
                         Registro de Solicitudes
                     </h6>
-                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-3 py-2">
+                    <span
+                        class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-3 py-2">
                         Historial General
                     </span>
                 </div>
@@ -254,7 +259,7 @@
                     </table>
                 </div>
             </div>
-        </div>       
+        </div>
 
     </main>
 
@@ -262,10 +267,11 @@
     <div class="modal fade" id="modalDetalleVacaciones" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content  shadow-lg" style="border-radius: 24px; overflow: hidden;">
-                
+
                 <div class="modal-header bg-dark text-white p-4 ">
                     <div class="d-flex align-items-center">
-                        <div class="bg-primary text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                        <div class="bg-primary text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center"
+                            style="width: 44px; height: 44px;">
                             <i class="bi bi-card-checklist fs-4"></i>
                         </div>
                         <div>
@@ -273,19 +279,23 @@
                             <small class="text-white-50">Folio Registro: #<span id="det-id_vacaciones"></span></small>
                         </div>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
 
                 <div class="modal-body p-4">
-                    
+
                     <!-- Trabajador -->
                     <div class="card  shadow-sm rounded-4 p-3 mb-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.7rem;">Trabajador / Empleado</small>
+                                <small class="text-uppercase text-muted fw-bold d-block mb-1"
+                                    style="font-size: 0.7rem;">Trabajador / Empleado</small>
                                 <h5 class="fw-bold mb-0" id="det-trabajador">---</h5>
                             </div>
-                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 px-3 py-2 fw-bold" id="det-fecha">
+                            <span
+                                class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 px-3 py-2 fw-bold"
+                                id="det-fecha">
                                 --/--/----
                             </span>
                         </div>
@@ -319,7 +329,8 @@
                 </div>
 
                 <div class="modal-footer  p-3 justify-content-center">
-                    <button type="button" class="btn btn-secondary rounded-pill px-4 fw-bold shadow-sm" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4 fw-bold shadow-sm"
+                        data-bs-dismiss="modal">
                         Cerrar Vista
                     </button>
                 </div>
@@ -327,93 +338,107 @@
             </div>
         </div>
     </div>
-<!-- ===================== MODAL AGREGAR / EDITAR VACACIONES ===================== -->
-<div class="modal fade" id="modalVacaciones" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content  shadow-lg" style="border-radius: 24px; overflow: hidden;">
-            
-            <!-- Encabezado del Modal -->
-            <div class="modal-header bg-dark text-white p-4 ">
-                <div class="d-flex align-items-center">
-                    <div class="bg-primary text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
-                        <i class="bi bi-calendar-plus fs-4"></i>
+    <!-- ===================== MODAL AGREGAR / EDITAR VACACIONES ===================== -->
+    <div class="modal fade" id="modalVacaciones" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content  shadow-lg" style="border-radius: 24px; overflow: hidden;">
+
+                <!-- Encabezado del Modal -->
+                <div class="modal-header bg-dark text-white p-4 ">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center"
+                            style="width: 44px; height: 44px;">
+                            <i class="bi bi-calendar-plus fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0 text-white" id="modalVacacionesLabel">Registrar Vacaciones</h5>
+                            <small class="text-white-50">Captura de días y montos correspondientes</small>
+                        </div>
                     </div>
-                    <div>
-                        <h5 class="fw-bold mb-0 text-white" id="modalVacacionesLabel">Registrar Vacaciones</h5>
-                        <small class="text-white-50">Captura de días y montos correspondientes</small>
-                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                <!-- Formulario -->
+                <form id="formVacaciones" onsubmit="guardarVacaciones(event)">
+                    <div class="modal-body p-4">
+
+                        <!-- Campo oculto para ID (en caso de edición) -->
+                        <input type="hidden" id="v_id" name="id" value="0">
+
+                        <!-- Selección de Trabajador -->
+                        <div class="mb-3">
+                            <label for="v_id_trabajador" class="form-label fw-semibold small text-secondary">
+                                Trabajador <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select rounded-3" id="v_id_trabajador" name="id_trabajador" required>
+                                <option value="" disabled selected>-- Selecciona un trabajador --</option>
+                                <?php if (!empty($trabajadores)):
+                                    foreach ($trabajadores as $t): ?>
+                                        <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['nombre']) ?></option>
+                                    <?php endforeach; endif; ?>
+                            </select>
+                        </div>
+
+                        <!-- Fecha -->
+                        <div class="mb-3">
+                            <label for="v_fecha" class="form-label fw-semibold small text-secondary">
+                                Fecha de Registro / Trámite <span class="text-danger">*</span>
+                            </label>
+                            <input type="date" class="form-control rounded-3" id="v_fecha" name="fecha"
+                                value="<?= date('Y-m-d') ?>" required>
+                        </div>
+
+                        <!-- Días Disponibles y Días a Tomar -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label for="v_dias_disponibles" class="form-label fw-semibold small text-secondary">Días
+                                    Disponibles</label>
+                                <input type="number" class="form-control rounded-3" id="v_dias_disponibles"
+                                    name="dias_disponibles" min="0" value="0" required>
+                            </div>
+                            <div class="col-6">
+                                <label for="v_dias_a_tomar" class="form-label fw-semibold small text-secondary">Días a
+                                    Tomar</label>
+                                <input type="number" class="form-control rounded-3" id="v_dias_a_tomar"
+                                    name="dias_a_tomar" min="0" value="0" required>
+                            </div>
+                        </div>
+
+                        <!-- Monto Restante y Retenciones -->
+                        <div class="row g-3 mb-2">
+                            <div class="col-6">
+                                <label for="v_monto_restante" class="form-label fw-semibold small text-secondary">Monto
+                                    Restante ($)</label>
+                                <input type="number" step="0.01" class="form-control rounded-3" id="v_monto_restante"
+                                    name="monto_restante" min="0" value="0.00" required>
+                            </div>
+                            <div class="col-6">
+                                <label for="v_retenciones"
+                                    class="form-label fw-semibold small text-secondary">Retenciones ($)</label>
+                                <input type="number" step="0.01" class="form-control rounded-3" id="v_retenciones"
+                                    name="retenciones" min="0" value="0.00" required>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="modal-footer  p-3 justify-content-end bg-light">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4 fw-bold shadow-sm"
+                            data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm"
+                            id="btnGuardarVacaciones">
+                            <i class="bi bi-save me-1"></i> Guardar Registro
+                        </button>
+                    </div>
+                </form>
+
             </div>
-
-            <!-- Formulario -->
-            <form id="formVacaciones" onsubmit="guardarVacaciones(event)">
-                <div class="modal-body p-4">
-                    
-                    <!-- Campo oculto para ID (en caso de edición) -->
-                    <input type="hidden" id="v_id" name="id" value="0">
-
-                    <!-- Selección de Trabajador -->
-                    <div class="mb-3">
-                        <label for="v_id_trabajador" class="form-label fw-semibold small text-secondary">
-                            Trabajador <span class="text-danger">*</span>
-                        </label>
-                        <select class="form-select rounded-3" id="v_id_trabajador" name="id_trabajador" required>
-                            <option value="" disabled selected>-- Selecciona un trabajador --</option>
-                            <?php if(!empty($trabajadores)): foreach($trabajadores as $t): ?>
-                                <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['nombre']) ?></option>
-                            <?php endforeach; endif; ?>
-                        </select>
-                    </div>
-
-                    <!-- Fecha -->
-                    <div class="mb-3">
-                        <label for="v_fecha" class="form-label fw-semibold small text-secondary">
-                            Fecha de Registro / Trámite <span class="text-danger">*</span>
-                        </label>
-                        <input type="date" class="form-control rounded-3" id="v_fecha" name="fecha" value="<?= date('Y-m-d') ?>" required>
-                    </div>
-
-                    <!-- Días Disponibles y Días a Tomar -->
-                    <div class="row g-3 mb-3">
-                        <div class="col-6">
-                            <label for="v_dias_disponibles" class="form-label fw-semibold small text-secondary">Días Disponibles</label>
-                            <input type="number" class="form-control rounded-3" id="v_dias_disponibles" name="dias_disponibles" min="0" value="0" required>
-                        </div>
-                        <div class="col-6">
-                            <label for="v_dias_a_tomar" class="form-label fw-semibold small text-secondary">Días a Tomar</label>
-                            <input type="number" class="form-control rounded-3" id="v_dias_a_tomar" name="dias_a_tomar" min="0" value="0" required>
-                        </div>
-                    </div>
-
-                    <!-- Monto Restante y Retenciones -->
-                    <div class="row g-3 mb-2">
-                        <div class="col-6">
-                            <label for="v_monto_restante" class="form-label fw-semibold small text-secondary">Monto Restante ($)</label>
-                            <input type="number" step="0.01" class="form-control rounded-3" id="v_monto_restante" name="monto_restante" min="0" value="0.00" required>
-                        </div>
-                        <div class="col-6">
-                            <label for="v_retenciones" class="form-label fw-semibold small text-secondary">Retenciones ($)</label>
-                            <input type="number" step="0.01" class="form-control rounded-3" id="v_retenciones" name="retenciones" min="0" value="0.00" required>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Botones de Acción -->
-                <div class="modal-footer  p-3 justify-content-end bg-light">
-                    <button type="button" class="btn btn-secondary rounded-pill px-4 fw-bold shadow-sm" data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" id="btnGuardarVacaciones">
-                        <i class="bi bi-save me-1"></i> Guardar Registro
-                    </button>
-                </div>
-            </form>
-
         </div>
     </div>
-</div>
 
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
@@ -422,142 +447,142 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-   
 
-<script>
 
-    $(document.ready).ready(function() {
-    // Guardamos una copia de todas las opciones originales de vehículos
-    const $trabajadorSelect = $('#select-trabajadores');
-    const $trabajadorSelectModal = $('#v_id_trabajador');
-    const $vehiculoOptions = $trabajadorSelect.find('option').clone();
+    <script>
 
-    $('#f_almacen').on('change', function() {
-        const almacenId = $(this).val();
+        $(document.ready).ready(function () {
+            // Guardamos una copia de todas las opciones originales de vehículos
+            const $trabajadorSelect = $('#select-trabajadores');
+            const $trabajadorSelectModal = $('#v_id_trabajador');
+            const $vehiculoOptions = $trabajadorSelect.find('option').clone();
 
-        // Limpiar el select de vehículos
-        $trabajadorSelect.empty();
-        $trabajadorSelectModal.empty();
+            $('#f_almacen').on('change', function () {
+                const almacenId = $(this).val();
 
-        if (almacenId) {
-            // Filtrar y agregar solo la opción por defecto y las que coincidan con el almacén
-            $vehiculoOptions.each(function() {
-                const optionAlmacenId = $(this).data('almacen-id');
-                
-                // Incluye la opción inicial ("Seleccione vehículo...") o las que coincidan
-                if (!optionAlmacenId || optionAlmacenId == almacenId) {
-                    $trabajadorSelect.append($(this).clone());
-                     $trabajadorSelectModal.append($(this).clone());
+                // Limpiar el select de vehículos
+                $trabajadorSelect.empty();
+                $trabajadorSelectModal.empty();
+
+                if (almacenId) {
+                    // Filtrar y agregar solo la opción por defecto y las que coincidan con el almacén
+                    $vehiculoOptions.each(function () {
+                        const optionAlmacenId = $(this).data('almacen-id');
+
+                        // Incluye la opción inicial ("Seleccione vehículo...") o las que coincidan
+                        if (!optionAlmacenId || optionAlmacenId == almacenId) {
+                            $trabajadorSelect.append($(this).clone());
+                            $trabajadorSelectModal.append($(this).clone());
+                        }
+                    });
+                } else {
+                    // Si no hay almacén seleccionado, mostrar solo la opción por defecto
+                    $trabajadorSelect.append($vehiculoOptions.first().clone());
+                    $vehiculoOptions.each(function () {
+                        const optionAlmacenId = $(this).data('almacen-id');
+
+                        // Incluye la opción inicial ("Seleccione vehículo...") o las que coincidan
+
+                        $trabajadorSelect.append($(this).clone());
+                        $trabajadorSelectModal.append($(this).clone());
+
+                    });
                 }
+
+                // Reinicializar Select2 para refrescar la lista visible
+                $trabajadorSelect.val('').trigger('change.select2');
             });
-        } else {
-            // Si no hay almacén seleccionado, mostrar solo la opción por defecto
-            $trabajadorSelect.append($vehiculoOptions.first().clone());
-             $vehiculoOptions.each(function() {
-                const optionAlmacenId = $(this).data('almacen-id');
-                
-                // Incluye la opción inicial ("Seleccione vehículo...") o las que coincidan
-                
-                    $trabajadorSelect.append($(this).clone());
-                     $trabajadorSelectModal.append($(this).clone());
-              
-            });
+        });
+        // Abrir modal para NUEVO registro
+        function nuevoModalVacaciones() {
+            $('#formVacaciones')[0].reset();
+            $('#v_id').val(0);
+            $('#v_fecha').val(new Date().toISOString().split('T')[0]);
+            $('#modalVacacionesLabel').text('Registrar Vacaciones');
+            $('#modalVacaciones').modal('show');
         }
 
-        // Reinicializar Select2 para refrescar la lista visible
-        $trabajadorSelect.val('').trigger('change.select2');
-    });
-});
-    // Abrir modal para NUEVO registro
-    function nuevoModalVacaciones() {
-        $('#formVacaciones')[0].reset();
-        $('#v_id').val(0);
-        $('#v_fecha').val(new Date().toISOString().split('T')[0]);
-        $('#modalVacacionesLabel').text('Registrar Vacaciones');
-        $('#modalVacaciones').modal('show');
-    }
+        // Abrir modal para EDITAR registro
+        function editarModalVacaciones(data) {
+            $('#formVacaciones')[0].reset();
+            $('#v_id').val(data.id || 0);
+            $('#v_id_trabajador').val(data.id_trabajador || '');
+            $('#v_fecha').val(data.fecha || new Date().toISOString().split('T')[0]);
+            $('#v_dias_disponibles').val(data.dias_disponibles || 0);
+            $('#v_dias_a_tomar').val(data.dias_a_tomar || 0);
+            $('#v_monto_restante').val(data.monto_restante || 0.00);
+            $('#v_retenciones').val(data.retenciones || 0.00);
 
-    // Abrir modal para EDITAR registro
-    function editarModalVacaciones(data) {
-        $('#formVacaciones')[0].reset();
-        $('#v_id').val(data.id || 0);
-        $('#v_id_trabajador').val(data.id_trabajador || '');
-        $('#v_fecha').val(data.fecha || new Date().toISOString().split('T')[0]);
-        $('#v_dias_disponibles').val(data.dias_disponibles || 0);
-        $('#v_dias_a_tomar').val(data.dias_a_tomar || 0);
-        $('#v_monto_restante').val(data.monto_restante || 0.00);
-        $('#v_retenciones').val(data.retenciones || 0.00);
-        
-        $('#modalVacacionesLabel').text('Editar Registro de Vacaciones');
-        $('#modalVacaciones').modal('show');
-    }
+            $('#modalVacacionesLabel').text('Editar Registro de Vacaciones');
+            $('#modalVacaciones').modal('show');
+        }
 
-    // Enviar datos vía AJAX / Fetch al controlador
-    async function guardarVacaciones(e) {
-        e.preventDefault();
+        // Enviar datos vía AJAX / Fetch al controlador
+        async function guardarVacaciones(e) {
+            e.preventDefault();
 
-        const btnGuardar = $('#btnGuardarVacaciones');
-        btnGuardar.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Guardando...');
+            const btnGuardar = $('#btnGuardarVacaciones');
+            btnGuardar.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Guardando...');
 
-        const formData = new FormData(document.getElementById('formVacaciones'));
-        const dataJson = Object.fromEntries(formData.entries());
+            const formData = new FormData(document.getElementById('formVacaciones'));
+            const dataJson = Object.fromEntries(formData.entries());
 
-        try {
-            const response = await fetch('/myvet/app/controllers/vacacionesController.php?action=guardar', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(dataJson)
-            });
-
-            const result = await response.json();
-
-            if (result.status === 'success' || result.success) {
-                $('#modalVacaciones').modal('hide');
-                
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Operación Exitosa!',
-                    text: result.message || 'El registro se ha guardado correctamente.',
-                    timer: 2000,
-                    showConfirmButton: false,
-                    customClass: { popup: 'rounded-4  shadow-lg' }
+            try {
+                const response = await fetch('/myvet/app/controllers/vacacionesController.php?action=guardar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dataJson)
                 });
 
-                // Recargar tabla de datos si existe la función en la vista
-                if (typeof getVacaciones === 'function') {
-                    getVacaciones();
+                const result = await response.json();
+
+                if (result.status === 'success' || result.success) {
+                    $('#modalVacaciones').modal('hide');
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Operación Exitosa!',
+                        text: result.message || 'El registro se ha guardado correctamente.',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        customClass: { popup: 'rounded-4  shadow-lg' }
+                    });
+
+                    // Recargar tabla de datos si existe la función en la vista
+                    if (typeof getVacaciones === 'function') {
+                        getVacaciones();
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al Guardar',
+                        text: result.message || 'Ocurrió un inconveniente al procesar la solicitud.',
+                        customClass: { popup: 'rounded-4  shadow-lg' }
+                    });
                 }
-            } else {
+            } catch (error) {
+                console.error('Error en guardarVacaciones:', error);
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error al Guardar',
-                    text: result.message || 'Ocurrió un inconveniente al procesar la solicitud.',
+                    title: 'Error de Red',
+                    text: 'No se pudo establecer comunicación con el servidor.',
                     customClass: { popup: 'rounded-4  shadow-lg' }
                 });
+            } finally {
+                btnGuardar.prop('disabled', false).html('<i class="bi bi-save me-1"></i> Guardar Registro');
             }
-        } catch (error) {
-            console.error('Error en guardarVacaciones:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error de Red',
-                text: 'No se pudo establecer comunicación con el servidor.',
-                customClass: { popup: 'rounded-4  shadow-lg' }
-            });
-        } finally {
-            btnGuardar.prop('disabled', false).html('<i class="bi bi-save me-1"></i> Guardar Registro');
         }
-    }
 
         // Convertir automáticamente a mayúsculas en campos de texto
         document.querySelectorAll('input[type="text"], textarea').forEach(elemento => {
-            elemento.addEventListener('input', function() {
+            elemento.addEventListener('input', function () {
                 this.value = this.value.toUpperCase();
             });
         });
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             getVacaciones();
         });
 
@@ -575,7 +600,7 @@
             try {
                 const res = await fetch(`/myvet/app/controllers/vacacionesController.php?${params.toString()}`);
                 const data = await res.json();
-                
+
                 if (!Array.isArray(data) || data.length === 0) {
                     $('#tablaVacaciones tbody').html('<tr><td colspan="8" class="text-center py-4 text-muted">No se encontraron registros de vacaciones</td></tr>');
                     return;
@@ -588,7 +613,7 @@
                         <td><div class="fw-semibold">${v.trabajador || 'N/D'}</div></td>
                         <td class="text-center"><span class="badge bg-light text-dark border">${v.dias_disponibles} días</span></td>
                         <td class="text-center"><span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-20 px-3 py-1 fw-bold">${v.dias_a_tomar} días</span></td>
-                          <td class="text-center"><span class="badge bg-light text-dark border">${(v.dias_disponibles)-(v.dias_a_tomar)} días</span></td>
+                          <td class="text-center"><span class="badge bg-light text-dark border">${(v.dias_disponibles) - (v.dias_a_tomar)} días</span></td>
                         <td class="text-end fw-semibold text-success">$${parseFloat(v.monto_restante).toFixed(2)}</td>
                         <td class="text-end fw-semibold text-danger">$${parseFloat(v.retenciones).toFixed(2)}</td>
                         <td class="text-center pe-4">
@@ -618,7 +643,7 @@
         }
 
         async function verDetalle(id) {
-            try { 
+            try {
                 const resp = await fetch(`/myvet/app/controllers/vacacionesController.php?action=obtenerDetalle&id=${id}`);
                 const data = await resp.json();
                 verDetalleVacaciones(data);
@@ -638,7 +663,7 @@
             console.log(info);
 
             $('#det-id_vacaciones').text(info.id || 'N/A');
-            $('#det-trabajador').text( info.nombre|| 'N/D');
+            $('#det-trabajador').text(info.nombre || 'N/D');
             $('#det-fecha').text(info.fecha || '--/--/----');
             $('#det-dias_disponibles').text(info.dias_disponibles || 0);
             $('#det-dias_a_tomar').text(info.dias_a_tomar || 0);
@@ -695,7 +720,7 @@
                                 showConfirmButton: false,
                                 customClass: { popup: 'rounded-4  shadow-lg' }
                             });
-                            
+
                             getVacaciones();
                         } else {
                             Swal.fire({
@@ -720,4 +745,5 @@
         }
     </script>
 </body>
+
 </html>

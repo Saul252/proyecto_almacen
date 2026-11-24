@@ -8,7 +8,7 @@ return [
     'username' => 'saulenriquealbatapia252@gmail.com',
     'password' => 'tvbtksegtbcngmzn', // 16 caracteres
     'from' => 'saulenriquealbatapia252@gmail.com',
-    'from_name' => 'Sistema CFSistem',
+    'from_name' => 'Sistema myvet',
     'charset' => 'UTF-8',
 ];
 // matcasa configuracion mail
@@ -19,6 +19,6 @@ return [
 //     'username' => 'veronica.gonzaga@fortalezacentro.com.mx',
 //     'password' => 'Bfc2612vgt', // 16 caracteres
 //     'from' => 'veronica.gonzaga@fortalezacentro.com.mx',
-//     'from_name' => 'Sistema CFSistem',
+//     'from_name' => 'Sistema myvet',
 //     'charset' => 'UTF-8',
 // ];

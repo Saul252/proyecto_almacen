@@ -1,53 +1,58 @@
 <?php
 /**
  * verificaciones_view.php 
- * Vista de Control y Gestión de Verificaciones Vehiculares - cfsistem
+ * Vista de Control y Gestión de Verificaciones Vehiculares - myvet
  */
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8"name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificaciones | cfsistem</title>
-      <link rel="icon" type="image/png" href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
+    <title>Verificaciones | myvet</title>
+    <link rel="icon" type="image/png"
+        href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
 
-    <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>" type="image/x-icon">
+    <link rel="shortcut icon" href="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
+        type="image/x-icon">
 
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    
+
     <?php require_once __DIR__ . '/layout/icono.php' ?>
-    <?php if (function_exists('cargarEstilos')) { cargarEstilos(); } ?>
-  
+    <?php if (function_exists('cargarEstilos')) {
+        cargarEstilos();
+    } ?>
+
     <style>
-        :root { 
-            --sidebar-width: 0px; 
+        :root {
+            --sidebar-width: 0px;
             --navbar-height: 65px;
             --glass-bg: rgba(255, 255, 255, 0.90);
             --accent-color: #0d6efd;
         }
 
-        body { 
+        body {
             min-height: 100vh;
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
-        .main-content { 
-             
-            padding: 35px; 
-           
+        .main-content {
+
+            padding: 35px;
+
             transition: all 0.3s ease;
         }
 
         .card-premium {
-          
+
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
         }
 
         .table thead th {
@@ -57,7 +62,7 @@
             font-size: 0.78rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            
+
             padding: 14px 12px;
         }
 
@@ -65,8 +70,8 @@
             transition: all 0.2s ease;
         }
 
-        .table tbody tr:hover { 
-            background: rgba(13, 110, 253, 0.03) !important; 
+        .table tbody tr:hover {
+            background: rgba(13, 110, 253, 0.03) !important;
         }
 
         .btn-action {
@@ -79,22 +84,26 @@
             border-radius: 10px;
             transition: all 0.2s;
         }
+
         .btn-action:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        @media (max-width: 768px) { 
-            .main-content { 
-                margin-left: 0; 
-                padding: 15px; 
-                padding-top: 90px; 
-            } 
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+                padding-top: 90px;
+            }
         }
     </style>
 </head>
+
 <body>
-    <?php if (function_exists('renderizarLayout')) { renderizarLayout($paginaActual); } ?>
+    <?php if (function_exists('renderizarLayout')) {
+        renderizarLayout($paginaActual);
+    } ?>
 
     <main class="main-content">
 
@@ -104,7 +113,8 @@
                 <div class="row align-items-center">
                     <div class="col-lg-6">
                         <div class="d-flex align-items-center">
-                            <div class="bg-primary bg-opacity-10 text-primary rounded-4 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded-4 p-3 me-3 d-flex align-items-center justify-content-center"
+                                style="width: 56px; height: 56px;">
                                 <i class="bi bi-shield-check fs-2"></i>
                             </div>
                             <div>
@@ -147,11 +157,8 @@
                             <span class="input-group-text  border-end-0">
                                 <i class="bi bi-search text-muted"></i>
                             </span>
-                            <input type="text"
-                                id="f_search"
-                                class="form-control border-start-0 ps-0"
-                                placeholder="ID, vehículo, placas..."
-                                onkeyup="getverificaciones()">
+                            <input type="text" id="f_search" class="form-control border-start-0 ps-0"
+                                placeholder="ID, vehículo, placas..." onkeyup="getverificaciones()">
                         </div>
                     </div>
 
@@ -160,11 +167,13 @@
                         <label class="form-label fw-semibold small ">Vehículo</label>
                         <select class="form-select" id="select-vehiculos" onchange="getverificaciones()">
                             <option value="">Todos</option>
-                            <?php if(!empty($vehiculos)): foreach($vehiculos as $ve): ?>
-                              <option value="<?= $ve['id'] ?>" data-almacen-id="<?= $ve['almacen_id'] ?>">
-            <?= htmlspecialchars($ve['nombre']) ?> (<?= htmlspecialchars($ve['placas']) ?>) (<?= htmlspecialchars($ve['tipo']) ?>)
-        </option>
-         <?php endforeach; endif; ?>
+                            <?php if (!empty($vehiculos)):
+                                foreach ($vehiculos as $ve): ?>
+                                    <option value="<?= $ve['id'] ?>" data-almacen-id="<?= $ve['almacen_id'] ?>">
+                                        <?= htmlspecialchars($ve['nombre']) ?> (<?= htmlspecialchars($ve['placas']) ?>)
+                                        (<?= htmlspecialchars($ve['tipo']) ?>)
+                                    </option>
+                                <?php endforeach; endif; ?>
                         </select>
                     </div>
 
@@ -195,14 +204,15 @@
                     <div class="col-lg-2 col-md-6">
                         <label class="form-label fw-semibold small ">Almacén</label>
                         <select id="f_almacen" class="form-select" onchange="getverificaciones()">
-                         <?php if ($_SESSION['almacen_id']==0): ?>
-                                                <option value="">Seleccionar ubicación...</option>
-                                                <?php endif; ?>
-                            <?php if(!empty($almacenes)): foreach($almacenes as $a): ?>
-                                <option value="<?= $a['id'] ?>" <?= (isset($_SESSION['almacen_id']) && $a['id'] == $_SESSION['almacen_id']) ? 'selected':'' ?>>
-                                    <?= htmlspecialchars($a['nombre']) ?>
-                                </option>
-                            <?php endforeach; endif; ?>
+                            <?php if ($_SESSION['almacen_id'] == 0): ?>
+                                <option value="">Seleccionar ubicación...</option>
+                            <?php endif; ?>
+                            <?php if (!empty($almacenes)):
+                                foreach ($almacenes as $a): ?>
+                                    <option value="<?= $a['id'] ?>" <?= (isset($_SESSION['almacen_id']) && $a['id'] == $_SESSION['almacen_id']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($a['nombre']) ?>
+                                    </option>
+                                <?php endforeach; endif; ?>
                         </select>
                     </div>
 
@@ -218,7 +228,8 @@
                         <i class="bi bi-list-check text-primary me-2"></i>
                         Registro de Verificaciones
                     </h6>
-                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-3 py-2">
+                    <span
+                        class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-3 py-2">
                         Historial Oficial
                     </span>
                 </div>
@@ -230,7 +241,7 @@
                         <thead>
                             <tr>
                                 <th>Folio ID</th>
-                                <th class="ps-4">Fecha Trámite</th>                               
+                                <th class="ps-4">Fecha Trámite</th>
                                 <th>Almacén</th>
                                 <th>Vehículo</th>
                                 <th class="text-center">Próxima Verificación</th>
@@ -243,7 +254,7 @@
                     </table>
                 </div>
             </div>
-        </div>       
+        </div>
 
     </main>
 
@@ -251,31 +262,37 @@
     <div class="modal fade" id="modalDetalleMantenimiento" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content  shadow-lg" style="border-radius: 24px; overflow: hidden;">
-                
+
                 <div class="modal-header bg-dark text-white p-4 ">
                     <div class="d-flex align-items-center">
-                        <div class="bg-primary text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                        <div class="bg-primary text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center"
+                            style="width: 44px; height: 44px;">
                             <i class="bi bi-file-earmark-check fs-4"></i>
                         </div>
                         <div>
                             <h5 class="fw-bold mb-0 text-white">Detalle de Verificación</h5>
-                            <small class="text-white-50">Registro Folio: #<span id="det-id_mantenimiento"></span></small>
+                            <small class="text-white-50">Registro Folio: #<span
+                                    id="det-id_mantenimiento"></span></small>
                         </div>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
 
                 <div class="modal-body p-4 ">
-                    
+
                     <!-- Vehículo -->
                     <div class="card  shadow-sm rounded-4 p-3 mb-3 ">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.7rem;">Unidad Vehicular</small>
+                                <small class="text-uppercase text-muted fw-bold d-block mb-1"
+                                    style="font-size: 0.7rem;">Unidad Vehicular</small>
                                 <h5 class="fw-bold  mb-0" id="det-vehiculo">---</h5>
                                 <small class="" id="det-modelo">---</small>
                             </div>
-                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 px-3 py-2 fw-bold" id="det-placas">
+                            <span
+                                class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 px-3 py-2 fw-bold"
+                                id="det-placas">
                                 ---
                             </span>
                         </div>
@@ -302,7 +319,8 @@
                 </div>
 
                 <div class="modal-footer   p-3 justify-content-center">
-                    <button type="button" class="btn btn-secondary rounded-pill px-4 fw-bold shadow-sm" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4 fw-bold shadow-sm"
+                        data-bs-dismiss="modal">
                         Cerrar Vista
                     </button>
                 </div>
@@ -310,7 +328,7 @@
             </div>
         </div>
     </div>
-  <!-- <button type="button" class="btn btn-action btn-light border text-primary" 
+    <!-- <button type="button" class="btn btn-action btn-light border text-primary" 
                                     onclick="verDetalle(${m.id})" 
                                     title="Ver Detalles">
                                 <i class="bi bi-eye"></i>
@@ -327,12 +345,12 @@
     <script>
         // Convertir automáticamente a mayúsculas
         document.querySelectorAll('input[type="text"], textarea').forEach(elemento => {
-            elemento.addEventListener('input', function() {
+            elemento.addEventListener('input', function () {
                 this.value = this.value.toUpperCase();
             });
         });
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             getverificaciones();
         });
 
@@ -350,7 +368,7 @@
             try {
                 const res = await fetch(`/myvet/app/controllers/verificacionesController.php?${params.toString()}`);
                 const data = await res.json();
-                
+
                 if (!Array.isArray(data)) {
                     $('#tablaMantenimientos tbody').html('<tr><td colspan="6" class="text-center py-4 text-muted">No se encontraron registros</td></tr>');
                     return;
@@ -391,7 +409,7 @@
         }
 
         async function verDetalle(id) {
-            try { 
+            try {
                 const resp = await fetch(`/myvet/app/controllers/verificacionesController.php?action=obtenerDetalle&id=${id}`);
                 const data = await resp.json();
                 verDetalleMantenimiento(data);
@@ -419,77 +437,78 @@
 
             $('#modalDetalleMantenimiento').modal('show');
         }
-     function eliminarVerificacion(id) {
-    Swal.fire({
-        title: '¿Estás seguro?',
-        text: `Se eliminará el registro de verificación con Folio #${id}. Esta acción no se puede deshacer.`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: '<i class="bi bi-trash me-1"></i> Sí, eliminar',
-        cancelButtonText: 'Cancelar',
-        reverseButtons: true,
-        customClass: {
-            popup: 'rounded-4  shadow-lg',
-            confirmButton: 'rounded-pill px-4',
-            cancelButton: 'rounded-pill px-4'
-        }
-    }).then(async (result) => {
-        if (result.isConfirmed) {
+        function eliminarVerificacion(id) {
             Swal.fire({
-                title: 'Eliminando...',
-                text: 'Por favor espera un momento.',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
+                title: '¿Estás seguro?',
+                text: `Se eliminará el registro de verificación con Folio #${id}. Esta acción no se puede deshacer.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-trash me-1"></i> Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-4  shadow-lg',
+                    confirmButton: 'rounded-pill px-4',
+                    cancelButton: 'rounded-pill px-4'
+                }
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Eliminando...',
+                        text: 'Por favor espera un momento.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    try {
+                        const formData = new FormData();
+                        formData.append('id', id);
+
+                        // CORREGIDO: Se añade ?action=eliminar a la URL
+                        const response = await fetch('/myvet/app/controllers/verificacionesController.php?action=eliminar', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const data = await response.json();
+
+                        if (data.status === 'success' || data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Eliminado!',
+                                text: data.message || 'La verificación ha sido eliminada correctamente.',
+                                timer: 2000,
+                                showConfirmButton: false,
+                                customClass: { popup: 'rounded-4  shadow-lg' }
+                            });
+
+                            getverificaciones();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message || 'No se pudo eliminar el registro.',
+                                customClass: { popup: 'rounded-4  shadow-lg' }
+                            });
+                        }
+
+                    } catch (error) {
+                        console.error("Error al eliminar verificación:", error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de servidor',
+                            text: 'Ocurrió un fallo al comunicarse con el servidor.',
+                            customClass: { popup: 'rounded-4  shadow-lg' }
+                        });
+                    }
                 }
             });
-
-            try {
-                const formData = new FormData();
-                formData.append('id', id);
-
-                // CORREGIDO: Se añade ?action=eliminar a la URL
-                const response = await fetch('/myvet/app/controllers/verificacionesController.php?action=eliminar', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (data.status === 'success' || data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Eliminado!',
-                        text: data.message || 'La verificación ha sido eliminada correctamente.',
-                        timer: 2000,
-                        showConfirmButton: false,
-                        customClass: { popup: 'rounded-4  shadow-lg' }
-                    });
-                    
-                    getverificaciones();
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: data.message || 'No se pudo eliminar el registro.',
-                        customClass: { popup: 'rounded-4  shadow-lg' }
-                    });
-                }
-
-            } catch (error) {
-                console.error("Error al eliminar verificación:", error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error de servidor',
-                    text: 'Ocurrió un fallo al comunicarse con el servidor.',
-                    customClass: { popup: 'rounded-4  shadow-lg' }
-                });
-            }
         }
-    });
-}
     </script>
 </body>
+
 </html>

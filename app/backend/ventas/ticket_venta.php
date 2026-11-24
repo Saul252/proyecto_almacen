@@ -646,7 +646,7 @@
             const cliente = document.getElementById('ticket-cliente').innerText || 'Cliente';
             const total = document.getElementById('ticket-total').innerText || '';
             const fecha = document.getElementById('ticket-fecha').innerText || '';
-            const almacen = document.getElementById('almacen-nombre').innerText || 'CF System';
+            const almacen = document.getElementById('almacen-nombre').innerText || 'JSEA';
 
             const correoPorDefecto = 'saulenriquealbatapia252@gmail.com';
 
@@ -860,7 +860,7 @@
             nombreDocumento = 'Documento.pdf',
             htmlDocumento = null,
             urlBackend = '/myvet/app/controllers/correoController.php',
-            remitente = 'CF System'
+            remitente = 'JSEA'
         }) {
             if (!correo || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
                 throw new Error('Correo inválido');

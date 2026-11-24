@@ -339,6 +339,7 @@
                                                         <th>Monto</th>
                                                         <th>Método</th>
                                                         <th>REFERENCIA</th>
+                                                        <th>ACCION</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="tbodyPagos"></tbody>
@@ -422,7 +423,7 @@
             if (!select) return; // Seguridad por si el select no está en la vista actual
 
             try {
-                // 1. Realizar la petición a tu controlador de Cf System
+                // 1. Realizar la petición a tu controlador de JSEA
                 const url = `/myvet/app/controllers/accesoController.php?action=obtenerUsuarios&almacen_id=${almacen}`;
                 const respuesta = await fetch(url);
 
@@ -790,6 +791,11 @@
                         }
 </span> 
             </td>
+             <td>
+            <button type="button" class="btn btn-danger btn-sm" onclick="eliminarPago(${p.id})">
+    <i class="fas fa-trash"></i> Eliminar Pago
+</button>
+            </td>
         </tr>
     `).join(''));
                 } else {
@@ -949,6 +955,69 @@
     </script>
     <script>
 
+    </script>
+    <script>
+        function eliminarPago(pagoId) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Esta acción eliminará el pago y actualizará el estado de la venta a pendiente o parcial.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Mostrar indicador de carga
+                    Swal.fire({
+                        title: 'Eliminando...',
+                        text: 'Por favor espera',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Petición AJAX usando Fetch al controlador
+                    // Asegúrate de ajustar la ruta si tu controlador está en otra ubicación relativa
+                    fetch('/myvet/app/controllers/ventasHistorialController.php?action=eliminarPago', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'pago_id=' + encodeURIComponent(pagoId)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                Swal.fire(
+                                    '¡Eliminado!',
+                                    data.message,
+                                    'success'
+                                ).then(() => {
+                                    // Recargar la página o actualizar la tabla dinámicamente
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Error',
+                                    data.message || 'No se pudo eliminar el pago.',
+                                    'error'
+                                );
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire(
+                                'Error de red',
+                                'Ocurrió un error al comunicarse con el servidor.',
+                                'error'
+                            );
+                        });
+                }
+            });
+        }
     </script>
 </body>
 

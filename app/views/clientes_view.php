@@ -13,7 +13,7 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
 <head>
     <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clientes | cfsistem</title>
+    <title>Clientes | myvet</title>
     <link rel="icon" type="image/png"
         href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
 
@@ -170,7 +170,8 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
                                     </div>
                                     <?php if (!empty($c['razon_social'])): ?>
                                         <div class="text-body-secondary small" style="font-size: 0.7rem;">
-                                            <?= htmlspecialchars($c['razon_social']) ?></div>
+                                            <?= htmlspecialchars($c['razon_social']) ?>
+                                        </div>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -206,6 +207,11 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
                                 </td>
                                 <td class="text-end pe-3">
                                     <div class="btn-group shadow-sm rounded-pill bg-white px-1">
+                                        <button class="btn btn-link btn-sm text-success p-2"
+                                            onclick="abrirModalUbicaciones(<?= $c['id'] ?>, '<?= htmlspecialchars($c['nombre_comercial'], ENT_QUOTES) ?>')"
+                                            title="Gestionar Sucursales / Ubicaciones">
+                                            <i class="bi bi-geo-alt-fill"></i>
+                                        </button>
                                         <button class="btn btn-link btn-sm text-primary p-2"
                                             onclick="editarCliente(<?= $c['id'] ?>)">
                                             <i class="bi bi-pencil-square"></i> <i class="bi bi-eye"></i>
@@ -519,6 +525,270 @@ $almacen_usuario = intval($_SESSION['almacen_id'] ?? 0); // 0 es Admin
                 console.error('Error al exportar clientes a CSV:', error);
                 alert('Ocurrió un error al procesar la exportación de clientes.');
             }
+        }
+    </script>
+    <div class="modal fade" id="cliUbicModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 24px;">
+
+                <div class="modal-header px-4 pt-4 pb-2 border-0">
+                    <h5 class="modal-title fw-bold fs-5" id="cliUbicModalTitulo">Sucursales / Ubicaciones del Cliente
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body px-4 py-3">
+                    <!-- Información general del cliente actual -->
+                    <input type="hidden" id="cliUbicClienteId" value="0">
+                    <div
+                        class="alert alert-light border mb-3 d-flex justify-content-between align-items-center py-2 px-3 rounded-3">
+                        <div>
+                            <span class="small text-muted d-block">Cliente seleccionado:</span>
+                            <strong id="cliUbicClienteNombre" class="text-primary">--</strong>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm"
+                            onclick="cliUbicAbrirFormularioNuevo()">
+                            <i class="bi bi-plus-circle me-1"></i> Nueva Ubicación
+                        </button>
+                    </div>
+
+                    <!-- Formulario Oculto/Desplegable para Agregar o Editar Ubicación -->
+                    <div id="cliUbicContenedorForm" class="card border shadow-none p-3 mb-3 bg-light d-none rounded-4">
+                        <h6 class="fw-bold text-secondary mb-3" id="cliUbicFormSubtitulo">Registrar Nueva Ubicación</h6>
+                        <form id="cliUbicFormulario">
+                            <input type="hidden" name="id" id="cliUbicId" value="0">
+                            <input type="hidden" name="cliente_id" id="cliUbicFormClienteId" value="0">
+
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">Nombre / Alias de la Ubicación *</label>
+                                <input type="text" name="nombre" id="cliUbicNombreInput"
+                                    class="form-control text-uppercase" placeholder="EJ. BODEGA NORTE / SUCURSAL CENTRO"
+                                    required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Dirección Completa *</label>
+                                <textarea name="direccion_completa" id="cliUbicDireccionInput"
+                                    class="form-control text-uppercase" rows="2"
+                                    placeholder="CALLE, NÚMERO, COLONIA, CIUDAD, C.P." required></textarea>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-sm btn-light border px-3"
+                                    onclick="cliUbicCancelarForm()">Cancelar</button>
+                                <button type="submit" class="btn btn-sm btn-success px-4 shadow-sm">Guardar
+                                    Ubicación</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Listado de Ubicaciones en Tabla -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle w-100" id="cliUbicTablaListado">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">Nombre / Alias</th>
+                                    <th>Dirección Completa</th>
+                                    <th class="text-end pe-3">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cliUbicTablaCuerpo">
+                                <!-- Se llena dinámicamente vía JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer px-4 py-3 border-0">
+                    <button type="button" class="btn btn-secondary px-4 rounded-3"
+                        data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE GESTIÓN DE UBICACIONES -->
+    <script>
+        // 1. Abrir el modal de ubicaciones al recibir el ID del cliente y su nombre
+        async function abrirModalUbicaciones(clienteId, nombreCliente) {
+            $('#cliUbicClienteId').val(clienteId);
+            $('#cliUbicFormClienteId').val(clienteId);
+            $('#cliUbicClienteNombre').text(nombreCliente);
+
+            cliUbicCancelarForm();
+            await cliUbicCargarTabla(clienteId);
+
+            const modalUbic = new bootstrap.Modal(document.getElementById('cliUbicModal'));
+            modalUbic.show();
+        }
+
+        // 2. Cargar listado de ubicaciones desde el controlador (Blindado contra errores de formato)
+        async function cliUbicCargarTabla(clienteId) {
+            const tbody = $('#cliUbicTablaCuerpo');
+            tbody.html('<tr><td colspan="3" class="text-center py-3 text-muted">Cargando ubicaciones...</td></tr>');
+
+            try {
+                const resp = await fetch(`/myvet/app/controllers/clientesController.php?action=listarUbicaciones&cliente_id=${clienteId}`);
+                const textResponse = await resp.text();
+                console.log("Respuesta cruda [Listar]:", textResponse);
+
+                let res;
+                try {
+                    res = JSON.parse(textResponse);
+                } catch (e) {
+                    throw new Error("La respuesta del servidor no es un JSON válido (ver consola).");
+                }
+
+                if (res.success && res.data && res.data.length > 0) {
+                    let html = '';
+                    res.data.forEach(u => {
+                        html += `
+                        <tr>
+                            <td class="ps-3 fw-bold">${escapeHtml(u.nombre)}</td>
+                            <td class="text-secondary small">${escapeHtml(u.direccion_completa)}</td>
+                            <td class="text-end pe-3">
+                                <button class="btn btn-sm btn-outline-primary me-1" onclick="cliUbicEditar(${u.id}, '${escapeHtml(u.nombre).replace(/'/g, "\\'")}', '${escapeHtml(u.direccion_completa).replace(/'/g, "\\'")}')" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="cliUbicEliminar(${u.id}, ${clienteId})" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    });
+                    tbody.html(html);
+                } else {
+                    tbody.html('<tr><td colspan="3" class="text-center py-3 text-muted">No hay ubicaciones registradas para este cliente.</td></tr>');
+                }
+            } catch (error) {
+                console.error("Error en cliUbicCargarTabla:", error);
+                tbody.html(`<tr><td colspan="3" class="text-center py-3 text-danger">${error.message}</td></tr>`);
+            }
+        }
+
+        // 3. Mostrar formulario para nueva ubicación
+        function cliUbicAbrirFormularioNuevo() {
+            $('#cliUbicFormulario')[0].reset();
+            $('#cliUbicId').val('0');
+            $('#cliUbicFormSubtitulo').text('Registrar Nueva Ubicación');
+            $('#cliUbicContenedorForm').removeClass('d-none');
+        }
+
+        // 4. Cancelar / Ocultar formulario
+        function cliUbicCancelarForm() {
+            $('#cliUbicContenedorForm').addClass('d-none');
+            $('#cliUbicFormulario')[0].reset();
+            $('#cliUbicId').val('0');
+        }
+
+        // 5. Preparar formulario para editar ubicación existente
+        function cliUbicEditar(id, nombre, direccion) {
+            $('#cliUbicId').val(id);
+            $('#cliUbicNombreInput').val(nombre);
+            $('#cliUbicDireccionInput').val(direccion);
+            $('#cliUbicFormSubtitulo').text('Editar Ubicación');
+            $('#cliUbicContenedorForm').removeClass('d-none');
+            $('#cliUbicContenedorForm')[0].scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 6. Enviar formulario (Guardar o Actualizar) mediante AJAX/Fetch
+        $('#cliUbicFormulario').on('submit', async function (e) {
+            e.preventDefault();
+            const formData = new URLSearchParams(new FormData(this));
+            const clienteId = $('#cliUbicClienteId').val();
+
+            try {
+                const resp = await fetch(`/myvet/app/controllers/clientesController.php?action=guardarUbicacion`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                });
+
+                const textResponse = await resp.text();
+                console.log("Respuesta cruda [Guardar]:", textResponse);
+
+                let res;
+                try {
+                    res = JSON.parse(textResponse);
+                } catch (e) {
+                    throw new Error("El servidor no devolvió una respuesta JSON válida.");
+                }
+
+                if (res.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: res.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    cliUbicCancelarForm();
+                    await cliUbicCargarTabla(clienteId);
+                } else {
+                    Swal.fire('Error', res.message || 'No se pudo guardar la ubicación.', 'error');
+                }
+            } catch (error) {
+                console.error("Error en submit de ubicación:", error);
+                Swal.fire('Error', error.message || 'Ocurrió un error de conexión.', 'error');
+            }
+        });
+
+        // 7. Eliminar ubicación
+        async function cliUbicEliminar(id, clienteId) {
+            const confirm = await Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Esta acción eliminará la sucursal/ubicación de forma permanente.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (confirm.isConfirmed) {
+                try {
+                    const resp = await fetch(`/myvet/app/controllers/clientesController.php?action=eliminarUbicacion`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `id=${id}`
+                    });
+
+                    const textResponse = await resp.text();
+                    console.log("Respuesta cruda [Eliminar]:", textResponse);
+
+                    let res;
+                    try {
+                        res = JSON.parse(textResponse);
+                    } catch (e) {
+                        throw new Error("El servidor devolvió una respuesta no válida al intentar eliminar.");
+                    }
+
+                    if (res.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Eliminado',
+                            text: res.message,
+                            timer: 1200,
+                            showConfirmButton: false
+                        });
+                        await cliUbicCargarTabla(clienteId);
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                } catch (error) {
+                    console.error("Error al eliminar ubicación:", error);
+                    Swal.fire('Error', error.message || 'Error al procesar la solicitud.', 'error');
+                }
+            }
+        }
+
+        // Utilidad auxiliar para escapar caracteres HTML de forma segura
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
     </script>
 </body>

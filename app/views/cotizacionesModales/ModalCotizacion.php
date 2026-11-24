@@ -1,3 +1,22 @@
+<style>
+    /* Contenedor con scroll para que max-height recorte y desplace sin romper table-responsive */
+    #cot_tablaDetalle {
+        max-height: 250px;
+    }
+
+    .table-responsive:has(#cot_tablaDetalle) {
+        max-height: 250px;
+        overflow-y: auto;
+        overflow-x: auto;
+    }
+
+    #cot_tablaDetalle thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+
+    }
+</style>
 <div class="modal fade" id="modalCotizacion" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-custom">
         <div class="modal-content shadow-lg rounded-4 overflow-hidden">

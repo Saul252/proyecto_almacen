@@ -146,9 +146,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'getSiguienteFolio') {
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['action'])) {
     try {
         // Nota: Verifica que sea listarTodo() o listarTodos() según tu ProductosModel
-        $productos = $productosModel->listarTodo();
-        $proveedores = $proveedorModel->listarTodos();
-        $listaProductos = $productosModel->listarTodo();
+        $productos = $productosModel->listarTodoAlmacen($almacen_usuario);
+        $proveedores = $proveedorModel->listarTodosAlmacen($almacen_usuario);
+        $listaProductos = $productosModel->listarTodoAlmacen($almacen_usuario);
         $almacenes = $almacenModel->getAlmacenes($almacen_usuario);
         $unidadesMedida = $almacenModel->getUnidadesMedida();
 
@@ -244,6 +244,88 @@ if (isset($_GET['action']) && $_GET['action'] === 'listarSolicitudes') {
 
         http_response_code(500);
 
+        echo json_encode([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ]);
+    }
+
+    exit;
+}
+if (isset($_GET['action']) && $_GET['action'] === 'actualizarSolicitud') {
+
+    if (ob_get_level())
+        ob_clean();
+    header('Content-Type: application/json; charset=utf-8');
+
+    try {
+        // 🔹 Validación de ID
+        $sid = intval($_POST['edS_solicitud_id'] ?? 0);
+        if ($sid <= 0) {
+            throw new Exception("ID de solicitud no válido.");
+        }
+
+        // 🔹 Validación de almacén (idéntico a guardar)
+        $almacen_id = $es_admin
+            ? intval($_POST['edS_almacen_id'] ?? 0)
+            : intval($almacen_usuario);
+
+        if ($almacen_id <= 0) {
+            throw new Exception("ID de almacén no válido.");
+        }
+
+        // 🔹 Cabecera
+        $data = [
+            'almacen_id' => $almacen_id,
+            'proveedor_id' => intval($_POST['edS_proveedor_id'] ?? 0),
+            'ubicacion_proveedor_id' => intval($_POST['edS_ubicacion_proveedor_id'] ?? 0)
+        ];
+
+        if ($data['proveedor_id'] <= 0) {
+            throw new Exception("Debe seleccionar un proveedor.");
+        }
+
+        // 🔹 Procesar items (misma lógica que guardar)
+        $items_post = $_POST['edS_items'] ?? [];
+        $items_procesados = [];
+
+        foreach ($items_post as $id_producto => $campos) {
+
+            $id_producto = intval($id_producto);
+
+            $cant = floatval($campos['cant'] ?? 0);
+            $factor = floatval($campos['unidad'] ?? 1);
+            $costo = floatval($campos['precio'] ?? 0);   // total, no unitario
+
+            $total_base = $cant * $factor;
+
+            if ($total_base > 0 || $costo > 0) {
+                $items_procesados[$id_producto] = [
+                    'cantidad' => $total_base,
+                    'costo' => $costo
+                ];
+            }
+        }
+
+        if (empty($items_procesados)) {
+            throw new Exception("No hay productos válidos en la lista.");
+        }
+
+        // 🔹 Actualizar
+        $resultado = $solicitudModel->actualizarSolicitud($sid, $data, $items_procesados);
+
+        if (is_numeric($resultado) && $resultado > 0) {
+            echo json_encode([
+                'status' => 'success',
+                'message' => '¡Solicitud actualizada con éxito!',
+                'id' => $sid
+            ]);
+        } else {
+            throw new Exception(is_string($resultado) ? $resultado : "Error en la base de datos.");
+        }
+
+    } catch (Throwable $e) {
+        http_response_code(400);
         echo json_encode([
             'status' => 'error',
             'message' => $e->getMessage()

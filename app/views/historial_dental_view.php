@@ -8,7 +8,7 @@ $idex = $_GET['id'] ?? null;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expediente: <?= htmlspecialchars($cliente['nombre_comercial'] ?? 'Paciente') ?> | CF System</title>
+    <title>Expediente: <?= htmlspecialchars($cliente['nombre_comercial'] ?? 'Paciente') ?> | JSEA</title>
     <?php require_once __DIR__ . '/layout/icono.php' ?>
     <?php if (function_exists('cargarEstilos')) {
         cargarEstilos();

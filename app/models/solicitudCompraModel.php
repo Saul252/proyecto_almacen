@@ -95,7 +95,11 @@ class SolicitudCompra
     ) {
         // 1. Agregamos "WHERE 1=1" al final de la consulta base
         $sql = "SELECT s.*, c.tiene_faltantes as faltantes, p.nombre_comercial as proveedor_nombre, 
-                   a.nombre as almacen_nombre, u.nombre as admin_nombre
+                   a.nombre as almacen_nombre, u.nombre as admin_nombre, c.id as compra_id,  (
+        SELECT COALESCE(SUM(d.costo), 0)
+        FROM detalle_solicitud_compra d
+        WHERE d.solicitud_id = s.id
+    ) AS costo_total
             FROM solicitudes_compra s
             LEFT JOIN proveedores p ON s.proveedor_id = p.id
             LEFT JOIN compras c ON s.compra_id_final = c.id
@@ -323,5 +327,77 @@ class SolicitudCompra
         );
 
         return $stmt->execute();
+    }
+    public function actualizarSolicitud($sid, $data, $items)
+    {
+        try {
+            $this->db->begin_transaction();
+
+            // ══════════════════════════════════════════════════
+            // 1. Actualizar cabecera
+            //    (mismas columnas que crear, sin tocar estado)
+            // ══════════════════════════════════════════════════
+            $sqlCab = "UPDATE solicitudes_compra
+                   SET almacen_id   = ?,
+                       proveedor_id = ?,
+                       ubicacion_id = ?
+                   WHERE id = ?";
+
+            $stmt = $this->db->prepare($sqlCab);
+            $stmt->bind_param(
+                "iiii",
+                $data['almacen_id'],
+                $data['proveedor_id'],
+                $data['ubicacion_proveedor_id'],
+                $sid
+            );
+
+            if (!$stmt->execute()) {
+                throw new Exception("Error al actualizar cabecera: " . $stmt->error);
+            }
+            $stmt->close();
+
+            // ══════════════════════════════════════════════════
+            // 2. Eliminar TODOS los detalles existentes
+            // ══════════════════════════════════════════════════
+            $sqlDel = "DELETE FROM detalle_solicitud_compra WHERE solicitud_id = ?";
+            $stmtDel = $this->db->prepare($sqlDel);
+            $stmtDel->bind_param("i", $sid);
+
+            if (!$stmtDel->execute()) {
+                throw new Exception("Error al eliminar detalles: " . $stmtDel->error);
+            }
+            $stmtDel->close();
+
+            // ══════════════════════════════════════════════════
+            // 3. Insertar los nuevos detalles
+            //    MISMO formato que crear: solo 4 columnas
+            // ══════════════════════════════════════════════════
+            $sqlDet = "INSERT INTO detalle_solicitud_compra
+                   (solicitud_id, producto_id, cantidad, costo)
+                   VALUES (?, ?, ?, ?)";
+
+            $stmtDet = $this->db->prepare($sqlDet);
+
+            foreach ($items as $id_producto => $item) {
+                $id_prod = intval($id_producto);
+                $cant = floatval($item['cantidad'] ?? 0);
+                $costo = floatval($item['costo'] ?? 0);
+
+                $stmtDet->bind_param("iidd", $sid, $id_prod, $cant, $costo);
+
+                if (!$stmtDet->execute()) {
+                    throw new Exception("Error al insertar detalle: " . $stmtDet->error);
+                }
+            }
+            $stmtDet->close();
+
+            $this->db->commit();
+            return $sid;
+
+        } catch (Throwable $e) {
+            $this->db->rollback();
+            return $e->getMessage();   // ← mismo patrón que crear()
+        }
     }
 }

@@ -147,7 +147,7 @@
 
             <div class="scroll-table shadow-sm">
                 <div class="table-responsive" style="max-height: 60vh;">
-                    <table class="table table-hover align-middle mb-0" id="tablaVentas">
+                    <table class="table table-hover  table-striped align-middle mb-0" id="tablaVentas">
                         <thead>
                             <tr>
 
@@ -447,7 +447,7 @@
             if (!select) return; // Seguridad por si el select no está en la vista actual
 
             try {
-                // 1. Realizar la petición a tu controlador de Cf System
+                // 1. Realizar la petición a tu controlador de JSEA
                 const url = '/myvet/app/controllers/ventasHistorialController.php?action=obtenerUsuarios';
                 const respuesta = await fetch(url);
 

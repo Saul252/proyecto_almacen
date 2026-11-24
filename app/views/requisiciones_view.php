@@ -165,7 +165,8 @@
                             <!-- Tabla de Artículos -->
                             <div class="card shadow-sm rounded-4 overflow-hidden mb-4">
                                 <div class="table-responsive" style="min-height:300px !important; max-height: 340px;">
-                                    <table class="table table-hover align-middle mb-0" id="tablaDetalleEditar">
+                                    <table class="table table-hover  table-striped align-middle mb-0"
+                                        id="tablaDetalleEditar">
                                         <thead class="border-bottom">
                                             <tr class="text-secondary small fw-bold text-uppercase tracking-wider">
                                                 <th class="ps-4 py-3" style="width: 30%;">Producto</th>

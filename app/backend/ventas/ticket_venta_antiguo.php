@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/cfsistem/config/conexion.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/myvet/config/conexion.php';
 
 $id_venta = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $mostrar_precios = isset($_GET['precios']) ? intval($_GET['precios']) : 1;
@@ -53,9 +53,9 @@ $detallesPago = $stmtPago->get_result();
     <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ticket #<?php echo $venta['folio']; ?></title>
-    <link rel="icon" type="image/png" href="/cfsistem/public/assets/logo.png">
+    <link rel="icon" type="image/png" href="/myvet/public/assets/logo.png">
 
-    <link rel="shortcut icon" href="/cfsistem/public/assets/logo.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/myvet/public/assets/logo.ico" type="image/x-icon">
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -174,7 +174,7 @@ $detallesPago = $stmtPago->get_result();
                 </tr>
             </thead>
             <tbody>
-                <img src="/cfsistem/public/assets/logo.ico" style="
+                <img src="/myvet/public/assets/logo.ico" style="
                         position: fixed;
                         top: 19.5%;
                         left: 50%;

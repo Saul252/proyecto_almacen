@@ -139,6 +139,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
         $_SESSION['usuario_id'] = (int) $row['id'];
         $_SESSION['username'] = ($estadoPago === 0) ? 0 : $row['username'];
         $_SESSION['nombre'] = $row['nombre'];
+        $_SESSION['direccion'] = $row['direccion'];
+        $_SESSION['rfc'] = $row['rfc'];
         $_SESSION['nombre_almacen'] = $row['nombre_almacen'];
         $_SESSION['rol_id'] = (int) $row['rol_id'];
         $_SESSION['rol'] = $row['rol'];

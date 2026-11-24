@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Plan Expansión — JSEA</title>
+    <link rel="shortcut icon" href="/myvet/public/assets/logo.ico" type="image/x-icon">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --purple: #8b5cf6;
+            --purple-dark: #6d28d9;
+            --purple-light: #a78bfa;
+            --ink: #0f172a;
+            --muted: #64748b;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #06b6d4;
+            --danger: #ef4444;
+        }
+
+        html,
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: var(--ink);
+            background: var(--bg);
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 14mm 12mm;
+            margin: 0 auto 8mm;
+            background: #fff;
+            position: relative;
+            page-break-after: always;
+            box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page:last-child {
+            page-break-after: auto;
+        }
+
+        @media print {
+            body {
+                background: #fff;
+            }
+
+            .page {
+                box-shadow: none;
+                margin: 0;
+            }
+
+            @page {
+                size: A4;
+                margin: 0;
+            }
+        }
+
+        /* ---------- PORTADA ---------- */
+        .cover {
+            background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #6d28d9 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 22mm 16mm;
+        }
+
+        .cover::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(167, 139, 250, 0.25), transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.20), transparent 40%);
+            pointer-events: none;
+        }
+
+        .cover>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            font-size: 18px;
+            letter-spacing: -0.3px;
+        }
+
+        .brand-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: #fff;
+            display: grid;
+            place-items: center;
+            padding: 4px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+        }
+
+        .brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .cover-main h1 {
+            font-size: 66px;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -3px;
+            margin-bottom: 10px;
+        }
+
+        .cover-main h1 span {
+            background: linear-gradient(90deg, #a78bfa, #06b6d4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cover-main .tagline {
+            font-size: 16px;
+            font-weight: 300;
+            color: #c4b5fd;
+            max-width: 480px;
+            line-height: 1.5;
+        }
+
+        .price-box {
+            margin-top: 26px;
+            display: inline-flex;
+            flex-direction: column;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.20);
+            padding: 14px 22px;
+            border-radius: 16px;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .price-row .amount {
+            font-size: 42px;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .price-row .currency {
+            font-size: 18px;
+            font-weight: 600;
+            color: #c4b5fd;
+        }
+
+        .price-row .period {
+            font-size: 14px;
+            color: #c4b5fd;
+        }
+
+        .price-note {
+            font-size: 11.5px;
+            color: #c4b5fd;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .cover-chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 22px;
+        }
+
+        .meta-chip {
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.20);
+            border-radius: 999px;
+            padding: 7px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #e9d5ff;
+        }
+
+        /* ---------- CONTENIDO ---------- */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+
+        .page-header h2 {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -0.8px;
+        }
+
+        .page-header .section-tag {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--purple);
+            margin-bottom: 3px;
+        }
+
+        .page-header .page-num {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        /* ---------- MÓDULO ---------- */
+        .modulo-section {
+            margin-bottom: 14px;
+            break-inside: avoid;
+        }
+
+        .modulo-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 13.5px;
+            font-weight: 800;
+            padding-bottom: 6px;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .modulo-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 7px;
+            display: grid;
+            place-items: center;
+            font-size: 13px;
+            background: #ede9fe;
+            color: var(--purple-dark);
+        }
+
+        .submodulos-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 7px;
+        }
+
+        .submodulo {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 9px 11px;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .submodulo-icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: grid;
+            place-items: center;
+            font-size: 12px;
+            background: #f1f5f9;
+            color: var(--ink);
+        }
+
+        .submodulo-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .submodulo-name {
+            font-size: 11.5px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 2px;
+        }
+
+        .submodulo-desc {
+            font-size: 10px;
+            color: var(--muted);
+            line-height: 1.35;
+        }
+
+        /* colores por módulo */
+        .mod-ventas .modulo-icon,
+        .mod-ventas .submodulo-icon {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .mod-egresos .modulo-icon,
+        .mod-egresos .submodulo-icon {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .mod-inv .modulo-icon,
+        .mod-inv .submodulo-icon {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .mod-fin .modulo-icon,
+        .mod-fin .submodulo-icon {
+            background: #cffafe;
+            color: #0e7490;
+        }
+
+        .mod-log .modulo-icon,
+        .mod-log .submodulo-icon {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .mod-rh .modulo-icon,
+        .mod-rh .submodulo-icon {
+            background: #fef9c3;
+            color: #a16207;
+        }
+
+        .mod-admin .modulo-icon,
+        .mod-admin .submodulo-icon {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        /* ---------- NOTAS AL PIE ---------- */
+        .footer-note {
+            margin-top: auto;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+            border-radius: 10px;
+            border-left: 4px solid var(--purple);
+            font-size: 10.5px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .footer-note strong {
+            color: var(--purple-dark);
+            font-weight: 800;
+        }
+
+        /* ---------- CONTRAPORTADA ---------- */
+        .backcover {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30mm 18mm;
+        }
+
+        .backcover h2 {
+            font-size: 42px;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            margin-bottom: 14px;
+        }
+
+        .backcover h2 span {
+            background: linear-gradient(90deg, #a78bfa, #06b6d4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .backcover p {
+            font-size: 14px;
+            color: #cbd5e1;
+            max-width: 480px;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .backcover .stats {
+            display: flex;
+            gap: 36px;
+            margin-top: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat .num {
+            font-size: 38px;
+            font-weight: 900;
+            background: linear-gradient(90deg, #a78bfa, #06b6d4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat .lbl {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #94a3b8;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .cta {
+            margin-top: 34px;
+            padding: 15px 36px;
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: 0.3px;
+        }
+
+        .legal {
+            margin-top: 36px;
+            font-size: 10px;
+            color: #94a3b8;
+            line-height: 1.7;
+            text-align: center;
+            max-width: 420px;
+        }
+
+        .legal strong {
+            color: #e9d5ff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ================= PORTADA ================= -->
+    <section class="page cover">
+        <div class="brand">
+            <div class="brand-logo">
+                <img src="/myvet/public/assets/logo.ico" alt="JSEA">
+            </div>
+            <span>JSEA · Sistema de Gestión</span>
+        </div>
+
+        <div class="cover-main">
+            <h1>Plan <span>Expansión</span></h1>
+            <p class="tagline">
+                Control comercial, inventario, finanzas y administración en un solo lugar.
+                Todo lo que tu negocio necesita para escalar sin fricción.
+            </p>
+
+            <div class="price-box">
+                <div class="price-row">
+                    <span class="currency">$</span>
+                    <span class="amount">1,000</span>
+                    <span class="period">MXN / mes</span>
+                </div>
+                <div class="price-note">⏱️ Suscripción mensual · Cancela cuando quieras</div>
+            </div>
+
+            <div class="cover-chips">
+                <span class="meta-chip">⭐ Plan más recomendado</span>
+                <span class="meta-chip">👥 4 usuarios incluidos</span>
+                <span class="meta-chip">📦 26 módulos activos</span>
+                <span class="meta-chip">📅 Pago mensual</span>
+            </div>
+        </div>
+
+        <div class="cover-chips">
+            <span class="meta-chip">Ventas</span>
+            <span class="meta-chip">Egresos</span>
+            <span class="meta-chip">Inventarios</span>
+            <span class="meta-chip">Finanzas</span>
+            <span class="meta-chip">Logística</span>
+            <span class="meta-chip">RH</span>
+            <span class="meta-chip">Administración</span>
+        </div>
+    </section>
+
+    <!-- ================= PÁGINA 2: VENTAS + EGRESOS ================= -->
+    <section class="page">
+        <div class="page-header">
+            <div>
+                <div class="section-tag">Módulo 01 · 02</div>
+                <h2>🛒 Ventas & 💸 Egresos</h2>
+            </div>
+            <div class="page-num">Pág. 2</div>
+        </div>
+
+        <div class="modulo-section mod-ventas">
+            <div class="modulo-title">
+                <div class="modulo-icon">🛒</div>
+                <span>Ventas — 8 submódulos</span>
+            </div>
+            <div class="submodulos-grid">
+                <div class="submodulo">
+                    <div class="submodulo-icon">⚡</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Caja Rápida</div>
+                        <div class="submodulo-desc">Cobro express en mostrador para ventas de contado sin papeleo.</div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">📜</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Historial de Ventas</div>
+                        <div class="submodulo-desc">Todas las ventas con filtros por fecha, cliente y estado.</div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">👤</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Clientes</div>
+                        <div class="submodulo-desc">Directorio con datos fiscales, contacto e historial de compras.
+                        </div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">🏷️</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Estatus Clientes</div>
+                        <div class="submodulo-desc">Clasifica clientes por categoría, crédito y nivel de actividad.
+                        </div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">💵</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Historial Pagos</div>
+                        <div class="submodulo-desc">Registro consultable de todos los pagos aplicados a ventas.</div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">📄</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Remisiones</div>
+                        <div class="submodulo-desc">Documentos de entrega con seguimiento de saldos pendientes.</div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">📊</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Cotizaciones</div>
+                        <div class="submodulo-desc">Propuestas profesionales con vigencias y conversión a venta.</div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">🏆</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Ventas Vendedor</div>
+                        <div class="submodulo-desc">Ranking y desempeño por vendedor. Comisiones y metas en tiempo real.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modulo-section mod-egresos">
+            <div class="modulo-title">
+                <div class="modulo-icon">💸</div>
+                <span>Egresos — 3 submódulos</span>
+            </div>
+            <div class="submodulos-grid">
+                <div class="submodulo">
+                    <div class="submodulo-icon">💳</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Compras y Gastos</div>
+                        <div class="submodulo-desc">Registro de compras a proveedores y gastos operativos del negocio.
+                        </div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">🏢</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Proveedores</div>
+                        <div class="submodulo-desc">Catálogo con datos fiscales, contacto, condiciones y saldos.</div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">📋</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Solicitudes Compra</div>
+                        <div class="submodulo-desc">Flujo formal de requisiciones con aprobación antes de comprar.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <strong>📅 Todo es mensual:</strong> el pago de $1,000 MXN cubre los 26 módulos, 4 usuarios, actualizaciones
+            y soporte durante el mes. Sin cargos únicos ni costos ocultos.
+        </div>
+    </section>
+
+    <!-- ================= PÁGINA 3: INVENTARIOS + FINANZAS ================= -->
+    <section class="page">
+        <div class="page-header">
+            <div>
+                <div class="section-tag">Módulo 03 · 04</div>
+                <h2>📦 Inventarios & 💰 Finanzas</h2>
+            </div>
+            <div class="page-num">Pág. 3</div>
+        </div>
+
+        <div class="modulo-section mod-inv">
+            <div class="modulo-title">
+                <div class="modulo-icon">📦</div>
+                <span>Inventarios — 5 submódulos</span>
+            </div>
+            <div class="submodulos-grid">
+                <div class="submodulo">
+                    <div class="submodulo-icon">🏬</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Almacén</div>
+                        <div class="submodulo-desc">Monitor de productos donde se editan datos, medidas, precios y
+                            presentaciones. No controla existencias por sí solo.</div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">🔀</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Movimientos</div>
+                        <div class="submodulo-desc">Entradas y salidas de inventario con trazabilidad completa.</div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">🗑️</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Mermas</div>
+                        <div class="submodulo-desc">Pérdidas por caducidad, daño o robo con impacto contable.</div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">🔄</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Conversiones</div>
+                        <div class="submodulo-desc">Transformación entre unidades de medida (caja → pieza, kg → g).
+                        </div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">📚</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Historial de Compras</div>
+                        <div class="submodulo-desc">Consulta cronológica de todas las compras con proveedor y costo.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modulo-section mod-fin">
+            <div class="modulo-title">
+                <div class="modulo-icon">💰</div>
+                <span>Finanzas — 3 submódulos</span>
+            </div>
+            <div class="submodulos-grid">
+                <div class="submodulo">
+                    <div class="submodulo-icon">🧾</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Corte de Caja</div>
+                        <div class="submodulo-desc">Cierre diario con arqueo de efectivo, tarjeta y diferencias.</div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">📈</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Finanzas</div>
+                        <div class="submodulo-desc">Dashboard de ingresos, egresos y utilidad en tiempo real.</div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">🏦</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Tesorería</div>
+                        <div class="submodulo-desc">Control de cuentas bancarias, flujo de efectivo y conciliaciones.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <strong>💡 Sin costos ocultos:</strong> no pagas por módulo individual ni por instalación. Cada
+            actualización del sistema queda disponible automáticamente para ti.
+        </div>
+    </section>
+
+    <!-- ================= PÁGINA 4: LOGÍSTICA + RH + ADMIN ================= -->
+    <section class="page">
+        <div class="page-header">
+            <div>
+                <div class="section-tag">Módulo 05 · 06 · 07</div>
+                <h2>🚚 Logística · 👥 RH · 🔐 Admin</h2>
+            </div>
+            <div class="page-num">Pág. 4</div>
+        </div>
+
+        <div class="modulo-section mod-log">
+            <div class="modulo-title">
+                <div class="modulo-icon">🚚</div>
+                <span>Logística — 2 submódulos</span>
+            </div>
+            <div class="submodulos-grid">
+                <div class="submodulo">
+                    <div class="submodulo-icon">🚗</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Vehículos</div>
+                        <div class="submodulo-desc">Registro de flota con placas, seguro, kilometraje y estado.</div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">🧭</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Mis Repartos</div>
+                        <div class="submodulo-desc">Vista personal del repartidor con sus rutas y entregas asignadas.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modulo-section mod-rh">
+            <div class="modulo-title">
+                <div class="modulo-icon">👥</div>
+                <span>Recursos Humanos — 3 submódulos</span>
+            </div>
+            <div class="submodulos-grid">
+                <div class="submodulo">
+                    <div class="submodulo-icon">🪪</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Trabajadores</div>
+                        <div class="submodulo-desc">Expediente laboral completo: datos, puesto, salario y documentos.
+                        </div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">🚫</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Faltas</div>
+                        <div class="submodulo-desc">Registro y control de incidencias con descuentos automáticos.</div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">🌴</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Vacaciones</div>
+                        <div class="submodulo-desc">Solicitud, aprobación y saldo de días disponibles por trabajador.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modulo-section mod-admin">
+            <div class="modulo-title">
+                <div class="modulo-icon">🔐</div>
+                <span>Administración — 2 submódulos</span>
+            </div>
+            <div class="submodulos-grid">
+                <div class="submodulo">
+                    <div class="submodulo-icon">👥</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Usuarios</div>
+                        <div class="submodulo-desc">Gestión de cuentas con roles, permisos y accesos por módulo.</div>
+                    </div>
+                </div>
+                <div class="submodulo">
+                    <div class="submodulo-icon">🙋</div>
+                    <div class="submodulo-body">
+                        <div class="submodulo-name">Mi Cuenta</div>
+                        <div class="submodulo-desc">Perfil personal: datos, contraseña y preferencias del sistema.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <strong>📅 Suscripción mensual:</strong> $1,000 MXN / mes · 4 usuarios · 26 módulos · actualizaciones y
+            soporte incluidos · sin contrato forzoso.
+        </div>
+    </section>
+
+    <!-- ================= CONTRAPORTADA ================= -->
+    <section class="page backcover">
+        <h2>Escala sin límites con <span>Expansión</span></h2>
+        <p>
+            26 módulos diseñados para que tu negocio opere con orden, controle sus finanzas y crezca con datos reales.
+        </p>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="num">26</div>
+                <div class="lbl">Módulos activos</div>
+            </div>
+            <div class="stat">
+                <div class="num">4</div>
+                <div class="lbl">Usuarios incluidos</div>
+            </div>
+            <div class="stat">
+                <div class="num">100%</div>
+                <div class="lbl">En la nube</div>
+            </div>
+        </div>
+
+        <div class="cta">Activa tu Plan Expansión</div>
+
+        <div class="legal">
+            JSEA · Sistema de Gestión Empresarial<br>
+            <strong>Suscripción mensual de $1,000 MXN</strong> · 4 usuarios · 26 módulos<br>
+            Sin contrato forzoso · Cancela cuando quieras · Actualizaciones y soporte incluidos
+        </div>
+    </section>
+
+</body>
+
+</html>

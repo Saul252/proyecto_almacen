@@ -4,9 +4,10 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/myvet/config/conexion.php';
 // Capturamos el ID.
 $id_venta = isset($_GET['id']) ? intval($_GET['id']) : 0;
 // Forzamos mostrar_precios a 0 para este archivo de Remisión
-$mostrar_precios = 0; 
+$mostrar_precios = 0;
 
-if ($id_venta <= 0) die("Error: ID de venta no válido.");
+if ($id_venta <= 0)
+    die("Error: ID de venta no válido.");
 
 // 1. Consulta de Venta con Relaciones
 $sqlVenta = "SELECT v.*, c.nombre_comercial, c.rfc, c.direccion, u.nombre as nombre_vendedor, u2.nombre as vendedor,
@@ -39,36 +40,74 @@ $detalles = $stmtD->get_result();
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8"name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title class="text-uppercase">Remisión #<?php echo $venta['folio']; ?></title>
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        @page { size: 80mm auto; margin: 0; }
-        body { 
-            font-family: 'Courier New', Courier, monospace; 
-            width: 72mm; margin: 0 auto; padding: 5mm; color: #000;
+        @page {
+            size: 80mm auto;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            width: 72mm;
+            margin: 0 auto;
+            padding: 5mm;
+            color: #000;
             background-color: #fff;
             line-height: 1.2;
             text-transform: uppercase !important;
         }
-        .text-center { text-align: center; }
-        .bold { font-weight: bold; }
-        .header-title { font-size: 14px; margin-bottom: 5px; text-transform: uppercase; }
-        
-        .ticket-type { 
-            border: 1px solid #000; padding: 3px 10px; 
-            display: inline-block; font-size: 12px; margin: 10px 0;
-            background-color: #000; color: #fff;
+
+        .text-center {
+            text-align: center;
         }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { font-size: 11px; border-bottom: 1px dashed #000; padding: 5px 0; text-align: left; }
-        td { padding: 5px 0; font-size: 11px; vertical-align: top; }
-        
+        .bold {
+            font-weight: bold;
+        }
+
+        .header-title {
+            font-size: 14px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .ticket-type {
+            border: 1px solid #000;
+            padding: 3px 10px;
+            display: inline-block;
+            font-size: 12px;
+            margin: 10px 0;
+            background-color: #000;
+            color: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            font-size: 11px;
+            border-bottom: 1px dashed #000;
+            padding: 5px 0;
+            text-align: left;
+        }
+
+        td {
+            padding: 5px 0;
+            font-size: 11px;
+            vertical-align: top;
+        }
+
         .conversion-box {
             margin-top: 3px;
             padding-left: 5px;
@@ -76,35 +115,60 @@ $detalles = $stmtD->get_result();
             font-size: 10px;
         }
 
-        .divider { border-top: 1px double #000; margin: 10px 0; }
-        .footer { font-size: 10px; margin-top: 15px; border-top: 1px dashed #000; padding-top: 10px;}
+        .divider {
+            border-top: 1px double #000;
+            margin: 10px 0;
+        }
 
-        .firmas-container { margin-top: 30px; font-size: 10px; width: 100%; }
-        .firma-box { text-align: center; margin-bottom: 25px; }
-        .linea-firma { width: 85%; border-top: 1px solid #000; margin: 0 auto 5px; }
+        .footer {
+            font-size: 10px;
+            margin-top: 15px;
+            border-top: 1px dashed #000;
+            padding-top: 10px;
+        }
+
+        .firmas-container {
+            margin-top: 30px;
+            font-size: 10px;
+            width: 100%;
+        }
+
+        .firma-box {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .linea-firma {
+            width: 85%;
+            border-top: 1px solid #000;
+            margin: 0 auto 5px;
+        }
 
         /* Botón estilizado y adaptable */
         .btn-imprimir {
-            padding: 12px 24px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            background-color: #222; 
-            color: #fff; 
-             
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: bold;
+            background-color: #222;
+            color: #fff;
+
             border-radius: 8px;
             font-size: 14px;
             width: 90%;
             max-width: 300px;
         }
 
-        @media print { .no-print { display: none !important; } }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
     </style>
 </head>
+
 <body>
     <div id="contenedor-remision">
-         <img
-        src="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>"
-        style="
+        <img src="/myvet/<?= htmlspecialchars($_SESSION['ico'] ?? 'public/assets/logo.ico') ?>" style="
             position: fixed;
             top: 19.5%;
             left: 50%;
@@ -112,10 +176,10 @@ $detalles = $stmtD->get_result();
             width: 180px;
             opacity: 0.08;
             z-index: -1;
-        "
-    >
+        ">
 
-        <div class="no-print" style="text-align:center; padding:15px; background:#f4f4f4; margin-bottom:15px; border-radius: 8px;">
+        <div class="no-print"
+            style="text-align:center; padding:15px; background:#f4f4f4; margin-bottom:15px; border-radius: 8px;">
             <button class="btn-imprimir" onclick="procesarImpresion()">🖨️ ACCIÓN DE IMPRESIÓN</button>
         </div>
 
@@ -133,7 +197,8 @@ $detalles = $stmtD->get_result();
             <div class="text-uppercase"><b>FECHA:</b> <?php echo date("d/m/Y H:i", strtotime($venta['fecha'])); ?></div>
             <div class="text-uppercase"><b>CLIENTE:</b> <?php echo strtoupper($venta['nombre_comercial']); ?></div>
             <div class="text-uppercase"><b>VENDEDOR:</b> <?php echo $venta['vendedor']; ?></div>
-            <div class="text-uppercase" style="margin-top: 3px;"><b>Notas:</b> <?php echo substr($venta['observaciones'], 0, 30); ?></div>
+            <div class="text-uppercase" style="margin-top: 3px;"><b>Notas:</b>
+                <?php echo substr($venta['observaciones'], 0, 30); ?></div>
         </div>
 
         <div class="divider"></div>
@@ -146,36 +211,38 @@ $detalles = $stmtD->get_result();
                 </tr>
             </thead>
             <tbody>
-                <?php while($item = $detalles->fetch_assoc()): 
+                <?php while ($item = $detalles->fetch_assoc()):
                     $f = ($item['factor'] > 0) ? $item['factor'] : 1;
                     $unidad = $item['unidad_reporte'] ?: 'Unid.';
                     $cantEntera = floor($item['cantidad'] / $f);
                     $cantResto = round(fmod($item['cantidad'], $f), 8);
                     $equiv = floatval($item['odmaEquivalencia'] ?? 0);
-                    $nombreMedida=$item['odmaNombre'];
-                    $unidadMedida= $item['unidad_medida'];
-                ?>
-                <tr>
-                    <td>
-                        <b class="text-uppercase"><?php echo $item['producto_nombre']; ?></b><br>
-                        <small>SKU: <?php echo $item['sku']; ?></small>
-                    </td>
-                    <td>
-                        <div class="text-uppercase conversion-box">
-                            Entrega: <b><?php echo $cantEntera>0?$cantEntera.' '.$unidad:''; ?></b>
-                            
-                            <?php if((number_format($cantResto,8)) > 0.00000000) {
-                                if($cantEntera>0) { echo ' + '; }
-                                if((1/$equiv)<=1 ) {
-                                    $cantidadMedida=$cantResto/(number_format((1/$equiv),2));
-                                    echo $cantidadMedida .' '.$nombreMedida;
+                    $nombreMedida = $item['odmaNombre'];
+                    $unidadMedida = $item['unidad_medida'];
+                    ?>
+                    <tr>
+                        <td>
+                            <b class="text-uppercase"><?php echo $item['producto_nombre']; ?></b><br>
+                            <small>SKU: <?php echo $item['sku']; ?></small>
+                        </td>
+                        <td>
+                            <div class="text-uppercase conversion-box">
+                                Entrega: <b><?php echo $cantEntera > 0 ? $cantEntera . ' ' . $unidad : ''; ?></b>
+
+                                <?php if ((number_format($cantResto, 8)) > 0.00000000) {
+                                    if ($cantEntera > 0) {
+                                        echo ' + ';
+                                    }
+                                    if ((1 / $equiv) <= 1) {
+                                        $cantidadMedida = $cantResto / (number_format((1 / $equiv), 2));
+                                        echo $cantidadMedida . ' ' . $nombreMedida;
+                                    }
                                 }
-                            }
-                            ?>
-                            <br>
-                        </div>
-                    </td>
-                </tr>
+                                ?>
+                                <br>
+                            </div>
+                        </td>
+                    </tr>
                 <?php endwhile; ?>
             </tbody>
         </table>
@@ -194,8 +261,9 @@ $detalles = $stmtD->get_result();
                 <div class="bold">RECIBIDO POR</div>
                 <div>NOMBRE Y FIRMA CLIENTE</div>
             </div>
-            
-            <div class="text-uppercase" style="font-size: 8px; text-align: center; margin-top: 15px; font-style: italic;">
+
+            <div class="text-uppercase"
+                style="font-size: 8px; text-align: center; margin-top: 15px; font-style: italic;">
                 "Mercancía recibida en buen estado y a entera satisfacción."
             </div>
         </div>
@@ -203,7 +271,7 @@ $detalles = $stmtD->get_result();
         <div class="footer text-center">
             <p class="bold">¡GRACIAS POR SU PREFERENCIA!</p>
             <p style="font-size: 8px;">ID: #<?php echo $venta['id']; ?> | <?php echo date("d/m/Y H:i"); ?></p>
-            <p style="font-size: 8px;">Software: cfsistem.v1</p>
+            <p style="font-size: 8px;">Software: myvet.v1</p>
         </div>
     </div>
 
@@ -217,21 +285,21 @@ $detalles = $stmtD->get_result();
             if (esMovil) {
                 // Configuración exacta para formato Ticket POS de 80mm en celulares
                 const opciones = {
-                    margin:       [5, 5, 5, 5], // Márgenes milimétricos limpios
-                    filename:     `Remision_${folio}.pdf`,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 3, useCORS: true, letterRendering: true }, // Mayor escala para legibilidad del texto
-                    jsPDF:        { unit: 'mm', format: [80, 297], orientation: 'portrait' } // Forzado a ancho físico de 80mm
+                    margin: [5, 5, 5, 5], // Márgenes milimétricos limpios
+                    filename: `Remision_${folio}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 3, useCORS: true, letterRendering: true }, // Mayor escala para legibilidad del texto
+                    jsPDF: { unit: 'mm', format: [80, 297], orientation: 'portrait' } // Forzado a ancho físico de 80mm
                 };
 
                 // Ocultar botón temporalmente antes de capturar el HTML
                 const boton = elemento.querySelector('.no-print');
-                if(boton) boton.style.display = 'none';
+                if (boton) boton.style.display = 'none';
 
                 // Renderizar y descargar directamente
                 html2pdf().set(opciones).from(elemento).save().then(() => {
                     // Restaurar botón tras la descarga
-                    if(boton) boton.style.display = 'block';
+                    if (boton) boton.style.display = 'block';
                 });
 
             } else {
@@ -247,4 +315,5 @@ $detalles = $stmtD->get_result();
         });
     </script>
 </body>
+
 </html>

@@ -174,6 +174,121 @@ if (isset($_GET['action']) && $_GET['action'] === 'obtenerPorId') {
     exit;
 }
 
+if (isset($_GET['action']) && $_GET['action'] === 'guardarUbicacion') {
+    if (ob_get_level())
+        ob_clean();
+    header('Content-Type: application/json');
+
+    try {
+        $id = intval($_POST['id'] ?? 0); // ID de la ubicación (si viene, es edición)
+
+        $datos = [
+            'cliente_id' => intval($_POST['cliente_id'] ?? 0),
+            'nombre' => trim($_POST['nombre'] ?? ''),
+            'direccion_completa' => trim($_POST['direccion_completa'] ?? '')
+        ];
+
+        // Validaciones obligatorias
+        if ($datos['cliente_id'] <= 0 || empty($datos['nombre']) || empty($datos['direccion_completa'])) {
+            throw new Exception("El cliente, el nombre de la ubicación y la dirección completa son obligatorios.");
+        }
+
+        if ($id > 0) {
+            // Actualizar ubicación existente
+            $resultado = $clientesModel->actualizarUbicacion($id, $datos);
+            echo json_encode([
+                'success' => true,
+                'message' => "Ubicación actualizada correctamente.",
+                'id' => $id
+            ]);
+        } else {
+            // Guardar nueva ubicación
+            $resultado = $clientesModel->guardarUbicacion($datos);
+
+            if ($resultado && isset($resultado['id'])) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => "Ubicación registrada correctamente.",
+                    'id' => $resultado['id']
+                ]);
+            } else {
+                $msg = $resultado['message'] ?? 'Error al registrar la ubicación';
+
+                echo json_encode([
+                    'success' => false,
+                    'message' => $msg,
+                    'detalle' => $msg
+                ]);
+            }
+        }
+
+    } catch (Throwable $e) {
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage(),
+            'detalle' => $e->getMessage()
+        ]);
+    }
+    exit;
+}
+
+// Acción adicional por si manejas la eliminación desde el controlador
+if (isset($_GET['action']) && $_GET['action'] === 'eliminarUbicacion') {
+    if (ob_get_level())
+        ob_clean();
+    header('Content-Type: application/json');
+
+    try {
+        $id = intval($_POST['id'] ?? 0);
+
+        if ($id <= 0) {
+            throw new Exception("ID de ubicación inválido.");
+        }
+
+        $resultado = $clientesModel->eliminarUbicacion($id);
+
+        echo json_encode([
+            'success' => true,
+            'message' => "Ubicación eliminada correctamente."
+        ]);
+
+    } catch (Throwable $e) {
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage(),
+            'detalle' => $e->getMessage()
+        ]);
+    }
+    exit;
+}
+if (isset($_GET['action']) && $_GET['action'] === 'listarUbicaciones') {
+    if (ob_get_level())
+        ob_clean();
+    header('Content-Type: application/json');
+
+    try {
+        $cliente_id = intval($_GET['cliente_id'] ?? $_POST['cliente_id'] ?? 0);
+
+        if ($cliente_id <= 0) {
+            throw new Exception("ID de cliente inválido.");
+        }
+
+        $resultado = $clientesModel->listarUbicacionesPorCliente($cliente_id);
+
+        echo json_encode([
+            'success' => true,
+            'data' => $resultado['data'] ?? []
+        ]);
+
+    } catch (Throwable $e) {
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage(),
+            'data' => []
+        ]);
+    }
+    exit;
+}
 // --- CARGA DE VISTA (GET) ---
 // --- CARGA DE VISTA (GET) ---
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['action'])) {

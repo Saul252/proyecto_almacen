@@ -605,6 +605,56 @@ if (isset($_GET['action']) && $_GET['action'] === 'obtenerCancelacionesRecientes
     }
     exit;
 }
+if (isset($_GET['action']) && $_GET['action'] === 'eliminarPago') {
+    if (ob_get_level())
+        ob_clean();
+    header('Content-Type: application/json');
+
+    try {
+        $conexion->begin_transaction(); // <--- INICIO DE PROTECCIÓN
+
+        // --- 0. CAPTURA DE DATOS ---
+        $pago_id = intval($_POST['pago_id'] ?? $_GET['pago_id'] ?? 0);
+
+        // --- 1. VALIDACIÓN ---
+        if ($pago_id <= 0) {
+            throw new Exception("El ID del pago no es válido.");
+        }
+
+        // --- 2. EJECUTAR EL MÉTODO DE ELIMINACIÓN Y RECALCULO ---
+        // (Asumiendo que $ventasModel es la instancia donde colocaste la función anterior)
+        $resultadoEliminacion = $ventasModel->eliminarPago($pago_id);
+
+        if ($resultadoEliminacion['status'] === 'error') {
+            throw new Exception($resultadoEliminacion['message']);
+        }
+
+        // --- 3. ÉXITO ---
+        $conexion->commit(); // <--- SE GUARDAN LOS CAMBIOS REALMENTE
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Pago eliminado correctamente y estado de venta actualizado.',
+            'detalles' => [
+                'venta_id' => $resultadoEliminacion['venta_id'],
+                'nuevo_estado_pago' => $resultadoEliminacion['nuevo_estado_pago']
+            ]
+        ]);
+
+    } catch (Throwable $e) {
+        // SI ALGO FALLA, DESHACEMOS TODO
+        if ($conexion->connect_errno == 0) {
+            $conexion->rollback();
+        }
+
+        error_log("FALLO EN ELIMINAR PAGO: " . $e->getMessage());
+        echo json_encode([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ]);
+    }
+    exit;
+}
 if (isset($_GET['action']) && $_GET['action'] === 'eliminarSolicitudCancelacion') {
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);

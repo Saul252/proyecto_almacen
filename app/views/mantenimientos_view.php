@@ -1,7 +1,7 @@
 <?php
 /**
  * vehiculos_view.php 
- * Versión ajustada para segmentación por Almacén - cfsistem
+ * Versión ajustada para segmentación por Almacén - myvet
  */
 $estadosUnidad = [
     'disponible' => ['label' => 'Disponible', 'class' => 'st-disponible', 'dot' => '#28a745'],
@@ -16,7 +16,7 @@ $estadosUnidad = [
 <head>
     <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transporte | cfsistem</title>
+    <title>Transporte | myvet</title>
     <link rel="icon" type="image/png"
         href="/myvet/<?= htmlspecialchars($_SESSION['logo'] ?? 'public/assets/logo.png') ?>">
 
