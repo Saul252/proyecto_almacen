@@ -87,187 +87,191 @@
     </script>
 
     <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
-            <h2 class="fw-bold mb-0 card-title-text" style="letter-spacing: -0.02em;">
-                <i class="bi bi-box-seam text-primary"></i> Módulo de Almacén
-            </h2>
+        <div class="velo-tema">
+            <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+                <h2 class="fw-bold mb-0 card-title-text" style="letter-spacing: -0.02em;">
+                    <i class="bi bi-box-seam text-primary"></i> Módulo de Almacén
+                </h2>
 
-            <?php
-            $rData = $resumenData ?? ['tipo' => 'error', 'nombre' => 'No disponible', 'mis_productos' => 0, 'total_sistema' => 0];
-            $cant_prod = $rData['mis_productos'];
-            $total_cat = $rData['total_sistema'];
-            $cobertura = ($total_cat > 0) ? round(($cant_prod / $total_cat) * 100, 1) : 0;
-            ?>
+                <?php
+                $rData = $resumenData ?? ['tipo' => 'error', 'nombre' => 'No disponible', 'mis_productos' => 0, 'total_sistema' => 0];
+                $cant_prod = $rData['mis_productos'];
+                $total_cat = $rData['total_sistema'];
+                $cobertura = ($total_cat > 0) ? round(($cant_prod / $total_cat) * 100, 1) : 0;
+                ?>
 
-            <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
-                <div class="ios-micro-card border-blue">
-                    <span class="ios-micro-label">Total de innversion</span>
-                    <div class="ios-micro-value">$
-                        <?= number_format($inversion, 2, '.', ',') ?>
+                <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                    <div class="ios-micro-card border-blue">
+                        <span class="ios-micro-label">Total de innversion</span>
+                        <div class="ios-micro-value">$
+                            <?= number_format($inversion, 2, '.', ',') ?>
+                        </div>
                     </div>
-                </div>
 
 
 
-                <div class="ios-micro-card border-purple">
-                    <span class="ios-micro-label">Catálogo</span>
-                    <div class="ios-micro-value">
-                        <?= number_format($total_cat) ?>
+                    <div class="ios-micro-card border-purple">
+                        <span class="ios-micro-label">Catálogo</span>
+                        <div class="ios-micro-value">
+                            <?= number_format($total_cat) ?>
+                        </div>
+                        <div class="ios-micro-footer">Items</div>
                     </div>
-                    <div class="ios-micro-footer">Items</div>
-                </div>
 
 
 
-                <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button type="button"
-                        class="btn btn-success rounded-pill px-3 py-2 d-inline-flex align-items-center gap-2 fw-semibold shadow-sm"
-                        onclick="exportarProductosCSV()">
-                        <i class="bi bi-file-earmark-excel-fill fs-5"></i> Exportar Productos (CSV)
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="card p-3 shadow-sm">
-            <div class="row mb-4 g-2 g-md-3 align-items-center">
-
-                <!-- Filtros: categoría + almacén -->
-                <div class="col-12 col-md-auto d-flex gap-2">
-                    <select id="filtroCategoria"
-                        class="form-select form-select-sm rounded-3 shadow-none flex-fill bg-primary-subtle text-primary-emphasis border-primary-subtle fw-semibold">
-                        <option value="">Todas las Categorías</option>
-                        <?php foreach ($categorias as $cat): ?>
-                            <option value="<?= $cat['id'] ?>">
-                                <?= htmlspecialchars($cat['nombre']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-
-                    <select id="filtroAlmacen"
-                        class="form-select form-select-sm rounded-3 shadow-none flex-fill bg-info-subtle text-info-emphasis border-info-subtle fw-semibold"
-                        <?= ($almacen_usuario > 0) ? 'disabled' : '' ?>>
-                        <?php if ($almacen_usuario == 0): ?>
-                            <option value="0">Todos los Almacenes</option>
-                        <?php endif; ?>
-                        <?php foreach ($almacenes as $alm): ?>
-                            <option value="<?= $alm['id'] ?>" <?= ($almacen_usuario == $alm['id']) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($alm['nombre']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <!-- Buscador -->
-                <div class="col-12 col-md flex-grow-1">
-                    <div class="input-group input-group-sm">
-                        <span
-                            class="input-group-text bg-primary-subtle text-primary-emphasis border-primary-subtle rounded-start-3">
-                            <i class="bi bi-search"></i>
-                        </span>
-                        <input type="text" id="buscador"
-                            class="form-control bg-primary-subtle text-body border-primary-subtle ps-1 shadow-none rounded-end-3"
-                            placeholder="Buscar...">
-                    </div>
-                </div>
-
-                <!-- Acciones -->
-                <div class="col-12 col-md-auto ms-md-auto">
-                    <div class="d-flex gap-2 align-items-center flex-wrap flex-md-nowrap justify-content-end">
-
-                        <!-- Agregar Producto -->
+                    <div class="d-flex justify-content-end align-items-center mb-3">
                         <button type="button"
-                            class="btn btn-sm bg-primary-subtle text-primary-emphasis border border-primary-subtle px-3 rounded-pill fw-semibold d-flex align-items-center gap-2 flex-grow-1 flex-md-grow-0 justify-content-center"
-                            data-bs-toggle="modal" data-bs-target="#modalAgregarProducto">
-                            <i class="bi bi-plus-lg"></i> Agregar Producto
+                            class="btn btn-success rounded-pill px-3 py-2 d-inline-flex align-items-center gap-2 fw-semibold shadow-sm"
+                            onclick="exportarProductosCSV()">
+                            <i class="bi bi-file-earmark-excel-fill fs-5"></i> Exportar Productos (CSV)
                         </button>
-
-                        <!-- Herramientas -->
-                        <div class="dropdown position-relative flex-grow-1 flex-md-grow-0">
-                            <button type="button"
-                                class="btn btn-sm bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 rounded-pill fw-semibold d-flex align-items-center justify-content-center gap-2 dropdown-toggle w-100"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-tools"></i> Herramientas
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow-sm rounded-3 border-0">
-                                <li>
-                                    <button class="dropdown-item d-flex align-items-center gap-2" data-bs-toggle="modal"
-                                        onclick="abrirModalInventarioInicial()">
-                                        <i class="bi bi-sliders text-warning"></i> Cargar Inventario por producto
-                                    </button>
-                                </li>
-                                <li>
-                                    <button class="dropdown-item d-flex align-items-center gap-2"
-                                        onclick="descargarProductos()">
-                                        <i class="bi bi-download text-success"></i> Descargar Excel para carga masiva
-                                    </button>
-                                </li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li>
-                                    <button class="dropdown-item d-flex align-items-center gap-2"
-                                        onclick="abrirModalCargarCSV()">
-                                        <i class="bi bi-filetype-csv text-danger"></i> Cargar Inventario masivo
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <!-- Traspasos -->
-                        <div class="dropdown position-relative flex-grow-1 flex-md-grow-0">
-                            <button type="button"
-                                class="btn btn-sm bg-purple-subtle text-purple-emphasis border border-purple-subtle px-3 rounded-pill fw-semibold d-flex align-items-center justify-content-center gap-2 dropdown-toggle w-100"
-                                style="--bs-purple-rgb: 139,92,246;" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-arrow-left-right"></i> Traspasos
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow-sm rounded-3 border-0">
-                                <li>
-                                    <button class="dropdown-item d-flex align-items-center gap-2" data-bs-toggle="modal"
-                                        data-bs-target="#modalTraspaso">
-                                        <i class="bi bi-plus-circle text-primary"></i> Nuevo Traspaso
-                                    </button>
-                                </li>
-                                <li>
-                                    <button class="dropdown-item d-flex align-items-center gap-2" data-bs-toggle="modal"
-                                        data-bs-target="#modalTraspasosGestion" onclick="cargarTraspasos()">
-                                        <i class="bi bi-check2-circle text-success"></i> Autorizar Traspasos
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-
                     </div>
                 </div>
             </div>
 
-            <div class="table-responsive tabla-scroll">
-                <table class="table table-bordered table-hover align-middle">
-                    <thead class="table-dark sticky-header">
-                        <tr>
-                            <th>SKU</th>
-                            <th>Producto</th>
-                            <th>Descripccion</th>
-                            <th>Categoría</th>
-                            <th>Stock</th>
-                            <th>Almacén</th>
-                            <th width="60">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($productos as $p): ?>
-                            <tr data-categoria="<?= $p['categoria_id'] ?>" data-almacen="<?= $p['almacen_id'] ?>">
-                                <td class="fw-bold">
-                                    <?= $p['sku'] ?>
-                                </td>
-                                <td>
-                                    <?= htmlspecialchars($p['nombre']) ?>
-                                </td>
-                                <td>
-                                    <?= htmlspecialchars($p['descripcion'] ?? 'sin descripcion') ?>
-                                </td>
+            <div class="card p-3 shadow-sm">
+                <div class="row mb-4 g-2 g-md-3 align-items-center">
 
-                                <td><span style="
+                    <!-- Filtros: categoría + almacén -->
+                    <div class="col-12 col-md-auto d-flex gap-2">
+                        <select id="filtroCategoria"
+                            class="form-select form-select-sm rounded-3 shadow-none flex-fill bg-primary-subtle text-primary-emphasis border-primary-subtle fw-semibold">
+                            <option value="">Todas las Categorías</option>
+                            <?php foreach ($categorias as $cat): ?>
+                                <option value="<?= $cat['id'] ?>">
+                                    <?= htmlspecialchars($cat['nombre']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+
+                        <select id="filtroAlmacen"
+                            class="form-select form-select-sm rounded-3 shadow-none flex-fill bg-info-subtle text-info-emphasis border-info-subtle fw-semibold"
+                            <?= ($almacen_usuario > 0) ? 'disabled' : '' ?>>
+                            <?php if ($almacen_usuario == 0): ?>
+                                <option value="0">Todos los Almacenes</option>
+                            <?php endif; ?>
+                            <?php foreach ($almacenes as $alm): ?>
+                                <option value="<?= $alm['id'] ?>" <?= ($almacen_usuario == $alm['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($alm['nombre']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Buscador -->
+                    <div class="col-12 col-md flex-grow-1">
+                        <div class="input-group input-group-sm">
+                            <span
+                                class="input-group-text bg-primary-subtle text-primary-emphasis border-primary-subtle rounded-start-3">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" id="buscador"
+                                class="form-control bg-primary-subtle text-body border-primary-subtle ps-1 shadow-none rounded-end-3"
+                                placeholder="Buscar...">
+                        </div>
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="col-12 col-md-auto ms-md-auto">
+                        <div class="d-flex gap-2 align-items-center flex-wrap flex-md-nowrap justify-content-end">
+
+                            <!-- Agregar Producto -->
+                            <button type="button"
+                                class="btn btn-sm bg-primary-subtle text-primary-emphasis border border-primary-subtle px-3 rounded-pill fw-semibold d-flex align-items-center gap-2 flex-grow-1 flex-md-grow-0 justify-content-center"
+                                data-bs-toggle="modal" data-bs-target="#modalAgregarProducto">
+                                <i class="bi bi-plus-lg"></i> Agregar Producto
+                            </button>
+
+                            <!-- Herramientas -->
+                            <div class="dropdown position-relative flex-grow-1 flex-md-grow-0">
+                                <button type="button"
+                                    class="btn btn-sm bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 rounded-pill fw-semibold d-flex align-items-center justify-content-center gap-2 dropdown-toggle w-100"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-tools"></i> Herramientas
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm rounded-3 border-0">
+                                    <li>
+                                        <button class="dropdown-item d-flex align-items-center gap-2"
+                                            data-bs-toggle="modal" onclick="abrirModalInventarioInicial()">
+                                            <i class="bi bi-sliders text-warning"></i> Cargar Inventario por producto
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item d-flex align-items-center gap-2"
+                                            onclick="descargarProductos()">
+                                            <i class="bi bi-download text-success"></i> Descargar Excel para carga
+                                            masiva
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item d-flex align-items-center gap-2"
+                                            onclick="abrirModalCargarCSV()">
+                                            <i class="bi bi-filetype-csv text-danger"></i> Cargar Inventario masivo
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Traspasos -->
+                            <div class="dropdown position-relative flex-grow-1 flex-md-grow-0">
+                                <button type="button"
+                                    class="btn btn-sm bg-purple-subtle text-purple-emphasis border border-purple-subtle px-3 rounded-pill fw-semibold d-flex align-items-center justify-content-center gap-2 dropdown-toggle w-100"
+                                    style="--bs-purple-rgb: 139,92,246;" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    <i class="bi bi-arrow-left-right"></i> Traspasos
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm rounded-3 border-0">
+                                    <li>
+                                        <button class="dropdown-item d-flex align-items-center gap-2"
+                                            data-bs-toggle="modal" data-bs-target="#modalTraspaso">
+                                            <i class="bi bi-plus-circle text-primary"></i> Nuevo Traspaso
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item d-flex align-items-center gap-2"
+                                            data-bs-toggle="modal" data-bs-target="#modalTraspasosGestion"
+                                            onclick="cargarTraspasos()">
+                                            <i class="bi bi-check2-circle text-success"></i> Autorizar Traspasos
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive tabla-scroll">
+                    <table class="table table-bordered table-hover align-middle">
+                        <thead class="table-dark sticky-header">
+                            <tr>
+                                <th>SKU</th>
+                                <th>Producto</th>
+                                <th>Descripccion</th>
+                                <th>Categoría</th>
+                                <th>Stock</th>
+                                <th>Almacén</th>
+                                <th width="60">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($productos as $p): ?>
+                                <tr data-categoria="<?= $p['categoria_id'] ?>" data-almacen="<?= $p['almacen_id'] ?>">
+                                    <td class="fw-bold">
+                                        <?= $p['sku'] ?>
+                                    </td>
+                                    <td>
+                                        <?= htmlspecialchars($p['nombre']) ?>
+                                    </td>
+                                    <td>
+                                        <?= htmlspecialchars($p['descripcion'] ?? 'sin descripcion') ?>
+                                    </td>
+
+                                    <td><span style="
     --bs-badge-padding-x: 0.65em;
     --bs-badge-padding-y: 0.35em;
     --bs-badge-font-size: 0.75em;
@@ -283,44 +287,45 @@
     white-space: nowrap;
     vertical-align: baseline;
     border-radius: var(--bs-badge-border-radius);" class="card-title-text">
-                                        <?= htmlspecialchars($p['categoria_nombre'] ?? 'Sin Categoría') ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <?php
-                                    $cantidad = $p['stock'] / $p['factor_conversion'];
+                                            <?= htmlspecialchars($p['categoria_nombre'] ?? 'Sin Categoría') ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <?php
+                                        $cantidad = $p['stock'] / $p['factor_conversion'];
 
-                                    if ($cantidad <= 0) {
-                                        $color = 'bg-danger';
-                                    } elseif ($cantidad <= 5) {
-                                        $color = 'bg-warning text-dark';
-                                    } elseif ($cantidad <= 20) {
-                                        $color = 'bg-info text-dark';
-                                    } else {
-                                        $color = 'bg-success';
-                                    }
-                                    ?>
+                                        if ($cantidad <= 0) {
+                                            $color = 'bg-danger';
+                                        } elseif ($cantidad <= 5) {
+                                            $color = 'bg-warning text-dark';
+                                        } elseif ($cantidad <= 20) {
+                                            $color = 'bg-info text-dark';
+                                        } else {
+                                            $color = 'bg-success';
+                                        }
+                                        ?>
 
-                                    <span class="badge <?= $color ?>">
-                                        <?= $cantidad >= 1
-                                            ? number_format($cantidad, 2) . ' ' . $p['unidad_reporte']
-                                            : number_format($p['stock'], 2) . ' ' . $p['unidad_medida']
-                                            ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <?= htmlspecialchars($p['almacen_nombre'] ?? 'N/A') ?>
-                                </td>
-                                <td class="text-center">
-                                    <button class="btn btn-outline-warning btn-sm"
-                                        onclick="editarProducto(<?= $p['id'] ?>, <?= $p['almacen_id'] ?>)">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                                        <span class="badge <?= $color ?>">
+                                            <?= $cantidad >= 1
+                                                ? number_format($cantidad, 2) . ' ' . $p['unidad_reporte']
+                                                : number_format($p['stock'], 2) . ' ' . $p['unidad_medida']
+                                                ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <?= htmlspecialchars($p['almacen_nombre'] ?? 'N/A') ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-outline-warning btn-sm"
+                                            onclick="editarProducto(<?= $p['id'] ?>, <?= $p['almacen_id'] ?>)">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

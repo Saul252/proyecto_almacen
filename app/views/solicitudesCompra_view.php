@@ -37,7 +37,7 @@ error_reporting(E_ALL);
     <?php renderizarLayout($paginaActual); ?>
 
     <main class="main-content">
-        <div class="glass-card p-4 ">
+        <div class="glass-card p-4 velo-tema ">
 
             <!-- Encabezado -->
             <div class="row align-items-center ">

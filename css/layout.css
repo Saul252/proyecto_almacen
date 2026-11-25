@@ -301,3 +301,28 @@ body.sidebar-hidden .main-content {
 .navbar-premium .nav-link .acceso {
     color: #1e293b;
 }
+
+.velo-tema {
+    --velo-bg: rgba(255, 255, 255, 0.72);
+    --velo-borde: rgba(15, 23, 42, 0.08);
+    background-color: var(--velo-bg);
+    border: 1px solid var(--velo-borde);
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Soporte automático si el tema oscuro viene por Bootstrap 5.3 o atributo/clase */
+[data-bs-theme="dark"] .velo-tema,
+.dark-mode .velo-tema,
+.theme-dark .velo-tema {
+    --velo-bg: rgba(15, 23, 42, 0.72);
+    --velo-borde: rgba(255, 255, 255, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-bs-theme="light"]) .velo-tema {
+        --velo-bg: rgba(15, 23, 42, 0.72);
+        --velo-borde: rgba(255, 255, 255, 0.12);
+    }
+}

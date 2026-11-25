@@ -183,7 +183,7 @@ error_reporting(E_ALL);
 
     <main class="main-content">
 
-        <div class="glass-card p-4 mb-4">
+        <div class="glass-card p-4 mb-4 velo-tema">
 
             <div class="row align-items-center ">
                 <div class="col-md-8">

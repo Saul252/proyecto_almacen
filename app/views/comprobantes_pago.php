@@ -34,124 +34,92 @@ error_reporting(E_ALL);
 <body>
     <?php renderizarLayout($paginaActual); ?>
 
+
     <main class="main-content border border-subtle">
 
-        <div class="glass-card p-4 mb-1">
-
-            <div class="row align-items-center ">
-                <div class="col-md-8">
-                    <h1 class="h3 fw-bold mb-1">Comprobante de pago</h1>
-                    <p class="text-body-secondary small">Gestión de Comprobate de pago</p>
+        <div class="velo-tema">
+            <div class="glass-card p-4 mb-3 ">
+                <div class="row align-items-center g-2">
+                    <div class="col-md-8">
+                        <h1 class="h3 fw-bold mb-1">Comprobante de pago</h1>
+                        <p class="text-body-secondary small mb-0">Gestión de Comprobate de pago</p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <button type="button" class="btn btn-dark" onclick="nuevaCotizacion()">
+                            <i class="bi bi-plus-lg me-2"></i> Crear Comprobante de pago
+                        </button>
+                    </div>
                 </div>
-                <div class="col-md-4 text-md-end">
-                    <button class="btn btn-dark" onclick="nuevaCotizacion()">
-                        <i class="bi bi-plus-lg me-2"></i> Crear Comprobante de pago
-                    </button>
-
-                </div>
-            </div>
-        </div>
-
-        <div class="row g-3 align-items-end  mb-3 p-3">
-
-            <!-- Fecha Inicio -->
-            <div class="col-lg-2 col-md-6">
-                <label class="form-label small fw-bold text-body-secondary text-uppercase">
-                    Inicio
-                </label>
-
-                <input type="date" id="fechaInicio" value="<?= date('Y-m-01') ?>"
-                    class="form-control  border border-subtle shadow-sm" style="border-radius:12px;">
             </div>
 
-            <!-- Fecha Fin -->
-            <div class="col-lg-2 col-md-6">
-                <label class="form-label small fw-bold text-body-secondary text-uppercase">
-                    Fin
-                </label>
+            <div class=" p-3 mb-3">
+                <div class="row g-3 align-items-end">
 
-                <input type="date" id="fechaFin" value="<?= date('Y-m-d') ?>"
-                    class="form-control  border border-subtle shadow-sm" style="border-radius:12px;">
-            </div>
+                    <!-- Fecha Inicio -->
+                    <div class="col-lg-2 col-md-6">
+                        <label class="form-label small fw-bold text-body-secondary text-uppercase">
+                            Inicio
+                        </label>
+                        <input type="date" id="fechaInicio" value="<?= date('Y-m-01') ?>"
+                            class="form-control border border-subtle shadow-sm" style="border-radius:12px;">
+                    </div>
 
-            <!-- Almacén -->
-            <div class="col-lg-3 col-md-6">
-                <label class="form-label small fw-bold text-body-secondary text-uppercase">
-                    Almacén
-                </label>
+                    <!-- Fecha Fin -->
+                    <div class="col-lg-2 col-md-6">
+                        <label class="form-label small fw-bold text-body-secondary text-uppercase">
+                            Fin
+                        </label>
+                        <input type="date" id="fechaFin" value="<?= date('Y-m-d') ?>"
+                            class="form-control border border-subtle shadow-sm" style="border-radius:12px;">
+                    </div>
 
-                <select id="filtroAlmacen" class="form-select  border border-subtle shadow-sm"
-                    style="border-radius:12px;">
+                    <!-- Almacén -->
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label small fw-bold text-body-secondary text-uppercase">
+                            Almacén
+                        </label>
+                        <select id="filtroAlmacen" class="form-select border border-subtle shadow-sm"
+                            style="border-radius:12px;">
+                            <?php if (isset($es_admin) && $es_admin): ?>
+                                <option value="">Todos los almacenes</option>
+                            <?php endif; ?>
+                            <?php foreach ($almacenes as $alm): ?>
+                                <option value="<?= htmlspecialchars($alm['id']) ?>">
+                                    <?= htmlspecialchars($alm['nombre']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-                    <?php if (isset($es_admin) && $es_admin): ?>
+                    <!-- Estado -->
+                    <div class="col-lg-2 col-md-12">
+                        <label class="form-label small fw-bold text-body-secondary text-uppercase">Estado</label>
+                        <select id="filtroEstado" class="form-select border border-subtle shadow-sm"
+                            style="border-radius:12px;">
+                            <option value="">Todos los estados</option>
+                            <option value="activo">Activo</option>
+                            <option value="cancelado">Cancelado</option>
+                        </select>
+                    </div>
 
-                        <option value="">Todos los almacenes</option>
-                    <?php endif; ?>
-
-                    <?php foreach ($almacenes as $alm): ?>
-
-                        <option value="<?= htmlspecialchars($alm['id']) ?>">
-                            <?= htmlspecialchars($alm['nombre']) ?>
-                        </option>
-
-                    <?php endforeach; ?>
-
-                </select>
-            </div>
-
-            <!-- Estado -->
-            <div class="col-lg-2 col-md-12">
-                <label class="form-label small fw-bold text-body-secondary text-uppercase">Estado</label>
-                <select id="filtroEstado" class="form-select border-light shadow-sm">
-                    <option value="">Todos los estados</option>
-                    <option value="activo">Activo</option>
-
-                    <option value="cancelado">Cancelado</option>
-                </select>
-            </div>
-
-            <!-- Buscador -->
-            <div class="col-lg-3 col-md-12">
-                <label class="form-label small fw-bold text-body-secondary text-uppercase">
-                    Buscar
-                </label>
-
-                <div class="input-group shadow-sm">
-
-                    <span class="input-group-text border border-subtle ">
-                        <i class="bi bi-search text-secondary"></i>
-                    </span>
-
-                    <input type="text" id="buscadorGeneral" class="form-control  border border-subtle"
-                        placeholder="Folio o Cliente">
+                    <!-- Buscador -->
+                    <div class="col-lg-3 col-md-12">
+                        <label class="form-label small fw-bold text-body-secondary text-uppercase">
+                            Buscar
+                        </label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text border border-subtle">
+                                <i class="bi bi-search text-secondary"></i>
+                            </span>
+                            <input type="text" id="buscadorGeneral" class="form-control border border-subtle"
+                                placeholder="Folio o Cliente">
+                        </div>
+                    </div>
 
                 </div>
             </div>
 
-        </div>
-
-        </div>
-        </div>
-
-        <div class="glass-card p-4 border border-subtle">
-            <div class="table-responsive">
-                <table class="table align-middle w-100">
-                    <thead>
-                        <tr>
-                            <th>Folio</th>
-                            <th>Fecha</th>
-                            <th>Cliente</th>
-                            <th>Almacén</th>
-                            <th>Monto</th>
-                            <th>Pendiente por aplicar</th>
-                            <th>Recibido</th>
-                            <th>Estado</th>
-                            <th class="text-end">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaComprobantes">
-                    </tbody>
-                </table>
+            <div class="glass-card p-4 ">
                 <div class="d-flex justify-content-end align-items-center mb-3">
                     <button type="button"
                         class="btn btn-success rounded-pill px-3 py-2 d-inline-flex align-items-center gap-2 fw-semibold shadow-sm"
@@ -159,8 +127,29 @@ error_reporting(E_ALL);
                         <i class="bi bi-file-earmark-excel-fill fs-5"></i> Exportar Comprobantes (CSV)
                     </button>
                 </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle w-100 mb-0">
+                        <thead>
+                            <tr>
+                                <th>Folio</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Almacén</th>
+                                <th>Monto</th>
+                                <th>Pendiente por aplicar</th>
+                                <th>Recibido</th>
+                                <th>Estado</th>
+                                <th class="text-end">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaComprobantes">
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+
     </main>
 
 

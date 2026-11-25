@@ -199,7 +199,7 @@
     <?php renderizarLayout($tituloPagina); ?>
 
     <main class="main-content">
-        <div class="container-fluid">
+        <div class="container-fluid velo-tema">
 
             <div class="row align-items-center mb-4">
                 <div class="col-md-7">

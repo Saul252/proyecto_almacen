@@ -1386,10 +1386,7 @@ $idUsuarioPrefs = $_SESSION['id_usuario'] ?? $_SESSION['id'] ?? $_SESSION['nombr
         }
 
         // Re-medir cuando terminen de cargar fuentes/iconos (los anchos cambian)
-        window.addEventListener('load', () => {
-            itemWidths = [];
-            recalcularMenuMasFluid();
-        });
+
 
         /* ---------- Polling de notificaciones ---------- */
         mantenimientoSistema();
